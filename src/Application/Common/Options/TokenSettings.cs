@@ -1,4 +1,4 @@
-﻿namespace HealthLab.Core.Application.Common.Options;
+﻿namespace ManagementExtensionActivities.Core.Application.Common.Options;
 public class TokenSettings
 {
     public string SecurityKey { get; set; }

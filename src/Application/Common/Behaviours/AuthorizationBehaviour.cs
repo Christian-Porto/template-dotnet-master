@@ -1,8 +1,8 @@
 ﻿using MediatR;
-using HealthLab.Core.Application.Common.Auth;
+using ManagementExtensionActivities.Core.Application.Common.Auth;
 using System.Reflection;
 
-namespace HealthLab.Core.Application.Common.Behaviours;
+namespace ManagementExtensionActivities.Core.Application.Common.Behaviours;
 
 public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
 {

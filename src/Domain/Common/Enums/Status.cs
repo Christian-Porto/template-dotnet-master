@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace HealthLab.Core.Domain.Common.Enums;
+namespace ManagementExtensionActivities.Core.Domain.Common.Enums;
 public enum Status
 {
     [Description("Inactive")]

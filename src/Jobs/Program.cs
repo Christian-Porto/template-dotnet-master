@@ -3,9 +3,9 @@ using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
 using Serilog;
-using HealthLab.Core.Jobs.Middlewares;
-using HealthLab.Core.Jobs.Quartz;
-using HealthLab.Core.WebAPI.Configuration;
+using ManagementExtensionActivities.Core.Jobs.Middlewares;
+using ManagementExtensionActivities.Core.Jobs.Quartz;
+using ManagementExtensionActivities.Core.WebAPI.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 

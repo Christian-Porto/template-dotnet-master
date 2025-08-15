@@ -3,10 +3,10 @@ using Microsoft.IdentityModel.Tokens;
 using NSwag.Generation.Processors.Security;
 using NSwag;
 using System.Text;
-using HealthLab.Core.WebAPI.Filters;
-using HealthLab.Core.Infrastructure.Database;
+using ManagementExtensionActivities.Core.WebAPI.Filters;
+using ManagementExtensionActivities.Core.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-using HealthLab.Core.WebAPI.Configuration;
+using ManagementExtensionActivities.Core.WebAPI.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 

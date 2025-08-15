@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using HealthLab.Core.Application.Requests.Auth.Commands;
-using HealthLab.Core.Application.Requests.Auth.Models;
-using HealthLab.Core.Application.Requests.Auth.Queries;
-using HealthLab.Core.WebAPI.Common.Controllers;
+using ManagementExtensionActivities.Core.Application.Requests.Auth.Commands;
+using ManagementExtensionActivities.Core.Application.Requests.Auth.Models;
+using ManagementExtensionActivities.Core.Application.Requests.Auth.Queries;
+using ManagementExtensionActivities.Core.WebAPI.Common.Controllers;
 
-namespace HealthLab.Core.WebAPI.Controllers;
+namespace ManagementExtensionActivities.Core.WebAPI.Controllers;
 
 [Route("auth")]
 [Authorize]

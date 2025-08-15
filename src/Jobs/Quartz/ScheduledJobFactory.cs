@@ -2,7 +2,7 @@
 using Quartz.Spi;
 using System.Collections.Concurrent;
 
-namespace HealthLab.Core.Jobs.Quartz;
+namespace ManagementExtensionActivities.Core.Jobs.Quartz;
 
 public class ScheduledJobFactory : IJobFactory, IDisposable
 {

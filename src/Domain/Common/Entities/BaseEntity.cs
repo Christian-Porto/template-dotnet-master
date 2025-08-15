@@ -1,4 +1,4 @@
-﻿namespace HealthLab.Core.Domain.Common.Entities;
+﻿namespace ManagementExtensionActivities.Core.Domain.Common.Entities;
 
 public abstract class BaseEntity
 {

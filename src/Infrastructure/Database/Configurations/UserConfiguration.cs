@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using HealthLab.Core.Domain.Common.Enums;
-using HealthLab.Core.Domain.Entities;
+using ManagementExtensionActivities.Core.Domain.Common.Enums;
+using ManagementExtensionActivities.Core.Domain.Entities;
 
-namespace HealthLab.Core.Infrastructure.Database;
+namespace ManagementExtensionActivities.Core.Infrastructure.Database;
 
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {

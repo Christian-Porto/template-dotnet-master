@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using HealthLab.Core.Application.Common.Interfaces;
-using HealthLab.Core.Infrastructure.Database;
-using HealthLab.Core.Infrastructure.Services;
+using ManagementExtensionActivities.Core.Application.Common.Interfaces;
+using ManagementExtensionActivities.Core.Infrastructure.Database;
+using ManagementExtensionActivities.Core.Infrastructure.Services;
 
-namespace HealthLab.Core.Infrastructure;
+namespace ManagementExtensionActivities.Core.Infrastructure;
 
 public static class DependencyInjection
 {

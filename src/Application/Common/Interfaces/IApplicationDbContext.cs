@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using HealthLab.Core.Domain.Entities;
+using ManagementExtensionActivities.Core.Domain.Entities;
 
-namespace HealthLab.Core.Application.Common.Interfaces;
+namespace ManagementExtensionActivities.Core.Application.Common.Interfaces;
 
 public interface IApplicationDbContext
 {

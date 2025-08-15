@@ -1,11 +1,11 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using HealthLab.Core.Application.Common.Interfaces;
-using HealthLab.Core.Application.Exceptions;
-using HealthLab.Core.Application.Requests.Auth.Models;
-using HealthLab.Core.Domain.Common.Enums;
+using ManagementExtensionActivities.Core.Application.Common.Interfaces;
+using ManagementExtensionActivities.Core.Application.Exceptions;
+using ManagementExtensionActivities.Core.Application.Requests.Auth.Models;
+using ManagementExtensionActivities.Core.Domain.Common.Enums;
 
-namespace HealthLab.Core.Application.Requests.Auth.Commands;
+namespace ManagementExtensionActivities.Core.Application.Requests.Auth.Commands;
 public class LoginCommand : IRequest<AuthResponse>
 {
     public string Email { get; set; }

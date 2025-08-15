@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using HealthLab.Core.Application.Common.Behaviours;
+using ManagementExtensionActivities.Core.Application.Common.Behaviours;
 using System.Reflection;
 
-namespace HealthLab.Core.Application;
+namespace ManagementExtensionActivities.Core.Application;
 
 public static class DependencyInjection
 {
