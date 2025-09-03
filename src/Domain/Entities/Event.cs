@@ -22,9 +22,9 @@ public class Event : BaseEntity
         SetName(name);
         SetType(type);
         SetDescription(description);
-        SetEventDate(eventDate);
         SetStartDate(startDate);
         SetEndDate(endDate);
+        SetEventDate(eventDate);
         SetSlots(slots);
         SetStatus(status);
     }
@@ -60,6 +60,10 @@ public class Event : BaseEntity
     {
         if (eventDate == default)
             throw new DomainValidationException("A data do evento é obrigatória.");
+        
+        // Verifica se já existe um EndDate definido e se o EventDate é menor que ele
+        if (EndDate != default && eventDate < EndDate)
+            throw new DomainValidationException("A data do evento não pode ser anterior à data de fim das inscrições.");
             
         EventDate = eventDate;
     }
@@ -76,6 +80,10 @@ public class Event : BaseEntity
     {
         if (StartDate != default && endDate < StartDate)
             throw new DomainValidationException("A data de fim das inscrições é obrigatória.");
+        
+        // Verifica se já existe um EventDate definido e se o EndDate é maior que ele
+        if (EventDate != default && endDate > EventDate)
+            throw new DomainValidationException("A data de fim das inscrições não pode ser posterior à data do evento.");
             
         EndDate = endDate;
     }
