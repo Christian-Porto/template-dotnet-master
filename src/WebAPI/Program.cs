@@ -7,12 +7,15 @@ using ManagementExtensionActivities.Core.WebAPI.Filters;
 using ManagementExtensionActivities.Core.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using ManagementExtensionActivities.Core.WebAPI.Configuration;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 CommonConfiguration.ConfigureBuilder(builder);
 
 builder.Services.AddControllers(options => options.Filters.Add<ApiExceptionFilterAttribute>());
+
+builder.Services.AddFluentValidationAutoValidation();
 
 builder.Services.AddAuthentication(opt =>
 {
