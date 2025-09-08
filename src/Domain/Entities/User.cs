@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using HealthLab.Core.Domain.Common.Entities;
-using HealthLab.Core.Domain.Common.Enums;
-using HealthLab.Core.Domain.Exceptions;
+using ManagementExtensionActivities.Core.Domain.Common.Entities;
+using ManagementExtensionActivities.Core.Domain.Common.Enums;
+using ManagementExtensionActivities.Core.Domain.Exceptions;
 using System.Text.RegularExpressions;
 
-namespace HealthLab.Core.Domain.Entities;
+namespace ManagementExtensionActivities.Core.Domain.Entities;
 
 public class User : BaseEntity
 {

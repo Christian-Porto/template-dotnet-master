@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using HealthLab.Core.Infrastructure.Database;
+using ManagementExtensionActivities.Core.Infrastructure.Database;
 
 #nullable disable
 
-namespace HealthLab.Core.Infrastructure.Migrations
+namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20241013044925_AddUsers")]
@@ -25,7 +25,7 @@ namespace HealthLab.Core.Infrastructure.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("HealthLab.Core.Domain.Auth.VerificationToken", b =>
+            modelBuilder.Entity("ManagementExtensionActivities.Core.Domain.Auth.VerificationToken", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -54,7 +54,7 @@ namespace HealthLab.Core.Infrastructure.Migrations
                     b.ToTable("VerificationToken");
                 });
 
-            modelBuilder.Entity("HealthLab.Core.Domain.Entities.User", b =>
+            modelBuilder.Entity("ManagementExtensionActivities.Core.Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -89,9 +89,9 @@ namespace HealthLab.Core.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("HealthLab.Core.Domain.Auth.VerificationToken", b =>
+            modelBuilder.Entity("ManagementExtensionActivities.Core.Domain.Auth.VerificationToken", b =>
                 {
-                    b.HasOne("HealthLab.Core.Domain.Entities.User", "User")
+                    b.HasOne("ManagementExtensionActivities.Core.Domain.Entities.User", "User")
                         .WithMany("VerificationTokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -100,7 +100,7 @@ namespace HealthLab.Core.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("HealthLab.Core.Domain.Entities.User", b =>
+            modelBuilder.Entity("ManagementExtensionActivities.Core.Domain.Entities.User", b =>
                 {
                     b.Navigation("VerificationTokens");
                 });

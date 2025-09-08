@@ -1,7 +1,7 @@
-﻿using HealthLab.Core.Application.Common.Interfaces;
+﻿using ManagementExtensionActivities.Core.Application.Common.Interfaces;
 using System.Security.Claims;
 
-namespace HealthLab.Core.WebAPI.Services;
+namespace ManagementExtensionActivities.Core.WebAPI.Services;
 
 public class CurrentUser : ICurrentUser
 {

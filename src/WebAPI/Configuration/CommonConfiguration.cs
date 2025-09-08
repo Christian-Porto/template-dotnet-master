@@ -1,11 +1,11 @@
 ﻿using Serilog;
-using HealthLab.Core.Application;
-using HealthLab.Core.Application.Common.Interfaces;
-using HealthLab.Core.Application.Common.Options;
-using HealthLab.Core.Infrastructure;
-using HealthLab.Core.WebAPI.Services;
+using ManagementExtensionActivities.Core.Application;
+using ManagementExtensionActivities.Core.Application.Common.Interfaces;
+using ManagementExtensionActivities.Core.Application.Common.Options;
+using ManagementExtensionActivities.Core.Infrastructure;
+using ManagementExtensionActivities.Core.WebAPI.Services;
 
-namespace HealthLab.Core.WebAPI.Configuration;
+namespace ManagementExtensionActivities.Core.WebAPI.Configuration;
 
 public static class CommonConfiguration
 {

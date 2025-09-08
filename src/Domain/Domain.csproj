@@ -5,7 +5,7 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<RootNamespace>HealthLab.Core.Domain</RootNamespace>
+		<RootNamespace>ManagementExtensionActivities.Core.Domain</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>

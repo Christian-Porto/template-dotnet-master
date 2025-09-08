@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using HealthLab.Core.Application.Common.Interfaces;
-using HealthLab.Core.Application.Common.Options;
-using HealthLab.Core.Domain.Entities;
+using ManagementExtensionActivities.Core.Application.Common.Interfaces;
+using ManagementExtensionActivities.Core.Application.Common.Options;
+using ManagementExtensionActivities.Core.Domain.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace HealthLab.Core.WebAPI.Services;
+namespace ManagementExtensionActivities.Core.WebAPI.Services;
 
 public class TokenService : ITokenService
 {

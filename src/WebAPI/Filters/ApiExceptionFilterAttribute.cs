@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using HealthLab.Core.Application.Exceptions;
+using ManagementExtensionActivities.Core.Application.Exceptions;
 
-namespace HealthLab.Core.WebAPI.Filters;
+namespace ManagementExtensionActivities.Core.WebAPI.Filters;
 
 public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 {

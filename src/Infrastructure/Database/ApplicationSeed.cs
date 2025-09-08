@@ -1,6 +1,6 @@
-﻿using HealthLab.Core.Domain.Entities;
+﻿using ManagementExtensionActivities.Core.Domain.Entities;
 
-namespace HealthLab.Core.Infrastructure.Database;
+namespace ManagementExtensionActivities.Core.Infrastructure.Database;
 public class ApplicationSeed
 {
     public static async Task SeedSampleDataAsync(ApplicationDbContext context)

@@ -1,4 +1,4 @@
-﻿namespace HealthLab.Core.Application.Requests.Auth.Models;
+﻿namespace ManagementExtensionActivities.Core.Application.Requests.Auth.Models;
 public class CodeResponse
 {
     public string Code { get; set; }

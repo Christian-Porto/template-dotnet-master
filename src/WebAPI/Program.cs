@@ -3,16 +3,19 @@ using Microsoft.IdentityModel.Tokens;
 using NSwag.Generation.Processors.Security;
 using NSwag;
 using System.Text;
-using HealthLab.Core.WebAPI.Filters;
-using HealthLab.Core.Infrastructure.Database;
+using ManagementExtensionActivities.Core.WebAPI.Filters;
+using ManagementExtensionActivities.Core.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-using HealthLab.Core.WebAPI.Configuration;
+using ManagementExtensionActivities.Core.WebAPI.Configuration;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 CommonConfiguration.ConfigureBuilder(builder);
 
 builder.Services.AddControllers(options => options.Filters.Add<ApiExceptionFilterAttribute>());
+
+builder.Services.AddFluentValidationAutoValidation();
 
 builder.Services.AddAuthentication(opt =>
 {

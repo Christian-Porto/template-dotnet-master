@@ -1,13 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using HealthLab.Core.Application.Common.Interfaces;
-using HealthLab.Core.Domain.Entities;
+using ManagementExtensionActivities.Core.Application.Common.Interfaces;
+using ManagementExtensionActivities.Core.Domain.Entities;
 using System.Reflection;
 
-namespace HealthLab.Core.Infrastructure.Database;
+namespace ManagementExtensionActivities.Core.Infrastructure.Database;
 
 public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     public DbSet<User> Users { get; set; }
+    public DbSet<Event> Events { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
     protected ApplicationDbContext(DbContextOptions options) : base(options) { }

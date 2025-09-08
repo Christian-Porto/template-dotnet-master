@@ -1,9 +1,10 @@
 ﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using HealthLab.Core.Application.Common.Behaviours;
+using ManagementExtensionActivities.Core.Application.Common.Behaviours;
 using System.Reflection;
+using FluentValidation;
 
-namespace HealthLab.Core.Application;
+namespace ManagementExtensionActivities.Core.Application;
 
 public static class DependencyInjection
 {
@@ -17,6 +18,8 @@ public static class DependencyInjection
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehaviour<,>));
 
         });
+
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         return services;
     }

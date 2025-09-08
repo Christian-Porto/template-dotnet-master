@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using HealthLab.Core.Domain.Entities;
+using ManagementExtensionActivities.Core.Domain.Entities;
 
-namespace HealthLab.Core.Infrastructure.Database.Configurations;
+namespace ManagementExtensionActivities.Core.Infrastructure.Database.Configurations;
 public class VerificationTokenConfiguration : IEntityTypeConfiguration<VerificationToken>
 {
     public void Configure(EntityTypeBuilder<VerificationToken> builder)

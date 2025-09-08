@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace HealthLab.Core.Infrastructure.Migrations
+namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class AddUsers : Migration

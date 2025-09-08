@@ -1,4 +1,4 @@
-﻿namespace HealthLab.Core.Application.Common.Auth;
+﻿namespace ManagementExtensionActivities.Core.Application.Common.Auth;
 
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]

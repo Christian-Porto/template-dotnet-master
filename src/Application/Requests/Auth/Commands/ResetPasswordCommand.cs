@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using HealthLab.Core.Application.Common.Interfaces;
-using HealthLab.Core.Application.Exceptions;
+using ManagementExtensionActivities.Core.Application.Common.Interfaces;
+using ManagementExtensionActivities.Core.Application.Exceptions;
 
-namespace HealthLab.Core.Application.Requests.Auth.Commands;
+namespace ManagementExtensionActivities.Core.Application.Requests.Auth.Commands;
 public class ResetPasswordCommand : IRequest<Unit>
 {
     public string Password { get; set; }

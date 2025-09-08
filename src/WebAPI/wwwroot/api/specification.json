@@ -205,6 +205,76 @@
           }
         ]
       }
+    },
+    "/events": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "operationId": "Events_Create",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEventCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "operationId": "Events_List",
+        "parameters": [
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedListOfEventResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -278,6 +348,125 @@
           },
           "password": {
             "type": "string"
+          }
+        }
+      },
+      "EventResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateEventCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/EventType"
+          },
+          "description": {
+            "type": "string"
+          },
+          "eventDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "slots": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "shifts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShiftEnum"
+            }
+          }
+        }
+      },
+      "EventType": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Lecture",
+          "Dynamic",
+          "Practice"
+        ],
+        "enum": [
+          1,
+          2,
+          3
+        ]
+      },
+      "Status": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Inactive",
+          "Active"
+        ],
+        "enum": [
+          0,
+          1
+        ]
+      },
+      "ShiftEnum": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Morning",
+          "Afternoon",
+          "Evening"
+        ],
+        "enum": [
+          1,
+          2,
+          3
+        ]
+      },
+      "PaginatedListOfEventResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventResponse"
+            }
+          },
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
           }
         }
       }

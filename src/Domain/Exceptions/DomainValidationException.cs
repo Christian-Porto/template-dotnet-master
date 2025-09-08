@@ -1,4 +1,4 @@
-﻿namespace HealthLab.Core.Domain.Exceptions;
+﻿namespace ManagementExtensionActivities.Core.Domain.Exceptions;
 
 public class DomainValidationException : Exception
 {

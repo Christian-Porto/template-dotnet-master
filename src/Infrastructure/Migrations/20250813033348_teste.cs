@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace HealthLab.Core.Infrastructure.Migrations
+namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class teste : Migration

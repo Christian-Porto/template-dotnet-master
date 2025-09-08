@@ -1,8 +1,8 @@
-﻿using HealthLab.Core.Domain.Common.Entities;
-using HealthLab.Core.Domain.Exceptions;
+﻿using ManagementExtensionActivities.Core.Domain.Common.Entities;
+using ManagementExtensionActivities.Core.Domain.Exceptions;
 using System.Security.Cryptography;
 
-namespace HealthLab.Core.Domain.Entities;
+namespace ManagementExtensionActivities.Core.Domain.Entities;
 public class VerificationToken : BaseEntity
 {
     public string Token { get; protected set; }

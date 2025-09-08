@@ -2,7 +2,7 @@
 using System.Net;
 using System.Text;
 
-namespace HealthLab.Core.WebAPI.Middlewares;
+namespace ManagementExtensionActivities.Core.WebAPI.Middlewares;
 
 public class BasicAuthMiddleware
 {

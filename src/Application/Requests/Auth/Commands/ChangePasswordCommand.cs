@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace HealthLab.Core.Application.Requests.Auth.Commands;
+namespace ManagementExtensionActivities.Core.Application.Requests.Auth.Commands;
 public class ChangePasswordCommand : IRequest<Unit>
 {
     public string ValidationCode { get; set; }

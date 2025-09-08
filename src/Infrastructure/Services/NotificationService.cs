@@ -1,7 +1,7 @@
-﻿using HealthLab.Core.Application.Common.Interfaces;
-using HealthLab.Core.Domain.Entities;
+﻿using ManagementExtensionActivities.Core.Application.Common.Interfaces;
+using ManagementExtensionActivities.Core.Domain.Entities;
 
-namespace HealthLab.Core.Infrastructure.Services;
+namespace ManagementExtensionActivities.Core.Infrastructure.Services;
 public class NotificationService : INotificationService
 {
     public async Task SendPasswordResetTokenMessage(string address, VerificationToken token)
