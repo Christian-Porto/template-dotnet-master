@@ -508,6 +508,76 @@ export class EventsClient implements IEventsClient {
     }
 }
 
+export interface IRegistrationsClient {
+    create(command: CreateRegistrationCommand): Observable<RegistrationResponse>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class RegistrationsClient implements IRegistrationsClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    create(command: CreateRegistrationCommand): Observable<RegistrationResponse> {
+        let url_ = this.baseUrl + "/registrations";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RegistrationResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RegistrationResponse>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<RegistrationResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RegistrationResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
 export class AuthResponse implements IAuthResponse {
     token?: string;
 
@@ -939,6 +1009,82 @@ export interface IPaginatedListOfEventResponse {
     totalCount?: number;
     hasPreviousPage?: boolean;
     hasNextPage?: boolean;
+}
+
+export class RegistrationResponse implements IRegistrationResponse {
+    date?: Date;
+
+    constructor(data?: IRegistrationResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): RegistrationResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new RegistrationResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["date"] = this.date ? this.date.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IRegistrationResponse {
+    date?: Date;
+}
+
+export class CreateRegistrationCommand implements ICreateRegistrationCommand {
+    userId?: number;
+    eventId?: number;
+
+    constructor(data?: ICreateRegistrationCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.eventId = _data["eventId"];
+        }
+    }
+
+    static fromJS(data: any): CreateRegistrationCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateRegistrationCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["eventId"] = this.eventId;
+        return data;
+    }
+}
+
+export interface ICreateRegistrationCommand {
+    userId?: number;
+    eventId?: number;
 }
 
 export class SwaggerException extends Error {

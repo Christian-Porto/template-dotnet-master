@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using FluentValidation;
-using HealthLab.Core.Domain.Common.Enums;
 using ManagementExtensionActivities.Core.Application.Common.Interfaces;
 using ManagementExtensionActivities.Core.Application.Requests.Events.Models;
 using ManagementExtensionActivities.Core.Domain.Common.Enums;

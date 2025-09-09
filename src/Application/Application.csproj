@@ -23,6 +23,7 @@
 
 	<ItemGroup>
 	  <Folder Include="Common\Models\" />
+	  <Folder Include="Requests\Registrations\Queries\" />
 	</ItemGroup>
 
 </Project>
