@@ -1,17 +1,20 @@
-﻿using AutoMapper;
-using FluentValidation;
+﻿using FluentValidation;
 using HealthLab.Core.Domain.Common.Enums;
-using ManagementExtensionActivities.Core.Application.Common.Interfaces;
 using ManagementExtensionActivities.Core.Application.Requests.Events.Models;
 using ManagementExtensionActivities.Core.Domain.Common.Enums;
-using ManagementExtensionActivities.Core.Domain.Entities;
 using ManagementExtensionActivities.Core.Domain.Enums;
 using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ManagementExtensionActivities.Core.Application.Requests.Events.Commands
 {
-    public class CreateEventCommand : IRequest<EventResponse>
+    public class UpdateEventCommand : IRequest<EventResponse> 
     {
+        public long Id { get; set; }
         public string Name { get; set; }
         public EventType Type { get; set; }
         public string Description { get; set; }
@@ -23,9 +26,9 @@ namespace ManagementExtensionActivities.Core.Application.Requests.Events.Command
         public IList<ShiftEnum> Shifts { get; set; } = new List<ShiftEnum>();
     }
 
-    public class CreateEventCommandValidator : AbstractValidator<CreateEventCommand>
+    public class UpdateEventCommandValidator : AbstractValidator<UpdateEventCommand>
     {
-        public CreateEventCommandValidator()
+        public UpdateEventCommandValidator()
         {
 
             // Fazer as validações aqui
@@ -60,28 +63,10 @@ namespace ManagementExtensionActivities.Core.Application.Requests.Events.Command
             RuleFor(c => c.Slots)
             .GreaterThan(0)
             .WithMessage("O número de vagas deve ser maior que zero.");
+            
+            //Não permitir reduzir Slots abaixo de inscrições já confirmadas
         }
     }
 
-    public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, EventResponse>
-    {
-        private readonly IApplicationDbContext _context;
-        private readonly IMapper _mapper;
-
-        public CreateEventCommandHandler(IApplicationDbContext context, IMapper mapper)
-        {
-            _context = context;
-            _mapper = mapper;
-        }
-
-        public async Task<EventResponse> Handle(CreateEventCommand request, CancellationToken cancellationToken)
-        {
-            var @event = _mapper.Map<Event>(request);
-
-            await _context.Events.AddAsync(@event);
-            await _context.SaveChangesAsync(cancellationToken);
-
-            return _mapper.Map<EventResponse>(@event);
-        }
-    }
 }
+
