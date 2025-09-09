@@ -5,8 +5,8 @@ namespace ManagementExtensionActivities.Core.Domain.Entities;
 
 public class Shift : BaseEntity
 {
-    public ShiftEnum Name { get; protected set; }
-    public IList<Event> Events { get; protected set; } = new List<Event>();
+    public ShiftEnum Name { get; set; }
+    public IList<Event> Events { get; set; } = new List<Event>();
 
     public Shift(ShiftEnum name) 
     {

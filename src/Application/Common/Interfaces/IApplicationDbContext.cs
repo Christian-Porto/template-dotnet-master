@@ -7,6 +7,7 @@ public interface IApplicationDbContext
 {
     public DbSet<User> Users { get; set; }
     public DbSet<Event> Events { get; set; }
+    public DbSet<Registration> Registrations { get; set; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
