@@ -1,5 +1,4 @@
-﻿using HealthLab.Core.Domain.Common.Enums;
-using ManagementExtensionActivities.Core.Domain.Common.Enums;
+﻿using ManagementExtensionActivities.Core.Domain.Common.Enums;
 using ManagementExtensionActivities.Core.Domain.Enums;
 
 namespace ManagementExtensionActivities.Core.Application.Requests.Events.Models

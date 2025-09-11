@@ -1,18 +1,16 @@
-﻿using FluentValidation;
-using HealthLab.Core.Domain.Common.Enums;
+﻿using AutoMapper;
+using FluentValidation;
+using ManagementExtensionActivities.Core.Application.Common.Interfaces;
+using ManagementExtensionActivities.Core.Application.Exceptions;
 using ManagementExtensionActivities.Core.Application.Requests.Events.Models;
 using ManagementExtensionActivities.Core.Domain.Common.Enums;
 using ManagementExtensionActivities.Core.Domain.Enums;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace ManagementExtensionActivities.Core.Application.Requests.Events.Commands
 {
-    public class UpdateEventCommand : IRequest<EventResponse> 
+    public class UpdateEventCommand : IRequest<long>
     {
         public long Id { get; set; }
         public string Name { get; set; }
@@ -30,8 +28,6 @@ namespace ManagementExtensionActivities.Core.Application.Requests.Events.Command
     {
         public UpdateEventCommandValidator()
         {
-
-            // Fazer as validações aqui
             RuleFor(c => c.Name)
                 .NotEmpty().WithMessage("O nome é obrigatório.")
                 .MaximumLength(255).WithMessage("O nome não pode exceder 255 caracteres."); ;
@@ -67,6 +63,40 @@ namespace ManagementExtensionActivities.Core.Application.Requests.Events.Command
             //Não permitir reduzir Slots abaixo de inscrições já confirmadas
         }
     }
+
+    public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, long>
+    {
+        private readonly IApplicationDbContext _context;
+        private readonly IMapper _mapper;
+
+        public UpdateEventCommandHandler(IApplicationDbContext context,
+            IMapper mapper)
+        {
+            _context = context;
+            _mapper = mapper;
+        }
+
+        public async Task<long> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
+        {
+            var Evento = await _context.Events.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+
+            if (Evento == null)
+            {
+                throw new NotFoundException("Evento não encontrado");
+            }
+
+            _mapper.Map(request, Evento);
+
+            _context.Events.Update(Evento);
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return Evento.Id;
+        }
+    }
+
+
+
 
 }
 
