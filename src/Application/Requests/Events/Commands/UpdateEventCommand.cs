@@ -10,9 +10,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ManagementExtensionActivities.Core.Application.Requests.Events.Commands
 {
-    public class UpdateEventCommand : IRequest<long>
+    public class UpdateEventCommand : IRequest<EventResponse>
     {
-        public long Id { get; set; }
+        private int Id { get; set; }
         public string Name { get; set; }
         public EventType Type { get; set; }
         public string Description { get; set; }
@@ -22,6 +22,16 @@ namespace ManagementExtensionActivities.Core.Application.Requests.Events.Command
         public int Slots { get; set; }
         public Status Status { get; set; }
         public IList<ShiftEnum> Shifts { get; set; } = new List<ShiftEnum>();
+
+        public int GetId()
+        {
+            return Id;
+        }
+
+        public void SetId(int id)
+        {
+            Id = id;
+        }
     }
 
     public class UpdateEventCommandValidator : AbstractValidator<UpdateEventCommand>
@@ -64,7 +74,7 @@ namespace ManagementExtensionActivities.Core.Application.Requests.Events.Command
         }
     }
 
-    public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, long>
+    public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, EventResponse>
     {
         private readonly IApplicationDbContext _context;
         private readonly IMapper _mapper;
@@ -76,9 +86,9 @@ namespace ManagementExtensionActivities.Core.Application.Requests.Events.Command
             _mapper = mapper;
         }
 
-        public async Task<long> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
+        public async Task<EventResponse> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
         {
-            var Evento = await _context.Events.FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+            var Evento = await _context.Events.FirstOrDefaultAsync(x => x.Id == request.GetId(), cancellationToken);
 
             if (Evento == null)
             {
@@ -91,12 +101,8 @@ namespace ManagementExtensionActivities.Core.Application.Requests.Events.Command
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return Evento.Id;
+            return _mapper.Map<EventResponse>(Evento);
         }
     }
-
-
-
-
 }
 

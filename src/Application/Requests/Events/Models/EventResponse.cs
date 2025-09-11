@@ -5,7 +5,7 @@ namespace ManagementExtensionActivities.Core.Application.Requests.Events.Models
 {
     public class EventResponse
     {
-        public long Id { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
         public EventType Type { get; set; }
         public string Description { get; set; }

@@ -47,7 +47,6 @@ public class AuthController : ApiControllerBase
         await Mediator.Send(command);
     }
 
-
     [HttpGet]
     [Route("verification-code")]
     public async Task GetChangeEmailCode()
