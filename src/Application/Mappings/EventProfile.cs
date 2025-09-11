@@ -12,6 +12,8 @@ namespace ManagementExtensionActivities.Core.Application.Mappings
             CreateMap<Event, EventResponse>();
             CreateMap<CreateEventCommand, Event>()
                 .ForMember(x => x.Shifts, opt => opt.MapFrom(y => y.Shifts.Select(z => new Shift(z))));
+            CreateMap<UpdateEventCommand, Event>()
+                .ForMember(x => x.Shifts, opt => opt.MapFrom(y => y.Shifts.Select(z => new Shift(z))));
         }
     }
 }

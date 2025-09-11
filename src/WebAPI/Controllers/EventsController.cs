@@ -21,11 +21,20 @@ public class EventsController : ApiControllerBase
         return await Mediator.Send(command);
     }
 
+    [HttpPut]
+    [AllowAnonymous]
+    public async Task<long> Update(UpdateEventCommand command)
+    {
+        return await Mediator.Send(command);
+    }
+
     [HttpGet]
     [AllowAnonymous]
     public async Task<PaginatedList<EventResponse>> List([FromQuery]ListEventsQuery query)
     {
         return await Mediator.Send(query);
     }
+
+
 }
 
