@@ -381,6 +381,86 @@ export class AuthClient implements IAuthClient {
     }
 }
 
+export interface IChatsClient {
+    listMessages(chatId: number | null | undefined, otherUserId: number | null | undefined, sort: string | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfChatMessageResponse>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class ChatsClient implements IChatsClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    listMessages(chatId: number | null | undefined, otherUserId: number | null | undefined, sort: string | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfChatMessageResponse> {
+        let url_ = this.baseUrl + "/chats/messages?";
+        if (chatId !== undefined && chatId !== null)
+            url_ += "ChatId=" + encodeURIComponent("" + chatId) + "&";
+        if (otherUserId !== undefined && otherUserId !== null)
+            url_ += "OtherUserId=" + encodeURIComponent("" + otherUserId) + "&";
+        if (sort !== undefined && sort !== null)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (pageIndex === null)
+            throw new Error("The parameter 'pageIndex' cannot be null.");
+        else if (pageIndex !== undefined)
+            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processListMessages(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processListMessages(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PaginatedListOfChatMessageResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PaginatedListOfChatMessageResponse>;
+        }));
+    }
+
+    protected processListMessages(response: HttpResponseBase): Observable<PaginatedListOfChatMessageResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfChatMessageResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
 export interface IEventsClient {
     list(pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse>;
     create(command: CreateEventCommand): Observable<EventResponse>;
@@ -872,6 +952,122 @@ export class ChangePasswordCommand implements IChangePasswordCommand {
 export interface IChangePasswordCommand {
     validationCode?: string;
     password?: string;
+}
+
+export class PaginatedListOfChatMessageResponse implements IPaginatedListOfChatMessageResponse {
+    items?: ChatMessageResponse[];
+    pageIndex?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfChatMessageResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ChatMessageResponse.fromJS(item));
+            }
+            this.pageIndex = _data["pageIndex"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfChatMessageResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfChatMessageResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageIndex"] = this.pageIndex;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfChatMessageResponse {
+    items?: ChatMessageResponse[];
+    pageIndex?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class ChatMessageResponse implements IChatMessageResponse {
+    id?: number;
+    chatId?: number;
+    senderId?: number;
+    content?: string;
+    createdAtUtc?: Date;
+
+    constructor(data?: IChatMessageResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.chatId = _data["chatId"];
+            this.senderId = _data["senderId"];
+            this.content = _data["content"];
+            this.createdAtUtc = _data["createdAtUtc"] ? new Date(_data["createdAtUtc"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): ChatMessageResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChatMessageResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["chatId"] = this.chatId;
+        data["senderId"] = this.senderId;
+        data["content"] = this.content;
+        data["createdAtUtc"] = this.createdAtUtc ? this.createdAtUtc.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IChatMessageResponse {
+    id?: number;
+    chatId?: number;
+    senderId?: number;
+    content?: string;
+    createdAtUtc?: Date;
 }
 
 export class PaginatedListOfEventResponse implements IPaginatedListOfEventResponse {
