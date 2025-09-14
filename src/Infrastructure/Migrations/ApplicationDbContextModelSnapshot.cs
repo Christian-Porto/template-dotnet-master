@@ -37,6 +37,57 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
                     b.ToTable("EventShift");
                 });
 
+            modelBuilder.Entity("ManagementExtensionActivities.Core.Domain.Entities.Chat", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("UserAId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserBId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserAId", "UserBId")
+                        .IsUnique();
+
+                    b.ToTable("Chats", (string)null);
+                });
+
+            modelBuilder.Entity("ManagementExtensionActivities.Core.Domain.Entities.ChatMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ChatId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("varchar(4000)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("SenderId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatId");
+
+                    b.ToTable("ChatMessages", (string)null);
+                });
+
             modelBuilder.Entity("ManagementExtensionActivities.Core.Domain.Entities.Event", b =>
                 {
                     b.Property<int>("Id")
@@ -213,6 +264,15 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ManagementExtensionActivities.Core.Domain.Entities.ChatMessage", b =>
+                {
+                    b.HasOne("ManagementExtensionActivities.Core.Domain.Entities.Chat", null)
+                        .WithMany("Messages")
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ManagementExtensionActivities.Core.Domain.Entities.Registration", b =>
                 {
                     b.HasOne("ManagementExtensionActivities.Core.Domain.Entities.Event", "Event")
@@ -241,6 +301,11 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ManagementExtensionActivities.Core.Domain.Entities.Chat", b =>
+                {
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("ManagementExtensionActivities.Core.Domain.Entities.User", b =>

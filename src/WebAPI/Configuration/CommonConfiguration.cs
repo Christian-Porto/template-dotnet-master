@@ -28,6 +28,9 @@ public static class CommonConfiguration
 
         builder.Services.AddScoped<ITokenService, TokenService>();
         builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+
+        // Real-time
+        builder.Services.AddSignalR();
     }
 
     public static void ConfigureApp(WebApplication app)
@@ -37,5 +40,8 @@ public static class CommonConfiguration
         app.UseAuthorization();
 
         app.MapControllers();
+
+        // SignalR hubs
+        app.MapHub<ManagementExtensionActivities.Core.WebAPI.Hubs.ChatHub>("/hubs/chat");
     }
 }

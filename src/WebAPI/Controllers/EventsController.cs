@@ -14,6 +14,13 @@ public class EventsController : ApiControllerBase
 {
     public EventsController() { }
 
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<PaginatedList<EventResponse>> List([FromQuery] ListEventsQuery query)
+    {
+        return await Mediator.Send(query);
+    }
+
     [HttpPost]
     [AllowAnonymous]
     public async Task<EventResponse> Create(CreateEventCommand command)
@@ -21,20 +28,12 @@ public class EventsController : ApiControllerBase
         return await Mediator.Send(command);
     }
 
-    [HttpPut]
+    [HttpPut ("{id}")]
     [AllowAnonymous]
-    public async Task<long> Update(UpdateEventCommand command)
+    public async Task<EventResponse> Update([FromRoute] int id, UpdateEventCommand command)
     {
+        command.SetId(id);
         return await Mediator.Send(command);
     }
-
-    [HttpGet]
-    [AllowAnonymous]
-    public async Task<PaginatedList<EventResponse>> List([FromQuery]ListEventsQuery query)
-    {
-        return await Mediator.Send(query);
-    }
-
-
 }
 
