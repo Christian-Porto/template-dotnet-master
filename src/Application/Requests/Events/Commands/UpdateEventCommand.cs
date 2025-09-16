@@ -88,31 +88,31 @@ namespace ManagementExtensionActivities.Core.Application.Requests.Events.Command
 
         public async Task<EventResponse> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
         {
-            var evento = await _context.Events
+            var @event = await _context.Events
                 .Include(e => e.Shifts)
                 .FirstOrDefaultAsync(x => x.Id == request.GetId(), cancellationToken);
 
-            if (evento == null)
+            if (@event == null)
             {
                 throw new NotFoundException("Evento não encontrado");
             }
 
-            _mapper.Map(request, evento);
+            _mapper.Map(request, @event);
 
             // Replace Shifts with existing rows matching the request
-            evento.Shifts.Clear();
+            @event.Shifts.Clear();
             var existingShifts = await _context.Shifts
                 .Where(s => request.Shifts.Contains(s.Name))
                 .ToListAsync(cancellationToken);
             foreach (var shift in existingShifts)
             {
-                evento.Shifts.Add(shift);
+                @event.Shifts.Add(shift);
             }
 
-            _context.Events.Update(evento);
+            _context.Events.Update(@event);
             await _context.SaveChangesAsync(cancellationToken);
 
-            return _mapper.Map<EventResponse>(evento);
+            return _mapper.Map<EventResponse>(@event);
         }
     }
 }
