@@ -11,7 +11,7 @@ public class ChatMessage : BaseEntity
 
     public ChatMessage(int chatId, int senderId, string content)
     {
-        if (string.IsNullOrWhiteSpace(content)) throw new ArgumentException("Message content cannot be empty");
+        if (string.IsNullOrWhiteSpace(content)) throw new ArgumentException("O conteúdo da mensagem não pode estar vazio");
         ChatId = chatId;
         SenderId = senderId;
         Content = content.Trim();

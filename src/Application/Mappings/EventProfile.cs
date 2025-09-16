@@ -2,6 +2,7 @@
 using ManagementExtensionActivities.Core.Application.Requests.Events.Commands;
 using ManagementExtensionActivities.Core.Application.Requests.Events.Models;
 using ManagementExtensionActivities.Core.Domain.Entities;
+using System.Linq;
 
 namespace ManagementExtensionActivities.Core.Application.Mappings
 {
@@ -9,11 +10,14 @@ namespace ManagementExtensionActivities.Core.Application.Mappings
     {
         public EventProfile()
         {
-            CreateMap<Event, EventResponse>();
+            CreateMap<Event, EventResponse>()
+                .ForMember(d => d.Shifts, opt => opt.MapFrom(s => s.Shifts.Select(x => x.Name)));
+
             CreateMap<CreateEventCommand, Event>()
-                .ForMember(x => x.Shifts, opt => opt.MapFrom(y => y.Shifts.Select(z => new Shift(z))));
+                .ForMember(x => x.Shifts, opt => opt.Ignore());
+
             CreateMap<UpdateEventCommand, Event>()
-                .ForMember(x => x.Shifts, opt => opt.MapFrom(y => y.Shifts.Select(z => new Shift(z))));
+                .ForMember(x => x.Shifts, opt => opt.Ignore());
         }
     }
 }

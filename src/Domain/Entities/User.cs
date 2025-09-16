@@ -27,7 +27,7 @@ public class User : BaseEntity
 
     public void SetName(string name)
     {
-        if (string.IsNullOrEmpty(name)) throw new DomainValidationException("Name cannot be null");
+        if (string.IsNullOrEmpty(name)) throw new DomainValidationException("O nome não pode ser nulo");
 
         Name = name;
     }
@@ -38,7 +38,7 @@ public class User : BaseEntity
 
         if (!Regex.IsMatch(email, emailRegex))
         {
-            throw new DomainValidationException("Invalid Email");
+            throw new DomainValidationException("Email inválido");
         }
 
         Email = email;
@@ -48,12 +48,12 @@ public class User : BaseEntity
     {
         if (string.IsNullOrEmpty(password))
         {
-            throw new DomainValidationException("Password cannot be null");
+            throw new DomainValidationException("A senha não pode ser nula");
         }
 
         if (password.Length < 6)
         {
-            throw new DomainValidationException("Password must be at least 6 characters long ");
+            throw new DomainValidationException("A senha deve ter pelo menos 6 caracteres");
         }
 
         Password = PasswordHasher.HashPassword(this, password);

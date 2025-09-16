@@ -1,7 +1,14 @@
-﻿namespace ManagementExtensionActivities.Core.Application.Requests.Registrations.Models
+using ManagementExtensionActivities.Core.Domain.Enums;
+
+namespace ManagementExtensionActivities.Core.Application.Requests.Registrations.Models
 {
     public class RegistrationResponse
     {
+        public int Id { get; set; }
         public DateTime Date { get; set; }
+        public RegistrationStatusEnum? Status { get; set; }
+        public bool? Attended { get; set; }
+        public string? Justification { get; set; }
+        public int ParticipationsCount { get; set; }
     }
 }

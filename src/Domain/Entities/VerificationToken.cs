@@ -38,7 +38,7 @@ public class VerificationToken : BaseEntity
     {
         if (ResendLimitExceeded)
         {
-            throw new DomainValidationException("Resend limit exceeded");
+            throw new DomainValidationException("Limite de reenvio excedido");
         }
 
         ResendCount++;

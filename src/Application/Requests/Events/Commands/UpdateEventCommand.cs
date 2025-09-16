@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FluentValidation;
 using ManagementExtensionActivities.Core.Application.Common.Interfaces;
 using ManagementExtensionActivities.Core.Application.Exceptions;
@@ -14,7 +14,7 @@ namespace ManagementExtensionActivities.Core.Application.Requests.Events.Command
     {
         private int Id { get; set; }
         public string Name { get; set; }
-        public EventType Type { get; set; }
+        public EventTypeEnum Type { get; set; }
         public string Description { get; set; }
         public DateTime EventDate { get; set; }
         public DateTime StartDate { get; set; }
@@ -23,15 +23,8 @@ namespace ManagementExtensionActivities.Core.Application.Requests.Events.Command
         public Status Status { get; set; }
         public IList<ShiftEnum> Shifts { get; set; } = new List<ShiftEnum>();
 
-        public int GetId()
-        {
-            return Id;
-        }
-
-        public void SetId(int id)
-        {
-            Id = id;
-        }
+        public int GetId() => Id;
+        public void SetId(int id) => Id = id;
     }
 
     public class UpdateEventCommandValidator : AbstractValidator<UpdateEventCommand>
@@ -40,37 +33,45 @@ namespace ManagementExtensionActivities.Core.Application.Requests.Events.Command
         {
             RuleFor(c => c.Name)
                 .NotEmpty().WithMessage("O nome é obrigatório.")
-                .MaximumLength(255).WithMessage("O nome não pode exceder 255 caracteres."); ;
+                .MaximumLength(255).WithMessage("O nome não pode exceder 255 caracteres.");
 
             RuleFor(c => c.Description)
                 .NotEmpty().WithMessage("A descrição é obrigatória.")
                 .MaximumLength(2056).WithMessage("A descrição não pode exceder 2056 caracteres.");
 
-            RuleFor(c => c.Type).NotEmpty().WithMessage("O tipo do evento é obrigatório.");
+            RuleFor(c => c.Type)
+                .NotEmpty().WithMessage("O tipo do evento é obrigatório.")
+                .Must(v => Enum.IsDefined(typeof(EventTypeEnum), v)).WithMessage("Tipo de evento inválido.");
+
             RuleFor(c => c.StartDate).NotEmpty().WithMessage("A data de início das inscrições é obrigatória.");
             RuleFor(c => c.EndDate).NotEmpty().WithMessage("A data de fim das inscrições é obrigatória.");
             RuleFor(c => c.EventDate).NotEmpty().WithMessage("A data do evento é obrigatória.");
-            RuleFor(c => c.Status).NotEmpty().WithMessage("O status é obrigatório.");
-            RuleFor(c => c.Slots).NotEmpty().WithMessage("O número de vagas é obrigatório.");
 
-            RuleFor(c => c.Shifts)
-           .NotEmpty().WithMessage("O turno é obrigatório.")
-           .Must(shifts => shifts.Distinct().Count() == shifts.Count)
-           .WithMessage("Não pode haver turnos duplicados.");
-
-            RuleFor(c => c.StartDate)
-            .LessThanOrEqualTo(c => c.EndDate)
-            .WithMessage("A data de início das inscrições não pode ser posterior à data de fim.");
-
-            RuleFor(c => c.EventDate)
-            .GreaterThanOrEqualTo(c => c.EndDate)
-            .WithMessage("A data do evento deve ser igual ou posterior ao fim das inscrições.");
+            RuleFor(c => c.Status)
+                .NotEmpty().WithMessage("O status é obrigatório.")
+                .Must(v => Enum.IsDefined(typeof(Status), v)).WithMessage("Status inválido.");
 
             RuleFor(c => c.Slots)
-            .GreaterThan(0)
-            .WithMessage("O número de vagas deve ser maior que zero.");
-            
-            //Não permitir reduzir Slots abaixo de inscrições já confirmadas
+                .NotEmpty().WithMessage("O número de vagas é obrigatório.")
+                .GreaterThan(0).WithMessage("O número de vagas deve ser maior que zero.");
+
+            RuleFor(c => c.Shifts)
+               .NotEmpty().WithMessage("O turno é obrigatório.")
+               .Must(shifts => shifts.Distinct().Count() == shifts.Count)
+               .WithMessage("Não pode haver turnos duplicados.");
+
+            RuleForEach(c => c.Shifts)
+                .Must(v => Enum.IsDefined(typeof(ShiftEnum), v)).WithMessage("Turno inválido.");
+
+            RuleFor(c => c.StartDate)
+                .LessThanOrEqualTo(c => c.EndDate)
+                .WithMessage("A data de início das inscrições não pode ser posterior à data de fim.");
+
+            RuleFor(c => c.EventDate)
+                .GreaterThanOrEqualTo(c => c.EndDate)
+                .WithMessage("A data do evento deve ser igual ou posterior ao fim das inscrições.");
+
+            // Não permitir reduzir Slots abaixo de inscrições já confirmadas (se aplicável) – regra de negócio futura.
         }
     }
 
@@ -79,8 +80,7 @@ namespace ManagementExtensionActivities.Core.Application.Requests.Events.Command
         private readonly IApplicationDbContext _context;
         private readonly IMapper _mapper;
 
-        public UpdateEventCommandHandler(IApplicationDbContext context,
-            IMapper mapper)
+        public UpdateEventCommandHandler(IApplicationDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
@@ -88,21 +88,31 @@ namespace ManagementExtensionActivities.Core.Application.Requests.Events.Command
 
         public async Task<EventResponse> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
         {
-            var Evento = await _context.Events.FirstOrDefaultAsync(x => x.Id == request.GetId(), cancellationToken);
+            var evento = await _context.Events
+                .Include(e => e.Shifts)
+                .FirstOrDefaultAsync(x => x.Id == request.GetId(), cancellationToken);
 
-            if (Evento == null)
+            if (evento == null)
             {
                 throw new NotFoundException("Evento não encontrado");
             }
 
-            _mapper.Map(request, Evento);
+            _mapper.Map(request, evento);
 
-            _context.Events.Update(Evento);
+            // Replace Shifts with existing rows matching the request
+            evento.Shifts.Clear();
+            var existingShifts = await _context.Shifts
+                .Where(s => request.Shifts.Contains(s.Name))
+                .ToListAsync(cancellationToken);
+            foreach (var shift in existingShifts)
+            {
+                evento.Shifts.Add(shift);
+            }
 
+            _context.Events.Update(evento);
             await _context.SaveChangesAsync(cancellationToken);
 
-            return _mapper.Map<EventResponse>(Evento);
+            return _mapper.Map<EventResponse>(evento);
         }
     }
 }
-

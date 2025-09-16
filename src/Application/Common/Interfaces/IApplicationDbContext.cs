@@ -10,6 +10,7 @@ public interface IApplicationDbContext
     public DbSet<Registration> Registrations { get; set; }
     public DbSet<Chat> Chats { get; set; }
     public DbSet<ChatMessage> ChatMessages { get; set; }
+    public DbSet<Shift> Shifts { get; set; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

@@ -98,7 +98,8 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(2056)
+                        .HasColumnType("varchar(2056)");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime(6)");
@@ -108,7 +109,8 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<int>("Slots")
                         .HasColumnType("int");
@@ -124,7 +126,7 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
                 });
 
             modelBuilder.Entity("ManagementExtensionActivities.Core.Domain.Entities.Registration", b =>
@@ -145,10 +147,12 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Justification")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("Report")
-                        .HasColumnType("longtext");
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
 
                     b.Property<DateTime?>("ReportIncludedAt")
                         .HasColumnType("datetime(6)");
@@ -165,7 +169,7 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Registrations");
+                    b.ToTable("Registrations", (string)null);
                 });
 
             modelBuilder.Entity("ManagementExtensionActivities.Core.Domain.Entities.Shift", b =>
@@ -181,7 +185,27 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Shift");
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Shift", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = 3
+                        });
                 });
 
             modelBuilder.Entity("ManagementExtensionActivities.Core.Domain.Entities.User", b =>
