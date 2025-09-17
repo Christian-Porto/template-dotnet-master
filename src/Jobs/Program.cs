@@ -3,9 +3,9 @@ using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
 using Serilog;
-using ManagementExtensionActivities.Core.Jobs.Middlewares;
-using ManagementExtensionActivities.Core.Jobs.Quartz;
-using ManagementExtensionActivities.Core.WebAPI.Configuration;
+using ExtensionEventsManager.Core.Jobs.Middlewares;
+using ExtensionEventsManager.Core.Jobs.Quartz;
+using ExtensionEventsManager.Core.WebAPI.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 

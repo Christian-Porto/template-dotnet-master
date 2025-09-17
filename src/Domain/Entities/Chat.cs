@@ -1,6 +1,6 @@
-using ManagementExtensionActivities.Core.Domain.Common.Entities;
+using ExtensionEventsManager.Core.Domain.Common.Entities;
 
-namespace ManagementExtensionActivities.Core.Domain.Entities;
+namespace ExtensionEventsManager.Core.Domain.Entities;
 
 public class Chat : BaseEntity
 {
@@ -9,10 +9,10 @@ public class Chat : BaseEntity
 
     public ICollection<ChatMessage> Messages { get; private set; } = new List<ChatMessage>();
 
-    // Aplicar ordenação para garantir par único (mín./máx.)
+    // Aplicar ordenaï¿½ï¿½o para garantir par ï¿½nico (mï¿½n./mï¿½x.)
     public Chat(int user1Id, int user2Id)
     {
-        if (user1Id == user2Id) throw new ArgumentException("O bate-papo deve ser entre dois usuários diferentes");
+        if (user1Id == user2Id) throw new ArgumentException("O bate-papo deve ser entre dois usuï¿½rios diferentes");
 
         UserAId = Math.Min(user1Id, user2Id);
         UserBId = Math.Max(user1Id, user2Id);
@@ -25,7 +25,7 @@ public class Chat : BaseEntity
 
     public ChatMessage AddMessage(int senderId, string content)
     {
-        if (!HasParticipant(senderId)) throw new InvalidOperationException("O remetente não pertence a este chat");
+        if (!HasParticipant(senderId)) throw new InvalidOperationException("O remetente nï¿½o pertence a este chat");
         var message = new ChatMessage(Id, senderId, content);
         Messages.Add(message);
         return message;

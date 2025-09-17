@@ -1,7 +1,7 @@
-using ManagementExtensionActivities.Core.Domain.Common.Entities;
-using ManagementExtensionActivities.Core.Domain.Enums;
+using ExtensionEventsManager.Core.Domain.Common.Entities;
+using ExtensionEventsManager.Core.Domain.Enums;
 
-namespace ManagementExtensionActivities.Core.Domain.Entities;
+namespace ExtensionEventsManager.Core.Domain.Entities;
 
 public class Registration : BaseEntity
 {

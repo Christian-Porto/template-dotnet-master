@@ -1,7 +1,7 @@
-﻿using ManagementExtensionActivities.Core.Domain.Common.Enums;
-using ManagementExtensionActivities.Core.Domain.Enums;
+﻿using ExtensionEventsManager.Core.Domain.Common.Enums;
+using ExtensionEventsManager.Core.Domain.Enums;
 
-namespace ManagementExtensionActivities.Core.Application.Requests.Events.Models
+namespace ExtensionEventsManager.Core.Application.Requests.Events.Models
 {
     public class EventResponse
     {

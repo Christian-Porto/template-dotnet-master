@@ -1,10 +1,10 @@
 ﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using ManagementExtensionActivities.Core.Application.Common.Behaviours;
+using ExtensionEventsManager.Core.Application.Common.Behaviours;
 using System.Reflection;
 using FluentValidation;
 
-namespace ManagementExtensionActivities.Core.Application;
+namespace ExtensionEventsManager.Core.Application;
 
 public static class DependencyInjection
 {

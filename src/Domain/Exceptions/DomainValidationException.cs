@@ -1,4 +1,4 @@
-﻿namespace ManagementExtensionActivities.Core.Domain.Exceptions;
+﻿namespace ExtensionEventsManager.Core.Domain.Exceptions;
 
 public class DomainValidationException : Exception
 {

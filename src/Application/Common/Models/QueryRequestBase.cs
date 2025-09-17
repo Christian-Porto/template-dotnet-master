@@ -1,4 +1,4 @@
-﻿namespace ManagementExtensionActivities.Core.Application.Common.Models;
+﻿namespace ExtensionEventsManager.Core.Application.Common.Models;
 
 public class QueryRequestBase
 {

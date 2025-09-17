@@ -1,20 +1,20 @@
 *** Begin Patch
 *** Update File: src/Application/Requests/Registrations/Models/RegistrationResponse.cs
 @@
--namespace ManagementExtensionActivities.Core.Application.Requests.Registrations.Models
+-namespace ExtensionEventsManager.Core.Application.Requests.Registrations.Models
 -{
 -    public class RegistrationResponse
 -    {
 -        public DateTime Date { get; set; }
 -    }
 -}
-+namespace ManagementExtensionActivities.Core.Application.Requests.Registrations.Models
++namespace ExtensionEventsManager.Core.Application.Requests.Registrations.Models
 +{
 +    public class RegistrationResponse
 +    {
 +        public int Id { get; set; }
 +        public DateTime Date { get; set; }
-+        public ManagementExtensionActivities.Core.Domain.Enums.RegistrationStatus? Status { get; set; }
++        public ExtensionEventsManager.Core.Domain.Enums.RegistrationStatus? Status { get; set; }
 +        public bool? Attended { get; set; }
 +        public string? Justification { get; set; }
 +        public int ParticipationsCount { get; set; }

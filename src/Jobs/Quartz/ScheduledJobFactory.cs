@@ -2,7 +2,7 @@
 using Quartz.Spi;
 using System.Collections.Concurrent;
 
-namespace ManagementExtensionActivities.Core.Jobs.Quartz;
+namespace ExtensionEventsManager.Core.Jobs.Quartz;
 
 public class ScheduledJobFactory : IJobFactory, IDisposable
 {

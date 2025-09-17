@@ -1,15 +1,17 @@
 using AutoMapper;
 using FluentValidation;
-using ManagementExtensionActivities.Core.Application.Common.Interfaces;
-using ManagementExtensionActivities.Core.Application.Requests.Events.Models;
-using ManagementExtensionActivities.Core.Domain.Common.Enums;
-using ManagementExtensionActivities.Core.Domain.Entities;
-using ManagementExtensionActivities.Core.Domain.Enums;
+using ExtensionEventsManager.Core.Application.Common.Interfaces;
+using ExtensionEventsManager.Core.Application.Requests.Events.Models;
+using ExtensionEventsManager.Core.Domain.Common.Enums;
+using ExtensionEventsManager.Core.Domain.Entities;
+using ExtensionEventsManager.Core.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ExtensionEventsManager.Core.Application.Common.Auth;
 
-namespace ManagementExtensionActivities.Core.Application.Requests.Events.Commands
+namespace ExtensionEventsManager.Core.Application.Requests.Events.Commands
 {
+    [Authorize(Permission = new ProfileEnum[] { ProfileEnum.Administrator, ProfileEnum.Monitor })]
     public class CreateEventCommand : IRequest<EventResponse>
     {
         public string Name { get; set; }

@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using ManagementExtensionActivities.Core.Application.Requests.Events.Commands;
-using ManagementExtensionActivities.Core.Application.Requests.Events.Models;
-using ManagementExtensionActivities.Core.Domain.Entities;
+using ExtensionEventsManager.Core.Application.Requests.Events.Commands;
+using ExtensionEventsManager.Core.Application.Requests.Events.Models;
+using ExtensionEventsManager.Core.Domain.Entities;
 using System.Linq;
 
-namespace ManagementExtensionActivities.Core.Application.Mappings
+namespace ExtensionEventsManager.Core.Application.Mappings
 {
     public class EventProfile : Profile
     {

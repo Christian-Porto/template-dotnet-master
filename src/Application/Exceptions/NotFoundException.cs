@@ -1,4 +1,4 @@
-﻿namespace ManagementExtensionActivities.Core.Application.Exceptions;
+﻿namespace ExtensionEventsManager.Core.Application.Exceptions;
 
 public class NotFoundException : Exception
 {

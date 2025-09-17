@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ManagementExtensionActivities.Core.Domain.Entities;
+using ExtensionEventsManager.Core.Domain.Entities;
 
-namespace ManagementExtensionActivities.Core.Application.Common.Interfaces;
+namespace ExtensionEventsManager.Core.Application.Common.Interfaces;
 
 public interface IApplicationDbContext
 {

@@ -1,9 +1,9 @@
-using ManagementExtensionActivities.Core.Domain.Entities;
-using ManagementExtensionActivities.Core.Domain.Enums;
+using ExtensionEventsManager.Core.Domain.Entities;
+using ExtensionEventsManager.Core.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace ManagementExtensionActivities.Core.Infrastructure.Database.Configurations;
+namespace ExtensionEventsManager.Core.Infrastructure.Database.Configurations;
 
 public class ShiftConfiguration : IEntityTypeConfiguration<Shift>
 {

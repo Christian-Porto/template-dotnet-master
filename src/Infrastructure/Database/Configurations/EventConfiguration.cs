@@ -1,8 +1,8 @@
-using ManagementExtensionActivities.Core.Domain.Entities;
+using ExtensionEventsManager.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace ManagementExtensionActivities.Core.Infrastructure.Database.Configurations;
+namespace ExtensionEventsManager.Core.Infrastructure.Database.Configurations;
 
 public class EventConfiguration : IEntityTypeConfiguration<Event>
 {

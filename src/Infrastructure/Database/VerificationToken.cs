@@ -1,8 +1,8 @@
-﻿using ManagementExtensionActivities.Core.Domain.Common.Entities;
-using ManagementExtensionActivities.Core.Domain.Exceptions;
+﻿using ExtensionEventsManager.Core.Domain.Common.Entities;
+using ExtensionEventsManager.Core.Domain.Exceptions;
 using System.Security.Cryptography;
 
-namespace ManagementExtensionActivities.Core.Domain.Entities;
+namespace ExtensionEventsManager.Core.Domain.Entities;
 public class VerificationToken : BaseEntity
 {
     public string Token { get; protected set; }

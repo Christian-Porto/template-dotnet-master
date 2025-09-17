@@ -1,4 +1,4 @@
-﻿namespace ManagementExtensionActivities.Core.Domain.Common.Entities;
+﻿namespace ExtensionEventsManager.Core.Domain.Common.Entities;
 
 public abstract class BaseEntity
 {

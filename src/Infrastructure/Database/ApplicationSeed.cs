@@ -1,6 +1,6 @@
-﻿using ManagementExtensionActivities.Core.Domain.Entities;
+﻿using ExtensionEventsManager.Core.Domain.Entities;
 
-namespace ManagementExtensionActivities.Core.Infrastructure.Database;
+namespace ExtensionEventsManager.Core.Infrastructure.Database;
 public class ApplicationSeed
 {
     public static async Task SeedSampleDataAsync(ApplicationDbContext context)

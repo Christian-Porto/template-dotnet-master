@@ -1,11 +1,11 @@
-using ManagementExtensionActivities.Core.Application.Common.Interfaces;
-using ManagementExtensionActivities.Core.Application.Common.Models;
-using ManagementExtensionActivities.Core.Application.Requests.Registrations.Models;
-using ManagementExtensionActivities.Core.Domain.Enums;
+using ExtensionEventsManager.Core.Application.Common.Interfaces;
+using ExtensionEventsManager.Core.Application.Common.Models;
+using ExtensionEventsManager.Core.Application.Requests.Registrations.Models;
+using ExtensionEventsManager.Core.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace ManagementExtensionActivities.Core.Application.Requests.Registrations.Queries
+namespace ExtensionEventsManager.Core.Application.Requests.Registrations.Queries
 {
     public class ListRegistrationsQuery : QueryRequestBase, IRequest<PaginatedList<RegistrationResponse>>
     {

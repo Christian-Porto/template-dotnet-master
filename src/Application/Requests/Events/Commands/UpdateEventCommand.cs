@@ -1,14 +1,14 @@
 using AutoMapper;
 using FluentValidation;
-using ManagementExtensionActivities.Core.Application.Common.Interfaces;
-using ManagementExtensionActivities.Core.Application.Exceptions;
-using ManagementExtensionActivities.Core.Application.Requests.Events.Models;
-using ManagementExtensionActivities.Core.Domain.Common.Enums;
-using ManagementExtensionActivities.Core.Domain.Enums;
+using ExtensionEventsManager.Core.Application.Common.Interfaces;
+using ExtensionEventsManager.Core.Application.Exceptions;
+using ExtensionEventsManager.Core.Application.Requests.Events.Models;
+using ExtensionEventsManager.Core.Domain.Common.Enums;
+using ExtensionEventsManager.Core.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace ManagementExtensionActivities.Core.Application.Requests.Events.Commands
+namespace ExtensionEventsManager.Core.Application.Requests.Events.Commands
 {
     public class UpdateEventCommand : IRequest<EventResponse>
     {

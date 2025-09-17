@@ -1,6 +1,6 @@
-using ManagementExtensionActivities.Core.Domain.Enums;
+using ExtensionEventsManager.Core.Domain.Enums;
 
-namespace ManagementExtensionActivities.Core.Application.Requests.Registrations.Models
+namespace ExtensionEventsManager.Core.Application.Requests.Registrations.Models
 {
     public class RegistrationResponse
     {

@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using ManagementExtensionActivities.Core.Domain.Entities;
-using ManagementExtensionActivities.Core.Domain.Enums;
+using ExtensionEventsManager.Core.Domain.Entities;
+using ExtensionEventsManager.Core.Domain.Enums;
 
-namespace ManagementExtensionActivities.Core.Application.Mappings
+namespace ExtensionEventsManager.Core.Application.Mappings
 {
     public class ShiftProfile : Profile
     {

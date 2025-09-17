@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using ManagementExtensionActivities.Core.Domain.Common.Enums;
-using ManagementExtensionActivities.Core.Domain.Entities;
+using ExtensionEventsManager.Core.Domain.Common.Enums;
+using ExtensionEventsManager.Core.Domain.Entities;
 
-namespace ManagementExtensionActivities.Core.Infrastructure.Database;
+namespace ExtensionEventsManager.Core.Infrastructure.Database;
 
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {
@@ -29,11 +29,21 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasMaxLength(256);
 
+        builder
+            .Property(x => x.Enrollment)
+            .IsRequired();
+
+        builder
+            .Property(x => x.Period)
+            .IsRequired();
+
+        builder
+            .Property(x => x.Cpf)
+            .IsRequired();
+
         builder.Property(x => x.Status)
             .HasConversion(new EnumToStringConverter<Status>())
             .HasMaxLength(16);
-
-        builder.HasMany(x => x.VerificationTokens).WithOne(x => x.User).OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(x => x.Email).IsUnique();
     }

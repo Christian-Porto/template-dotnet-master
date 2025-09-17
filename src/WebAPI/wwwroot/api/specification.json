@@ -128,84 +128,6 @@
         }
       }
     },
-    "/auth/verification-code": {
-      "get": {
-        "tags": [
-          "Auth"
-        ],
-        "operationId": "Auth_GetChangeEmailCode",
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/auth/email": {
-      "patch": {
-        "tags": [
-          "Auth"
-        ],
-        "operationId": "Auth_ChangeEmail",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChangeEmailCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/auth/password": {
-      "patch": {
-        "tags": [
-          "Auth"
-        ],
-        "operationId": "Auth_ChangePassword",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChangePasswordCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
     "/chats/messages": {
       "get": {
         "tags": [
@@ -566,6 +488,17 @@
           },
           "password": {
             "type": "string"
+          },
+          "enrollment": {
+            "type": "string"
+          },
+          "period": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cpf": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -577,30 +510,6 @@
             "type": "string"
           },
           "token": {
-            "type": "string"
-          }
-        }
-      },
-      "ChangeEmailCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "validationCode": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          }
-        }
-      },
-      "ChangePasswordCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "validationCode": {
-            "type": "string"
-          },
-          "password": {
             "type": "string"
           }
         }

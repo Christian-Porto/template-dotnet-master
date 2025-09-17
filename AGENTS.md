@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- Solution: `ManagementExtensionActivities.sln`
+- Solution: `ExtensionEventsManager.sln`
 - Source: `src/`
   - `Domain/` core entities and enums
   - `Application/` requests, behaviors, mappings, interfaces
@@ -13,7 +13,7 @@
 
 ## Build, Test, and Development Commands
 - Restore: `dotnet restore`
-- Build: `dotnet build ManagementExtensionActivities.sln -c Debug`
+- Build: `dotnet build ExtensionEventsManager.sln -c Debug`
 - Run API: `dotnet run --project src/WebAPI`
 - Run Jobs: `dotnet run --project src/Jobs`
 - Tests: `dotnet test -c Debug`

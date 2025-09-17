@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ManagementExtensionActivities.Core.Application.Common.Interfaces;
-using ManagementExtensionActivities.Core.Domain.Entities;
+using ExtensionEventsManager.Core.Application.Common.Interfaces;
+using ExtensionEventsManager.Core.Domain.Entities;
 using System.Reflection;
 
-namespace ManagementExtensionActivities.Core.Infrastructure.Database;
+namespace ExtensionEventsManager.Core.Infrastructure.Database;
 
 public class ApplicationDbContext : DbContext, IApplicationDbContext
 {

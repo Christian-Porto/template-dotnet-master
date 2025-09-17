@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using ManagementExtensionActivities.Core.Application.Common.Interfaces;
-using ManagementExtensionActivities.Core.Application.Common.Models;
-using ManagementExtensionActivities.Core.Application.Requests.Events.Models;
+using ExtensionEventsManager.Core.Application.Common.Interfaces;
+using ExtensionEventsManager.Core.Application.Common.Models;
+using ExtensionEventsManager.Core.Application.Requests.Events.Models;
 using MediatR;
 
-namespace ManagementExtensionActivities.Core.Application.Requests.Events.Queries
+namespace ExtensionEventsManager.Core.Application.Requests.Events.Queries
 {
     public class ListEventsQuery : QueryRequestBase, IRequest<PaginatedList<EventResponse>>
     {

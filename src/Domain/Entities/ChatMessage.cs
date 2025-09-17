@@ -1,6 +1,6 @@
-using ManagementExtensionActivities.Core.Domain.Common.Entities;
+using ExtensionEventsManager.Core.Domain.Common.Entities;
 
-namespace ManagementExtensionActivities.Core.Domain.Entities;
+namespace ExtensionEventsManager.Core.Domain.Entities;
 
 public class ChatMessage : BaseEntity
 {
@@ -11,7 +11,7 @@ public class ChatMessage : BaseEntity
 
     public ChatMessage(int chatId, int senderId, string content)
     {
-        if (string.IsNullOrWhiteSpace(content)) throw new ArgumentException("O conteúdo da mensagem não pode estar vazio");
+        if (string.IsNullOrWhiteSpace(content)) throw new ArgumentException("O conteï¿½do da mensagem nï¿½o pode estar vazio");
         ChatId = chatId;
         SenderId = senderId;
         Content = content.Trim();

@@ -1,14 +1,14 @@
 using AutoMapper;
 using FluentValidation;
-using ManagementExtensionActivities.Core.Application.Common.Interfaces;
-using ManagementExtensionActivities.Core.Application.Exceptions;
-using ManagementExtensionActivities.Core.Application.Requests.Registrations.Models;
-using ManagementExtensionActivities.Core.Domain.Entities;
-using ManagementExtensionActivities.Core.Domain.Enums;
+using ExtensionEventsManager.Core.Application.Common.Interfaces;
+using ExtensionEventsManager.Core.Application.Exceptions;
+using ExtensionEventsManager.Core.Application.Requests.Registrations.Models;
+using ExtensionEventsManager.Core.Domain.Entities;
+using ExtensionEventsManager.Core.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace ManagementExtensionActivities.Core.Application.Requests.Registrations.Commands
+namespace ExtensionEventsManager.Core.Application.Requests.Registrations.Commands
 {
     public class UpdateRegistrationCommand : IRequest<RegistrationResponse>
     {

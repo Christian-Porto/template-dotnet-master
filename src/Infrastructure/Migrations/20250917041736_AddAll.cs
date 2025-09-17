@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
+namespace ExtensionEventsManager.Core.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class AddAll : Migration
@@ -82,7 +82,14 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
                     Email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Password = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Enrollment = table.Column<int>(type: "int", nullable: false),
+                    Profile = table.Column<int>(type: "int", nullable: false),
+                    Period = table.Column<int>(type: "int", nullable: false),
+                    Cpf = table.Column<int>(type: "int", nullable: false),
+                    ResetPasswordToken = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ResetPasswordTokenExpiration = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -174,30 +181,6 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
-            migrationBuilder.CreateTable(
-                name: "VerificationToken",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Token = table.Column<string>(type: "varchar(6)", maxLength: 6, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Expiration = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    ResendCount = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_VerificationToken", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_VerificationToken_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
             migrationBuilder.InsertData(
                 table: "Shift",
                 columns: new[] { "Id", "Name" },
@@ -245,11 +228,6 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
                 table: "Users",
                 column: "Email",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_VerificationToken_UserId",
-                table: "VerificationToken",
-                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -263,9 +241,6 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Registrations");
-
-            migrationBuilder.DropTable(
-                name: "VerificationToken");
 
             migrationBuilder.DropTable(
                 name: "Chats");

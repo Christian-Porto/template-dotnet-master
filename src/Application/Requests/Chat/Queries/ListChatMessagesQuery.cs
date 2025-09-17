@@ -2,12 +2,12 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using ManagementExtensionActivities.Core.Application.Common.Interfaces;
-using ManagementExtensionActivities.Core.Application.Common.Models;
-using ManagementExtensionActivities.Core.Application.Exceptions;
-using ManagementExtensionActivities.Core.Application.Requests.Chat.Models;
+using ExtensionEventsManager.Core.Application.Common.Interfaces;
+using ExtensionEventsManager.Core.Application.Common.Models;
+using ExtensionEventsManager.Core.Application.Exceptions;
+using ExtensionEventsManager.Core.Application.Requests.Chat.Models;
 
-namespace ManagementExtensionActivities.Core.Application.Requests.Chat.Queries;
+namespace ExtensionEventsManager.Core.Application.Requests.Chat.Queries;
 
 public class ListChatMessagesQuery : QueryRequestBase, IRequest<PaginatedList<ChatMessageResponse>>
 {

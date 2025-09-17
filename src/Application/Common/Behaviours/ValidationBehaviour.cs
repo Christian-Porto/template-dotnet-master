@@ -1,8 +1,8 @@
 using FluentValidation;
 using MediatR;
-using ManagementExtensionActivities.Core.Application.Exceptions;
+using ExtensionEventsManager.Core.Application.Exceptions;
 
-namespace ManagementExtensionActivities.Core.Application.Common.Behaviours;
+namespace ExtensionEventsManager.Core.Application.Common.Behaviours;
 
 public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
