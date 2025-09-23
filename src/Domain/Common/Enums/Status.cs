@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace ManagementExtensionActivities.Core.Domain.Common.Enums;
+namespace ExtensionEventsManager.Core.Domain.Common.Enums;
 public enum Status
 {
     [Description("Inactive")]

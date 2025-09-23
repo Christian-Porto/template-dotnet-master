@@ -1,4 +1,4 @@
-namespace ManagementExtensionActivities.Core.Application.Requests.Chat.Models;
+namespace ExtensionEventsManager.Core.Application.Requests.Chat.Models;
 
 public class ChatMessageResponse
 {

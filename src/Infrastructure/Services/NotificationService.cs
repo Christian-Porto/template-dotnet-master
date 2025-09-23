@@ -1,16 +1,15 @@
-﻿using ManagementExtensionActivities.Core.Application.Common.Interfaces;
-using ManagementExtensionActivities.Core.Domain.Entities;
+﻿using ExtensionEventsManager.Core.Application.Common.Interfaces;
 
-namespace ManagementExtensionActivities.Core.Infrastructure.Services;
+namespace ExtensionEventsManager.Core.Infrastructure.Services;
 public class NotificationService : INotificationService
 {
-    public async Task SendPasswordResetTokenMessage(string address, VerificationToken token)
+    public async Task SendPasswordResetTokenMessage(string address, string token)
     {
         await Task.Delay(1000);
         return;
     }
 
-    public async Task SendVerificationTokenMessage(string address, VerificationToken token)
+    public async Task SendVerificationTokenMessage(string address, string token)
     {
         await Task.Delay(1000);
         return;

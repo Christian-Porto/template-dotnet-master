@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using ManagementExtensionActivities.Core.Application.Common.Interfaces;
-using ManagementExtensionActivities.Core.Application.Common.Options;
-using ManagementExtensionActivities.Core.Domain.Entities;
+using ExtensionEventsManager.Core.Application.Common.Interfaces;
+using ExtensionEventsManager.Core.Application.Common.Options;
+using ExtensionEventsManager.Core.Domain.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace ManagementExtensionActivities.Core.WebAPI.Services;
+namespace ExtensionEventsManager.Core.WebAPI.Services;
 
 public class TokenService : ITokenService
 {
@@ -20,11 +20,11 @@ public class TokenService : ITokenService
 
     public string GetToken(User user)
     {
-
         var claims = new List<Claim> {
                     new Claim("id", user.Id.ToString()),
                     new Claim("name", user.Name),
                     new Claim("email", user.Email),
+                    new Claim("profile", user.Profile.ToString())
                 };
 
         var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Value.SecurityKey));

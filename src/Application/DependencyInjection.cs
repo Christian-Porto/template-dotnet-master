@@ -1,10 +1,10 @@
 ﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using ManagementExtensionActivities.Core.Application.Common.Behaviours;
+using ExtensionEventsManager.Core.Application.Common.Behaviours;
 using System.Reflection;
 using FluentValidation;
 
-namespace ManagementExtensionActivities.Core.Application;
+namespace ExtensionEventsManager.Core.Application;
 
 public static class DependencyInjection
 {
@@ -15,6 +15,7 @@ public static class DependencyInjection
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehaviour<,>));
 
         });

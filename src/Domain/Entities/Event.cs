@@ -1,13 +1,13 @@
-using ManagementExtensionActivities.Core.Domain.Common.Entities;
-using ManagementExtensionActivities.Core.Domain.Common.Enums;
-using ManagementExtensionActivities.Core.Domain.Enums;
+using ExtensionEventsManager.Core.Domain.Common.Entities;
+using ExtensionEventsManager.Core.Domain.Common.Enums;
+using ExtensionEventsManager.Core.Domain.Enums;
 
-namespace ManagementExtensionActivities.Core.Domain.Entities;
+namespace ExtensionEventsManager.Core.Domain.Entities;
 
 public class Event : BaseEntity
 {
     public string Name { get; set; }
-    public EventType Type { get; set; }
+    public EventTypeEnum Type { get; set; }
     public string Description { get; set; }
     public DateTime EventDate { get; set; }
     public DateTime StartDate { get; set; }
@@ -16,5 +16,5 @@ public class Event : BaseEntity
     public Status Status { get; set; }
     public IList<Shift> Shifts { get; set; } = new List<Shift>();
 
-    public Event() { }
+    private Event() { }
 }

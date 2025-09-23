@@ -1,8 +1,8 @@
 using System.ComponentModel;
 
-namespace ManagementExtensionActivities.Core.Domain.Enums;
+namespace ExtensionEventsManager.Core.Domain.Enums;
 
-public enum RegistrationStatus
+public enum RegistrationStatusEnum
 {
     [Description("Não selecionado")]
     NotSelected = 0,

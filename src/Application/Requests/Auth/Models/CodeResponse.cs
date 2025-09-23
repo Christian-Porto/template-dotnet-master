@@ -1,4 +1,4 @@
-﻿namespace ManagementExtensionActivities.Core.Application.Requests.Auth.Models;
+﻿namespace ExtensionEventsManager.Core.Application.Requests.Auth.Models;
 public class CodeResponse
 {
     public string Code { get; set; }

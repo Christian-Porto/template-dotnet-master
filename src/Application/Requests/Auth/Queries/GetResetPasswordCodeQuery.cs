@@ -1,9 +1,8 @@
-﻿using MediatR;
+﻿using ExtensionEventsManager.Core.Application.Common.Interfaces;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
-using ManagementExtensionActivities.Core.Application.Common.Interfaces;
-using ManagementExtensionActivities.Core.Application.Exceptions;
 
-namespace ManagementExtensionActivities.Core.Application.Requests.Auth.Queries;
+namespace ExtensionEventsManager.Core.Application.Requests.Auth.Queries;
 
 public class GetResetPasswordCodeQuery : IRequest<Unit>
 {
@@ -25,21 +24,11 @@ public class GetResetPasswordCodeQueryHandler : IRequestHandler<GetResetPassword
         var email = request.Email?.ToLower().Trim().Replace(" ", "");
 
         var user = await _context.Users
-            .Include(x => x.VerificationTokens)
             .FirstOrDefaultAsync(x => x.Email == email);
 
         if (user != null)
         {
-            var token = user.GetVerificationToken();
-
-            try
-            {
-                token.IncreaseResentCount();
-            }
-            catch
-            {
-                throw new TooManyRequestsException($"Wait until {token.Expiration} to request a new token.");
-            }
+            var token = user.CreatePasswordResetToken();
 
             await _emailService.SendPasswordResetTokenMessage(user.Email, token);
 

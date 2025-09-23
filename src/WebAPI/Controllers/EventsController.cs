@@ -1,12 +1,12 @@
-﻿using ManagementExtensionActivities.Core.Application.Common.Models;
-using ManagementExtensionActivities.Core.Application.Requests.Events.Commands;
-using ManagementExtensionActivities.Core.Application.Requests.Events.Models;
-using ManagementExtensionActivities.Core.Application.Requests.Events.Queries;
-using ManagementExtensionActivities.Core.WebAPI.Common.Controllers;
+﻿using ExtensionEventsManager.Core.Application.Common.Models;
+using ExtensionEventsManager.Core.Application.Requests.Events.Commands;
+using ExtensionEventsManager.Core.Application.Requests.Events.Models;
+using ExtensionEventsManager.Core.Application.Requests.Events.Queries;
+using ExtensionEventsManager.Core.WebAPI.Common.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ManagementExtensionActivities.Core.WebAPI.Controllers;
+namespace ExtensionEventsManager.Core.WebAPI.Controllers;
 
 [Route("events")]
 [Authorize]

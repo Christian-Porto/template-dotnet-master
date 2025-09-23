@@ -1,12 +1,12 @@
 using AutoMapper;
-using ManagementExtensionActivities.Core.Application.Common.Interfaces;
-using ManagementExtensionActivities.Core.Application.Requests.Chat.Models;
-using ManagementExtensionActivities.Core.Domain.Entities;
+using ExtensionEventsManager.Core.Application.Common.Interfaces;
+using ExtensionEventsManager.Core.Application.Requests.Chat.Models;
+using ExtensionEventsManager.Core.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
-namespace ManagementExtensionActivities.Core.WebAPI.Hubs;
+namespace ExtensionEventsManager.Core.WebAPI.Hubs;
 
 [Authorize]
 public class ChatHub : Hub

@@ -1,19 +1,17 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using ManagementExtensionActivities.Core.Application.Common.Interfaces;
-using ManagementExtensionActivities.Core.Application.Exceptions;
+using ExtensionEventsManager.Core.Application.Common.Interfaces;
+using ExtensionEventsManager.Core.Application.Exceptions;
 
-namespace ManagementExtensionActivities.Core.Application.Requests.Auth.Commands;
+namespace ExtensionEventsManager.Core.Application.Requests.Auth.Commands;
 public class ResetPasswordCommand : IRequest<Unit>
 {
     public string Password { get; set; }
     public string Token { get; set; }
-
     private string Email { get; set; }
 
     public void SetEmail(string email)
     {
-
         Email = email;
     }
 
@@ -36,17 +34,18 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,
     public async Task<Unit> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
     {
         var user = await _context.Users
-            .Include(x => x.VerificationTokens)
-            .FirstOrDefaultAsync(x => x.Email == request.GetEmail());
+            .Where(x => x.Email == request.GetEmail())
+            .Where(x => !string.IsNullOrEmpty(x.ResetPasswordToken))
+            .Where(x => x.ResetPasswordToken == request.Token)
+            .Where(x => x.ResetPasswordTokenExpiration > DateTime.Now)
+            .FirstOrDefaultAsync();
 
-        if (user == null || !user.ValidateToken(request.Token))
+        if (user == null)
         {
             throw new UnauthorizedException();
         }
 
         user.SetPassword(request.Password);
-
-        user.ClearVerificationTokens(all: true);
 
         await _context.SaveChangesAsync(cancellationToken);
 

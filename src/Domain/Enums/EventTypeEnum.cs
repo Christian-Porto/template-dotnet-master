@@ -1,8 +1,8 @@
 using System.ComponentModel;
 
-namespace ManagementExtensionActivities.Core.Domain.Enums;
+namespace ExtensionEventsManager.Core.Domain.Enums;
 
-public enum EventType
+public enum EventTypeEnum
 {
     [Description("Palestra")]
     Lecture = 1,

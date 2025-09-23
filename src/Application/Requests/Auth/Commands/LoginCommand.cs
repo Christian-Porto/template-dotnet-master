@@ -1,11 +1,11 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using ManagementExtensionActivities.Core.Application.Common.Interfaces;
-using ManagementExtensionActivities.Core.Application.Exceptions;
-using ManagementExtensionActivities.Core.Application.Requests.Auth.Models;
-using ManagementExtensionActivities.Core.Domain.Common.Enums;
+using ExtensionEventsManager.Core.Application.Common.Interfaces;
+using ExtensionEventsManager.Core.Application.Exceptions;
+using ExtensionEventsManager.Core.Application.Requests.Auth.Models;
+using ExtensionEventsManager.Core.Domain.Common.Enums;
 
-namespace ManagementExtensionActivities.Core.Application.Requests.Auth.Commands;
+namespace ExtensionEventsManager.Core.Application.Requests.Auth.Commands;
 public class LoginCommand : IRequest<AuthResponse>
 {
     public string Email { get; set; }

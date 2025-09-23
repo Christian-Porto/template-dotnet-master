@@ -4,7 +4,7 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<RootNamespace>ManagementExtensionActivities.Core.WebAPI</RootNamespace>
+		<RootNamespace>ExtensionEventsManager.Core.WebAPI</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>

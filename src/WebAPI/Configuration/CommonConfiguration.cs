@@ -1,11 +1,11 @@
 ﻿using Serilog;
-using ManagementExtensionActivities.Core.Application;
-using ManagementExtensionActivities.Core.Application.Common.Interfaces;
-using ManagementExtensionActivities.Core.Application.Common.Options;
-using ManagementExtensionActivities.Core.Infrastructure;
-using ManagementExtensionActivities.Core.WebAPI.Services;
+using ExtensionEventsManager.Core.Application;
+using ExtensionEventsManager.Core.Application.Common.Interfaces;
+using ExtensionEventsManager.Core.Application.Common.Options;
+using ExtensionEventsManager.Core.Infrastructure;
+using ExtensionEventsManager.Core.WebAPI.Services;
 
-namespace ManagementExtensionActivities.Core.WebAPI.Configuration;
+namespace ExtensionEventsManager.Core.WebAPI.Configuration;
 
 public static class CommonConfiguration
 {
@@ -42,6 +42,6 @@ public static class CommonConfiguration
         app.MapControllers();
 
         // SignalR hubs
-        app.MapHub<ManagementExtensionActivities.Core.WebAPI.Hubs.ChatHub>("/hubs/chat");
+        app.MapHub<ExtensionEventsManager.Core.WebAPI.Hubs.ChatHub>("/hubs/chat");
     }
 }

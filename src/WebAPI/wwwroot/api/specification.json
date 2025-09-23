@@ -128,84 +128,6 @@
         }
       }
     },
-    "/auth/verification-code": {
-      "get": {
-        "tags": [
-          "Auth"
-        ],
-        "operationId": "Auth_GetChangeEmailCode",
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/auth/email": {
-      "patch": {
-        "tags": [
-          "Auth"
-        ],
-        "operationId": "Auth_ChangeEmail",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChangeEmailCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/auth/password": {
-      "patch": {
-        "tags": [
-          "Auth"
-        ],
-        "operationId": "Auth_ChangePassword",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChangePasswordCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
     "/chats/messages": {
       "get": {
         "tags": [
@@ -395,6 +317,66 @@
       }
     },
     "/registrations": {
+      "get": {
+        "tags": [
+          "Registrations"
+        ],
+        "operationId": "Registrations_List",
+        "parameters": [
+          {
+            "name": "Status",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/RegistrationStatusEnum"
+                }
+              ]
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Attended",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 3
+          },
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 4
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedListOfRegistrationResponse"
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "tags": [
           "Registrations"
@@ -411,6 +393,50 @@
           },
           "required": true,
           "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/registrations/{id}": {
+      "put": {
+        "tags": [
+          "Registrations"
+        ],
+        "operationId": "Registrations_Update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRegistrationCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
         },
         "responses": {
           "200": {
@@ -462,6 +488,17 @@
           },
           "password": {
             "type": "string"
+          },
+          "enrollment": {
+            "type": "string"
+          },
+          "period": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cpf": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -473,30 +510,6 @@
             "type": "string"
           },
           "token": {
-            "type": "string"
-          }
-        }
-      },
-      "ChangeEmailCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "validationCode": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          }
-        }
-      },
-      "ChangePasswordCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "validationCode": {
-            "type": "string"
-          },
-          "password": {
             "type": "string"
           }
         }
@@ -598,7 +611,7 @@
             "type": "string"
           },
           "type": {
-            "$ref": "#/components/schemas/EventType"
+            "$ref": "#/components/schemas/EventTypeEnum"
           },
           "description": {
             "type": "string"
@@ -630,7 +643,7 @@
           }
         }
       },
-      "EventType": {
+      "EventTypeEnum": {
         "type": "integer",
         "description": "",
         "x-enumNames": [
@@ -678,7 +691,7 @@
             "type": "string"
           },
           "type": {
-            "$ref": "#/components/schemas/EventType"
+            "$ref": "#/components/schemas/EventTypeEnum"
           },
           "description": {
             "type": "string"
@@ -718,7 +731,7 @@
             "type": "string"
           },
           "type": {
-            "$ref": "#/components/schemas/EventType"
+            "$ref": "#/components/schemas/EventTypeEnum"
           },
           "description": {
             "type": "string"
@@ -750,15 +763,81 @@
           }
         }
       },
+      "PaginatedListOfRegistrationResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegistrationResponse"
+            }
+          },
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
       "RegistrationResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
           "date": {
             "type": "string",
             "format": "date-time"
+          },
+          "status": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RegistrationStatusEnum"
+              }
+            ]
+          },
+          "attended": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "justification": {
+            "type": "string",
+            "nullable": true
+          },
+          "participationsCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
+      },
+      "RegistrationStatusEnum": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "NotSelected",
+          "Selected"
+        ],
+        "enum": [
+          0,
+          1
+        ]
       },
       "CreateRegistrationCommand": {
         "type": "object",
@@ -771,6 +850,28 @@
           "eventId": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "UpdateRegistrationCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RegistrationStatusEnum"
+              }
+            ]
+          },
+          "attended": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "justification": {
+            "type": "string",
+            "nullable": true
           }
         }
       }

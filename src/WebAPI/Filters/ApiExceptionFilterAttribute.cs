@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using ManagementExtensionActivities.Core.Application.Exceptions;
+using ExtensionEventsManager.Core.Application.Exceptions;
 
-namespace ManagementExtensionActivities.Core.WebAPI.Filters;
+namespace ExtensionEventsManager.Core.WebAPI.Filters;
 
 public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 {

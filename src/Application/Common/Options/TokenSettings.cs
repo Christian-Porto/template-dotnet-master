@@ -1,4 +1,4 @@
-﻿namespace ManagementExtensionActivities.Core.Application.Common.Options;
+﻿namespace ExtensionEventsManager.Core.Application.Common.Options;
 public class TokenSettings
 {
     public string SecurityKey { get; set; }

@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
+namespace ExtensionEventsManager.Core.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class AddAll : Migration
@@ -36,10 +38,10 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "longtext", nullable: false)
+                    Name = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Type = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "longtext", nullable: false)
+                    Description = table.Column<string>(type: "varchar(2056)", maxLength: 2056, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     EventDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -80,7 +82,14 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
                     Email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Password = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Enrollment = table.Column<int>(type: "int", nullable: false),
+                    Profile = table.Column<int>(type: "int", nullable: false),
+                    Period = table.Column<int>(type: "int", nullable: false),
+                    Cpf = table.Column<int>(type: "int", nullable: false),
+                    ResetPasswordToken = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ResetPasswordTokenExpiration = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -148,9 +157,9 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
                     Date = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: true),
                     Attended = table.Column<bool>(type: "tinyint(1)", nullable: true),
-                    Justification = table.Column<string>(type: "longtext", nullable: true)
+                    Justification = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Report = table.Column<string>(type: "longtext", nullable: true)
+                    Report = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ReportIncludedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true)
                 },
@@ -172,29 +181,15 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
-            migrationBuilder.CreateTable(
-                name: "VerificationToken",
-                columns: table => new
+            migrationBuilder.InsertData(
+                table: "Shift",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Token = table.Column<string>(type: "varchar(6)", maxLength: 6, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Expiration = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    ResendCount = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_VerificationToken", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_VerificationToken_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
+                    { 1, 1 },
+                    { 2, 2 },
+                    { 3, 3 }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ChatMessages_ChatId",
@@ -223,15 +218,16 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Shift_Name",
+                table: "Shift",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
                 table: "Users",
                 column: "Email",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_VerificationToken_UserId",
-                table: "VerificationToken",
-                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -245,9 +241,6 @@ namespace ManagementExtensionActivities.Core.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Registrations");
-
-            migrationBuilder.DropTable(
-                name: "VerificationToken");
 
             migrationBuilder.DropTable(
                 name: "Chats");

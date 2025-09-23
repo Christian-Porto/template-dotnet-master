@@ -1,17 +1,19 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using ManagementExtensionActivities.Core.Application.Common.Interfaces;
-using ManagementExtensionActivities.Core.Application.Exceptions;
-using ManagementExtensionActivities.Core.Application.Requests.Auth.Models;
-using ManagementExtensionActivities.Core.Domain.Entities;
+using ExtensionEventsManager.Core.Application.Common.Interfaces;
+using ExtensionEventsManager.Core.Application.Exceptions;
+using ExtensionEventsManager.Core.Application.Requests.Auth.Models;
+using ExtensionEventsManager.Core.Domain.Entities;
 
-namespace ManagementExtensionActivities.Core.Application.Requests.Auth.Commands;
+namespace ExtensionEventsManager.Core.Application.Requests.Auth.Commands;
 public class RegisterCommand : IRequest<AuthResponse>
 {
     public string Name { get; set; }
-
     public string Email { get; set; }
     public string Password { get; set; }
+    public int Enrollment { get; set; }
+    public int Period { get; set; }
+    public int Cpf { get; set; }
 }
 
 public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthResponse>
@@ -30,17 +32,16 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthRespo
         {
             var email = request.Email.ToLower().Trim().Replace(" ", "");
 
-            var emailExists = await _context.Users.AnyAsync(x => x.Email ==  email);
+            var emailExists = await _context.Users.AnyAsync(x => x.Email == email);
 
             if (emailExists)
             {
                 throw new BadRequestException("Login already exists");
             }
 
-            var user = new User(request.Name, email);
+            var user = new User(request.Name, email, request.Enrollment, request.Period, request.Cpf);
 
             user.SetPassword(request.Password);
-
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync(cancellationToken);
 

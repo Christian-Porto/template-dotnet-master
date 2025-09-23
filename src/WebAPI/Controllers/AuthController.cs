@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ManagementExtensionActivities.Core.Application.Requests.Auth.Commands;
-using ManagementExtensionActivities.Core.Application.Requests.Auth.Models;
-using ManagementExtensionActivities.Core.Application.Requests.Auth.Queries;
-using ManagementExtensionActivities.Core.WebAPI.Common.Controllers;
+using ExtensionEventsManager.Core.Application.Requests.Auth.Commands;
+using ExtensionEventsManager.Core.Application.Requests.Auth.Models;
+using ExtensionEventsManager.Core.Application.Requests.Auth.Queries;
+using ExtensionEventsManager.Core.WebAPI.Common.Controllers;
 
-namespace ManagementExtensionActivities.Core.WebAPI.Controllers;
+namespace ExtensionEventsManager.Core.WebAPI.Controllers;
 
 [Route("auth")]
 [Authorize]
@@ -44,27 +44,6 @@ public class AuthController : ApiControllerBase
     {
         command.SetEmail(login);
 
-        await Mediator.Send(command);
-    }
-
-    [HttpGet]
-    [Route("verification-code")]
-    public async Task GetChangeEmailCode()
-    {
-        await Mediator.Send(new GetVerificationTokenQuery());
-    }
-
-    [HttpPatch]
-    [Route("email")]
-    public async Task ChangeEmail(ChangeEmailCommand command)
-    {
-        await Mediator.Send(command);
-    }
-
-    [HttpPatch]
-    [Route("password")]
-    public async Task ChangePassword(ChangePasswordCommand command)
-    {
         await Mediator.Send(command);
     }
 }

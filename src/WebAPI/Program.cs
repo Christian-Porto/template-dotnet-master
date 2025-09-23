@@ -3,10 +3,10 @@ using Microsoft.IdentityModel.Tokens;
 using NSwag.Generation.Processors.Security;
 using NSwag;
 using System.Text;
-using ManagementExtensionActivities.Core.WebAPI.Filters;
-using ManagementExtensionActivities.Core.Infrastructure.Database;
+using ExtensionEventsManager.Core.WebAPI.Filters;
+using ExtensionEventsManager.Core.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-using ManagementExtensionActivities.Core.WebAPI.Configuration;
+using ExtensionEventsManager.Core.WebAPI.Configuration;
 using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);

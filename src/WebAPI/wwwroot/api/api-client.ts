@@ -20,9 +20,6 @@ export interface IAuthClient {
     register(command: RegisterCommand): Observable<AuthResponse>;
     resetPasswordGET(login: string): Observable<void>;
     resetPasswordPOST(login: string, command: ResetPasswordCommand): Observable<void>;
-    getChangeEmailCode(): Observable<void>;
-    changeEmail(command: ChangeEmailCommand): Observable<void>;
-    changePassword(command: ChangePasswordCommand): Observable<void>;
 }
 
 @Injectable({
@@ -222,146 +219,6 @@ export class AuthClient implements IAuthClient {
     }
 
     protected processResetPasswordPOST(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    getChangeEmailCode(): Observable<void> {
-        let url_ = this.baseUrl + "/auth/verification-code";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetChangeEmailCode(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetChangeEmailCode(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processGetChangeEmailCode(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    changeEmail(command: ChangeEmailCommand): Observable<void> {
-        let url_ = this.baseUrl + "/auth/email";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processChangeEmail(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processChangeEmail(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processChangeEmail(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    changePassword(command: ChangePasswordCommand): Observable<void> {
-        let url_ = this.baseUrl + "/auth/password";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processChangePassword(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processChangePassword(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processChangePassword(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -645,7 +502,9 @@ export class EventsClient implements IEventsClient {
 }
 
 export interface IRegistrationsClient {
+    list(status: RegistrationStatusEnum | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfRegistrationResponse>;
     create(command: CreateRegistrationCommand): Observable<RegistrationResponse>;
+    update(id: number, command: UpdateRegistrationCommand): Observable<RegistrationResponse>;
 }
 
 @Injectable({
@@ -659,6 +518,66 @@ export class RegistrationsClient implements IRegistrationsClient {
     constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
         this.http = http;
         this.baseUrl = baseUrl ?? "";
+    }
+
+    list(status: RegistrationStatusEnum | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfRegistrationResponse> {
+        let url_ = this.baseUrl + "/registrations?";
+        if (status !== undefined && status !== null)
+            url_ += "Status=" + encodeURIComponent("" + status) + "&";
+        if (attended !== undefined && attended !== null)
+            url_ += "Attended=" + encodeURIComponent("" + attended) + "&";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (pageIndex === null)
+            throw new Error("The parameter 'pageIndex' cannot be null.");
+        else if (pageIndex !== undefined)
+            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processList(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PaginatedListOfRegistrationResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PaginatedListOfRegistrationResponse>;
+        }));
+    }
+
+    protected processList(response: HttpResponseBase): Observable<PaginatedListOfRegistrationResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfRegistrationResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
     }
 
     create(command: CreateRegistrationCommand): Observable<RegistrationResponse> {
@@ -692,6 +611,61 @@ export class RegistrationsClient implements IRegistrationsClient {
     }
 
     protected processCreate(response: HttpResponseBase): Observable<RegistrationResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RegistrationResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    update(id: number, command: UpdateRegistrationCommand): Observable<RegistrationResponse> {
+        let url_ = this.baseUrl + "/registrations/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RegistrationResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RegistrationResponse>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<RegistrationResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -794,6 +768,9 @@ export class RegisterCommand implements IRegisterCommand {
     name?: string;
     email?: string;
     password?: string;
+    enrollment?: string;
+    period?: number;
+    cpf?: number;
 
     constructor(data?: IRegisterCommand) {
         if (data) {
@@ -809,6 +786,9 @@ export class RegisterCommand implements IRegisterCommand {
             this.name = _data["name"];
             this.email = _data["email"];
             this.password = _data["password"];
+            this.enrollment = _data["enrollment"];
+            this.period = _data["period"];
+            this.cpf = _data["cpf"];
         }
     }
 
@@ -824,6 +804,9 @@ export class RegisterCommand implements IRegisterCommand {
         data["name"] = this.name;
         data["email"] = this.email;
         data["password"] = this.password;
+        data["enrollment"] = this.enrollment;
+        data["period"] = this.period;
+        data["cpf"] = this.cpf;
         return data;
     }
 }
@@ -832,6 +815,9 @@ export interface IRegisterCommand {
     name?: string;
     email?: string;
     password?: string;
+    enrollment?: string;
+    period?: number;
+    cpf?: number;
 }
 
 export class ResetPasswordCommand implements IResetPasswordCommand {
@@ -872,86 +858,6 @@ export class ResetPasswordCommand implements IResetPasswordCommand {
 export interface IResetPasswordCommand {
     password?: string;
     token?: string;
-}
-
-export class ChangeEmailCommand implements IChangeEmailCommand {
-    validationCode?: string;
-    email?: string;
-
-    constructor(data?: IChangeEmailCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.validationCode = _data["validationCode"];
-            this.email = _data["email"];
-        }
-    }
-
-    static fromJS(data: any): ChangeEmailCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new ChangeEmailCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["validationCode"] = this.validationCode;
-        data["email"] = this.email;
-        return data;
-    }
-}
-
-export interface IChangeEmailCommand {
-    validationCode?: string;
-    email?: string;
-}
-
-export class ChangePasswordCommand implements IChangePasswordCommand {
-    validationCode?: string;
-    password?: string;
-
-    constructor(data?: IChangePasswordCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.validationCode = _data["validationCode"];
-            this.password = _data["password"];
-        }
-    }
-
-    static fromJS(data: any): ChangePasswordCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new ChangePasswordCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["validationCode"] = this.validationCode;
-        data["password"] = this.password;
-        return data;
-    }
-}
-
-export interface IChangePasswordCommand {
-    validationCode?: string;
-    password?: string;
 }
 
 export class PaginatedListOfChatMessageResponse implements IPaginatedListOfChatMessageResponse {
@@ -1137,7 +1043,7 @@ export interface IPaginatedListOfEventResponse {
 export class EventResponse implements IEventResponse {
     id?: number;
     name?: string;
-    type?: EventType;
+    type?: EventTypeEnum;
     description?: string;
     eventDate?: Date;
     startDate?: Date;
@@ -1204,7 +1110,7 @@ export class EventResponse implements IEventResponse {
 export interface IEventResponse {
     id?: number;
     name?: string;
-    type?: EventType;
+    type?: EventTypeEnum;
     description?: string;
     eventDate?: Date;
     startDate?: Date;
@@ -1214,7 +1120,7 @@ export interface IEventResponse {
     shifts?: ShiftEnum[];
 }
 
-export enum EventType {
+export enum EventTypeEnum {
     Lecture = 1,
     Dynamic = 2,
     Practice = 3,
@@ -1233,7 +1139,7 @@ export enum ShiftEnum {
 
 export class CreateEventCommand implements ICreateEventCommand {
     name?: string;
-    type?: EventType;
+    type?: EventTypeEnum;
     description?: string;
     eventDate?: Date;
     startDate?: Date;
@@ -1297,7 +1203,7 @@ export class CreateEventCommand implements ICreateEventCommand {
 
 export interface ICreateEventCommand {
     name?: string;
-    type?: EventType;
+    type?: EventTypeEnum;
     description?: string;
     eventDate?: Date;
     startDate?: Date;
@@ -1309,7 +1215,7 @@ export interface ICreateEventCommand {
 
 export class UpdateEventCommand implements IUpdateEventCommand {
     name?: string;
-    type?: EventType;
+    type?: EventTypeEnum;
     description?: string;
     eventDate?: Date;
     startDate?: Date;
@@ -1373,7 +1279,7 @@ export class UpdateEventCommand implements IUpdateEventCommand {
 
 export interface IUpdateEventCommand {
     name?: string;
-    type?: EventType;
+    type?: EventTypeEnum;
     description?: string;
     eventDate?: Date;
     startDate?: Date;
@@ -1383,8 +1289,77 @@ export interface IUpdateEventCommand {
     shifts?: ShiftEnum[];
 }
 
+export class PaginatedListOfRegistrationResponse implements IPaginatedListOfRegistrationResponse {
+    items?: RegistrationResponse[];
+    pageIndex?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfRegistrationResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(RegistrationResponse.fromJS(item));
+            }
+            this.pageIndex = _data["pageIndex"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfRegistrationResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfRegistrationResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageIndex"] = this.pageIndex;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfRegistrationResponse {
+    items?: RegistrationResponse[];
+    pageIndex?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
 export class RegistrationResponse implements IRegistrationResponse {
+    id?: number;
     date?: Date;
+    status?: RegistrationStatusEnum | undefined;
+    attended?: boolean | undefined;
+    justification?: string | undefined;
+    participationsCount?: number;
 
     constructor(data?: IRegistrationResponse) {
         if (data) {
@@ -1397,7 +1372,12 @@ export class RegistrationResponse implements IRegistrationResponse {
 
     init(_data?: any) {
         if (_data) {
+            this.id = _data["id"];
             this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.status = _data["status"];
+            this.attended = _data["attended"];
+            this.justification = _data["justification"];
+            this.participationsCount = _data["participationsCount"];
         }
     }
 
@@ -1410,13 +1390,28 @@ export class RegistrationResponse implements IRegistrationResponse {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
         data["date"] = this.date ? this.date.toISOString() : <any>undefined;
+        data["status"] = this.status;
+        data["attended"] = this.attended;
+        data["justification"] = this.justification;
+        data["participationsCount"] = this.participationsCount;
         return data;
     }
 }
 
 export interface IRegistrationResponse {
+    id?: number;
     date?: Date;
+    status?: RegistrationStatusEnum | undefined;
+    attended?: boolean | undefined;
+    justification?: string | undefined;
+    participationsCount?: number;
+}
+
+export enum RegistrationStatusEnum {
+    NotSelected = 0,
+    Selected = 1,
 }
 
 export class CreateRegistrationCommand implements ICreateRegistrationCommand {
@@ -1457,6 +1452,50 @@ export class CreateRegistrationCommand implements ICreateRegistrationCommand {
 export interface ICreateRegistrationCommand {
     userId?: number;
     eventId?: number;
+}
+
+export class UpdateRegistrationCommand implements IUpdateRegistrationCommand {
+    status?: RegistrationStatusEnum | undefined;
+    attended?: boolean | undefined;
+    justification?: string | undefined;
+
+    constructor(data?: IUpdateRegistrationCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.status = _data["status"];
+            this.attended = _data["attended"];
+            this.justification = _data["justification"];
+        }
+    }
+
+    static fromJS(data: any): UpdateRegistrationCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateRegistrationCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["status"] = this.status;
+        data["attended"] = this.attended;
+        data["justification"] = this.justification;
+        return data;
+    }
+}
+
+export interface IUpdateRegistrationCommand {
+    status?: RegistrationStatusEnum | undefined;
+    attended?: boolean | undefined;
+    justification?: string | undefined;
 }
 
 export class SwaggerException extends Error {

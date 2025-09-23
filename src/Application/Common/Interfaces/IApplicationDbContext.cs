@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ManagementExtensionActivities.Core.Domain.Entities;
+using ExtensionEventsManager.Core.Domain.Entities;
 
-namespace ManagementExtensionActivities.Core.Application.Common.Interfaces;
+namespace ExtensionEventsManager.Core.Application.Common.Interfaces;
 
 public interface IApplicationDbContext
 {
@@ -10,6 +10,7 @@ public interface IApplicationDbContext
     public DbSet<Registration> Registrations { get; set; }
     public DbSet<Chat> Chats { get; set; }
     public DbSet<ChatMessage> ChatMessages { get; set; }
+    public DbSet<Shift> Shifts { get; set; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

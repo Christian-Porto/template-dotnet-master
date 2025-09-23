@@ -2,7 +2,7 @@
 using System.Net;
 using System.Text;
 
-namespace ManagementExtensionActivities.Core.WebAPI.Middlewares;
+namespace ExtensionEventsManager.Core.WebAPI.Middlewares;
 
 public class BasicAuthMiddleware
 {

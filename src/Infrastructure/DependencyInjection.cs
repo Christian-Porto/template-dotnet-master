@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using ManagementExtensionActivities.Core.Application.Common.Interfaces;
-using ManagementExtensionActivities.Core.Infrastructure.Database;
-using ManagementExtensionActivities.Core.Infrastructure.Services;
+using ExtensionEventsManager.Core.Application.Common.Interfaces;
+using ExtensionEventsManager.Core.Infrastructure.Database;
+using ExtensionEventsManager.Core.Infrastructure.Services;
 
-namespace ManagementExtensionActivities.Core.Infrastructure;
+namespace ExtensionEventsManager.Core.Infrastructure;
 
 public static class DependencyInjection
 {

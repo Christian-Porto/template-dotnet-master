@@ -1,18 +1,21 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FluentValidation;
-using ManagementExtensionActivities.Core.Application.Common.Interfaces;
-using ManagementExtensionActivities.Core.Application.Requests.Events.Models;
-using ManagementExtensionActivities.Core.Domain.Common.Enums;
-using ManagementExtensionActivities.Core.Domain.Entities;
-using ManagementExtensionActivities.Core.Domain.Enums;
+using ExtensionEventsManager.Core.Application.Common.Interfaces;
+using ExtensionEventsManager.Core.Application.Requests.Events.Models;
+using ExtensionEventsManager.Core.Domain.Common.Enums;
+using ExtensionEventsManager.Core.Domain.Entities;
+using ExtensionEventsManager.Core.Domain.Enums;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using ExtensionEventsManager.Core.Application.Common.Auth;
 
-namespace ManagementExtensionActivities.Core.Application.Requests.Events.Commands
+namespace ExtensionEventsManager.Core.Application.Requests.Events.Commands
 {
+    [Authorize(Permission = new ProfileEnum[] { ProfileEnum.Administrator, ProfileEnum.Monitor })]
     public class CreateEventCommand : IRequest<EventResponse>
     {
         public string Name { get; set; }
-        public EventType Type { get; set; }
+        public EventTypeEnum Type { get; set; }
         public string Description { get; set; }
         public DateTime EventDate { get; set; }
         public DateTime StartDate { get; set; }
@@ -26,39 +29,45 @@ namespace ManagementExtensionActivities.Core.Application.Requests.Events.Command
     {
         public CreateEventCommandValidator()
         {
-
-            // Fazer as validações aqui
             RuleFor(c => c.Name)
                 .NotEmpty().WithMessage("O nome é obrigatório.")
-                .MaximumLength(255).WithMessage("O nome não pode exceder 255 caracteres."); ;
+                .MaximumLength(255).WithMessage("O nome não pode exceder 255 caracteres.");
 
             RuleFor(c => c.Description)
                 .NotEmpty().WithMessage("A descrição é obrigatória.")
                 .MaximumLength(2056).WithMessage("A descrição não pode exceder 2056 caracteres.");
 
-            RuleFor(c => c.Type).NotEmpty().WithMessage("O tipo do evento é obrigatório.");
+            RuleFor(c => c.Type)
+                .NotEmpty().WithMessage("O tipo do evento é obrigatório.")
+                .Must(v => Enum.IsDefined(typeof(EventTypeEnum), v)).WithMessage("Tipo de evento inválido.");
+
             RuleFor(c => c.StartDate).NotEmpty().WithMessage("A data de início das inscrições é obrigatória.");
             RuleFor(c => c.EndDate).NotEmpty().WithMessage("A data de fim das inscrições é obrigatória.");
             RuleFor(c => c.EventDate).NotEmpty().WithMessage("A data do evento é obrigatória.");
-            RuleFor(c => c.Status).NotEmpty().WithMessage("O status é obrigatório.");
-            RuleFor(c => c.Slots).NotEmpty().WithMessage("O número de vagas é obrigatório.");
 
-            RuleFor(c => c.Shifts)
-           .NotEmpty().WithMessage("O turno é obrigatório.")
-           .Must(shifts => shifts.Distinct().Count() == shifts.Count)
-           .WithMessage("Não pode haver turnos duplicados.");
-
-            RuleFor(c => c.StartDate)
-            .LessThanOrEqualTo(c => c.EndDate)
-            .WithMessage("A data de início das inscrições não pode ser posterior à data de fim.");
-
-            RuleFor(c => c.EventDate)
-            .GreaterThanOrEqualTo(c => c.EndDate)
-            .WithMessage("A data do evento deve ser igual ou posterior ao fim das inscrições.");
+            RuleFor(c => c.Status)
+                .NotEmpty().WithMessage("O status é obrigatório.")
+                .Must(v => Enum.IsDefined(typeof(Status), v)).WithMessage("Status inválido.");
 
             RuleFor(c => c.Slots)
-            .GreaterThan(0)
-            .WithMessage("O número de vagas deve ser maior que zero.");
+                .NotEmpty().WithMessage("O número de vagas é obrigatório.")
+                .GreaterThan(0).WithMessage("O número de vagas deve ser maior que zero.");
+
+            RuleFor(c => c.Shifts)
+                .NotEmpty().WithMessage("O turno é obrigatório.")
+                .Must(shifts => shifts.Distinct().Count() == shifts.Count)
+                .WithMessage("Não pode haver turnos duplicados.");
+
+            RuleForEach(c => c.Shifts)
+                .Must(v => Enum.IsDefined(typeof(ShiftEnum), v)).WithMessage("Turno inválido.");
+
+            RuleFor(c => c.StartDate)
+                .LessThanOrEqualTo(c => c.EndDate)
+                .WithMessage("A data de início das inscrições não pode ser posterior à data de fim.");
+
+            RuleFor(c => c.EventDate)
+                .GreaterThanOrEqualTo(c => c.EndDate)
+                .WithMessage("A data do evento deve ser igual ou posterior ao fim das inscrições.");
         }
     }
 
@@ -76,6 +85,11 @@ namespace ManagementExtensionActivities.Core.Application.Requests.Events.Command
         public async Task<EventResponse> Handle(CreateEventCommand request, CancellationToken cancellationToken)
         {
             var @event = _mapper.Map<Event>(request);
+            // Reuse existing Shift rows based on enum values
+            var existingShifts = await _context.Shifts
+                .Where(s => request.Shifts.Contains(s.Name))
+                .ToListAsync(cancellationToken);
+            @event.Shifts = existingShifts;
 
             await _context.Events.AddAsync(@event);
             await _context.SaveChangesAsync(cancellationToken);

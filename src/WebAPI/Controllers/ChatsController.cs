@@ -1,11 +1,11 @@
-using ManagementExtensionActivities.Core.Application.Common.Models;
-using ManagementExtensionActivities.Core.Application.Requests.Chat.Models;
-using ManagementExtensionActivities.Core.Application.Requests.Chat.Queries;
-using ManagementExtensionActivities.Core.WebAPI.Common.Controllers;
+using ExtensionEventsManager.Core.Application.Common.Models;
+using ExtensionEventsManager.Core.Application.Requests.Chat.Models;
+using ExtensionEventsManager.Core.Application.Requests.Chat.Queries;
+using ExtensionEventsManager.Core.WebAPI.Common.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ManagementExtensionActivities.Core.WebAPI.Controllers;
+namespace ExtensionEventsManager.Core.WebAPI.Controllers;
 
 [Route("chats")]
 [Authorize]
