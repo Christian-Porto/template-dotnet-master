@@ -216,8 +216,10 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Cpf")
-                        .HasColumnType("int");
+                    b.Property<string>("Cpf")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("varchar(11)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -256,6 +258,9 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                         .HasColumnType("varchar(16)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Cpf")
+                        .IsUnique();
 
                     b.HasIndex("Email")
                         .IsUnique();

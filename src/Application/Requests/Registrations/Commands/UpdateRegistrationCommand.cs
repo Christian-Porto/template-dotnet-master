@@ -1,10 +1,9 @@
 using AutoMapper;
-using FluentValidation;
 using ExtensionEventsManager.Core.Application.Common.Interfaces;
 using ExtensionEventsManager.Core.Application.Exceptions;
 using ExtensionEventsManager.Core.Application.Requests.Registrations.Models;
-using ExtensionEventsManager.Core.Domain.Entities;
 using ExtensionEventsManager.Core.Domain.Enums;
+using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

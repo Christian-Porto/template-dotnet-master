@@ -319,9 +319,10 @@ export class ChatsClient implements IChatsClient {
 }
 
 export interface IEventsClient {
-    list(pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse>;
-    create(command: CreateEventCommand): Observable<EventResponse>;
+    get(id: number): Observable<EventResponse>;
     update(id: number, command: UpdateEventCommand): Observable<EventResponse>;
+    list(type: EventTypeEnum | null | undefined, status: StatusEnum | null | undefined, name: string | null | undefined, startDate: Date | null | undefined, endDate: Date | null | undefined, onlyMine: boolean | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse>;
+    create(command: CreateEventCommand): Observable<EventResponse>;
 }
 
 @Injectable({
@@ -337,8 +338,128 @@ export class EventsClient implements IEventsClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    list(pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse> {
+    get(id: number): Observable<EventResponse> {
+        let url_ = this.baseUrl + "/events/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<EventResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<EventResponse>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<EventResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = EventResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    update(id: number, command: UpdateEventCommand): Observable<EventResponse> {
+        let url_ = this.baseUrl + "/events/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<EventResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<EventResponse>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<EventResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = EventResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    list(type: EventTypeEnum | null | undefined, status: StatusEnum | null | undefined, name: string | null | undefined, startDate: Date | null | undefined, endDate: Date | null | undefined, onlyMine: boolean | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse> {
         let url_ = this.baseUrl + "/events?";
+        if (type !== undefined && type !== null)
+            url_ += "Type=" + encodeURIComponent("" + type) + "&";
+        if (status !== undefined && status !== null)
+            url_ += "Status=" + encodeURIComponent("" + status) + "&";
+        if (name !== undefined && name !== null)
+            url_ += "Name=" + encodeURIComponent("" + name) + "&";
+        if (startDate !== undefined && startDate !== null)
+            url_ += "StartDate=" + encodeURIComponent(startDate ? "" + startDate.toISOString() : "") + "&";
+        if (endDate !== undefined && endDate !== null)
+            url_ += "EndDate=" + encodeURIComponent(endDate ? "" + endDate.toISOString() : "") + "&";
+        if (onlyMine !== undefined && onlyMine !== null)
+            url_ += "OnlyMine=" + encodeURIComponent("" + onlyMine) + "&";
+        if (attended !== undefined && attended !== null)
+            url_ += "Attended=" + encodeURIComponent("" + attended) + "&";
         if (pageSize === null)
             throw new Error("The parameter 'pageSize' cannot be null.");
         else if (pageSize !== undefined)
@@ -424,61 +545,6 @@ export class EventsClient implements IEventsClient {
     }
 
     protected processCreate(response: HttpResponseBase): Observable<EventResponse> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = EventResponse.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    update(id: number, command: UpdateEventCommand): Observable<EventResponse> {
-        let url_ = this.baseUrl + "/events/{id}";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUpdate(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processUpdate(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<EventResponse>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<EventResponse>;
-        }));
-    }
-
-    protected processUpdate(response: HttpResponseBase): Observable<EventResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -768,9 +834,9 @@ export class RegisterCommand implements IRegisterCommand {
     name?: string;
     email?: string;
     password?: string;
-    enrollment?: string;
+    enrollment?: number;
     period?: number;
-    cpf?: number;
+    cpf?: string;
 
     constructor(data?: IRegisterCommand) {
         if (data) {
@@ -815,9 +881,9 @@ export interface IRegisterCommand {
     name?: string;
     email?: string;
     password?: string;
-    enrollment?: string;
+    enrollment?: number;
     period?: number;
-    cpf?: number;
+    cpf?: string;
 }
 
 export class ResetPasswordCommand implements IResetPasswordCommand {
@@ -976,70 +1042,6 @@ export interface IChatMessageResponse {
     createdAtUtc?: Date;
 }
 
-export class PaginatedListOfEventResponse implements IPaginatedListOfEventResponse {
-    items?: EventResponse[];
-    pageIndex?: number;
-    totalPages?: number;
-    totalCount?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
-
-    constructor(data?: IPaginatedListOfEventResponse) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items!.push(EventResponse.fromJS(item));
-            }
-            this.pageIndex = _data["pageIndex"];
-            this.totalPages = _data["totalPages"];
-            this.totalCount = _data["totalCount"];
-            this.hasPreviousPage = _data["hasPreviousPage"];
-            this.hasNextPage = _data["hasNextPage"];
-        }
-    }
-
-    static fromJS(data: any): PaginatedListOfEventResponse {
-        data = typeof data === 'object' ? data : {};
-        let result = new PaginatedListOfEventResponse();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        data["pageIndex"] = this.pageIndex;
-        data["totalPages"] = this.totalPages;
-        data["totalCount"] = this.totalCount;
-        data["hasPreviousPage"] = this.hasPreviousPage;
-        data["hasNextPage"] = this.hasNextPage;
-        return data;
-    }
-}
-
-export interface IPaginatedListOfEventResponse {
-    items?: EventResponse[];
-    pageIndex?: number;
-    totalPages?: number;
-    totalCount?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
-}
-
 export class EventResponse implements IEventResponse {
     id?: number;
     name?: string;
@@ -1049,7 +1051,7 @@ export class EventResponse implements IEventResponse {
     startDate?: Date;
     endDate?: Date;
     slots?: number;
-    status?: Status;
+    status?: StatusEnum;
     shifts?: ShiftEnum[];
 
     constructor(data?: IEventResponse) {
@@ -1116,7 +1118,7 @@ export interface IEventResponse {
     startDate?: Date;
     endDate?: Date;
     slots?: number;
-    status?: Status;
+    status?: StatusEnum;
     shifts?: ShiftEnum[];
 }
 
@@ -1126,15 +1128,81 @@ export enum EventTypeEnum {
     Practice = 3,
 }
 
-export enum Status {
-    Inactive = 0,
-    Active = 1,
+export enum StatusEnum {
+    OpenForRegistration = 1,
+    RegistrationClosed = 2,
+    Completed = 3,
+    InProgress = 4,
 }
 
 export enum ShiftEnum {
     Morning = 1,
     Afternoon = 2,
     Evening = 3,
+}
+
+export class PaginatedListOfEventResponse implements IPaginatedListOfEventResponse {
+    items?: EventResponse[];
+    pageIndex?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfEventResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(EventResponse.fromJS(item));
+            }
+            this.pageIndex = _data["pageIndex"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfEventResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfEventResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageIndex"] = this.pageIndex;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfEventResponse {
+    items?: EventResponse[];
+    pageIndex?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
 }
 
 export class CreateEventCommand implements ICreateEventCommand {
@@ -1145,7 +1213,7 @@ export class CreateEventCommand implements ICreateEventCommand {
     startDate?: Date;
     endDate?: Date;
     slots?: number;
-    status?: Status;
+    status?: StatusEnum;
     shifts?: ShiftEnum[];
 
     constructor(data?: ICreateEventCommand) {
@@ -1209,7 +1277,7 @@ export interface ICreateEventCommand {
     startDate?: Date;
     endDate?: Date;
     slots?: number;
-    status?: Status;
+    status?: StatusEnum;
     shifts?: ShiftEnum[];
 }
 
@@ -1221,7 +1289,7 @@ export class UpdateEventCommand implements IUpdateEventCommand {
     startDate?: Date;
     endDate?: Date;
     slots?: number;
-    status?: Status;
+    status?: StatusEnum;
     shifts?: ShiftEnum[];
 
     constructor(data?: IUpdateEventCommand) {
@@ -1285,7 +1353,7 @@ export interface IUpdateEventCommand {
     startDate?: Date;
     endDate?: Date;
     slots?: number;
-    status?: Status;
+    status?: StatusEnum;
     shifts?: ShiftEnum[];
 }
 
@@ -1415,7 +1483,6 @@ export enum RegistrationStatusEnum {
 }
 
 export class CreateRegistrationCommand implements ICreateRegistrationCommand {
-    userId?: number;
     eventId?: number;
 
     constructor(data?: ICreateRegistrationCommand) {
@@ -1429,7 +1496,6 @@ export class CreateRegistrationCommand implements ICreateRegistrationCommand {
 
     init(_data?: any) {
         if (_data) {
-            this.userId = _data["userId"];
             this.eventId = _data["eventId"];
         }
     }
@@ -1443,14 +1509,12 @@ export class CreateRegistrationCommand implements ICreateRegistrationCommand {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["userId"] = this.userId;
         data["eventId"] = this.eventId;
         return data;
     }
 }
 
 export interface ICreateRegistrationCommand {
-    userId?: number;
     eventId?: number;
 }
 

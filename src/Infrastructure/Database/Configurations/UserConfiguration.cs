@@ -39,12 +39,15 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder
             .Property(x => x.Cpf)
-            .IsRequired();
+            .IsRequired()
+            .HasMaxLength(11);
 
         builder.Property(x => x.Status)
             .HasConversion(new EnumToStringConverter<Status>())
             .HasMaxLength(16);
 
         builder.HasIndex(x => x.Email).IsUnique();
+
+        builder.HasIndex(x => x.Cpf).IsUnique();
     }
 }

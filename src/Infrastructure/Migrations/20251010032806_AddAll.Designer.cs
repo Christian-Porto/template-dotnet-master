@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExtensionEventsManager.Core.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250917041736_AddAll")]
+    [Migration("20251010032806_AddAll")]
     partial class AddAll
     {
         /// <inheritdoc />
@@ -219,8 +219,10 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Cpf")
-                        .HasColumnType("int");
+                    b.Property<string>("Cpf")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("varchar(11)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -259,6 +261,9 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                         .HasColumnType("varchar(16)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Cpf")
+                        .IsUnique();
 
                     b.HasIndex("Email")
                         .IsUnique();

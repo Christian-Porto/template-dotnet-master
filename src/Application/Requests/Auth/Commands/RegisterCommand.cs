@@ -13,7 +13,7 @@ public class RegisterCommand : IRequest<AuthResponse>
     public string Password { get; set; }
     public int Enrollment { get; set; }
     public int Period { get; set; }
-    public int Cpf { get; set; }
+    public string Cpf { get; set; }
 }
 
 public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthResponse>

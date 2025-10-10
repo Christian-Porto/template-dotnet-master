@@ -86,7 +86,8 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                     Enrollment = table.Column<int>(type: "int", nullable: false),
                     Profile = table.Column<int>(type: "int", nullable: false),
                     Period = table.Column<int>(type: "int", nullable: false),
-                    Cpf = table.Column<int>(type: "int", nullable: false),
+                    Cpf = table.Column<string>(type: "varchar(11)", maxLength: 11, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     ResetPasswordToken = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ResetPasswordTokenExpiration = table.Column<DateTime>(type: "datetime(6)", nullable: false)
@@ -221,6 +222,12 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                 name: "IX_Shift_Name",
                 table: "Shift",
                 column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Cpf",
+                table: "Users",
+                column: "Cpf",
                 unique: true);
 
             migrationBuilder.CreateIndex(
