@@ -35,7 +35,7 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Queries
 
             if (result is null)
             {
-                throw new NotFoundException($"Event with id {request.Id} was not found.");
+                throw new NotFoundException($"Evento com id {request.Id} não foi encontrado.");
             }
 
             return result;

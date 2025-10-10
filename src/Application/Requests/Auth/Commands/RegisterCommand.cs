@@ -11,9 +11,6 @@ public class RegisterCommand : IRequest<AuthResponse>
     public string Name { get; set; }
     public string Email { get; set; }
     public string Password { get; set; }
-    public int Enrollment { get; set; }
-    public int Period { get; set; }
-    public string Cpf { get; set; }
 }
 
 public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthResponse>
@@ -36,10 +33,10 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthRespo
 
             if (emailExists)
             {
-                throw new BadRequestException("Login already exists");
+                throw new BadRequestException("O login já existe");
             }
 
-            var user = new User(request.Name, email, request.Enrollment, request.Period, request.Cpf);
+            var user = new User(request.Name, email);
 
             user.SetPassword(request.Password);
             await _context.Users.AddAsync(user);

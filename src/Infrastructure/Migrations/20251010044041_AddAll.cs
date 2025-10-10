@@ -86,7 +86,7 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                     Enrollment = table.Column<int>(type: "int", nullable: false),
                     Profile = table.Column<int>(type: "int", nullable: false),
                     Period = table.Column<int>(type: "int", nullable: false),
-                    Cpf = table.Column<string>(type: "varchar(11)", maxLength: 11, nullable: false)
+                    Cpf = table.Column<string>(type: "varchar(11)", maxLength: 11, nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ResetPasswordToken = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),

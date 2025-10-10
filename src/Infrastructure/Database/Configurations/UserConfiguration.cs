@@ -39,7 +39,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder
             .Property(x => x.Cpf)
-            .IsRequired()
             .HasMaxLength(11);
 
         builder.Property(x => x.Status)

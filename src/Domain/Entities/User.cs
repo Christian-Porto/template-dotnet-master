@@ -17,23 +17,11 @@ public class User : BaseEntity
     public int Enrollment {  get; protected set; }
     public ProfileEnum Profile { get; protected set; }
     public int Period { get; protected set; }
-    public string Cpf { get; protected set; }
+    public string? Cpf { get; protected set; }
     public string ResetPasswordToken { get; protected set; }
     public DateTime ResetPasswordTokenExpiration {  get; protected set; }
 
     private static readonly PasswordHasher<User> PasswordHasher = new PasswordHasher<User>();
-
-    public User(string name, string email, int enrollment, int period, string cpf)
-    {
-        SetName(name);
-        SetEmail(email);
-        SetEnrollment(enrollment);
-        SetPeriod(period);
-        SetCpf(cpf);
-
-        Status = Status.Active;
-        Profile = ProfileEnum.Administrator;
-    }
 
     public User(string name, string email)
     {
@@ -41,7 +29,7 @@ public class User : BaseEntity
         SetEmail(email);
 
         Status = Status.Active;
-        Profile = ProfileEnum.Administrator;
+        Profile = ProfileEnum.Student;
     }
 
     public void SetName(string name)
@@ -113,9 +101,6 @@ public class User : BaseEntity
 
     public void SetCpf(string cpf)
     {
-        if (string.IsNullOrWhiteSpace(cpf))
-            throw new DomainValidationException("CPF é obrigatório.");
-
         var digits = Regex.Replace(cpf, @"\D", "");
 
         if (!IsValidCpf(digits))

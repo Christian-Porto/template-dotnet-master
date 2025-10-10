@@ -20,6 +20,7 @@ export interface IAuthClient {
     register(command: RegisterCommand): Observable<AuthResponse>;
     resetPasswordGET(login: string): Observable<void>;
     resetPasswordPOST(login: string, command: ResetPasswordCommand): Observable<void>;
+    updateRegister(id: number, command: UpdateRegisterCommand): Observable<UpdateRegisterResponse>;
 }
 
 @Injectable({
@@ -228,6 +229,61 @@ export class AuthClient implements IAuthClient {
         if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    updateRegister(id: number, command: UpdateRegisterCommand): Observable<UpdateRegisterResponse> {
+        let url_ = this.baseUrl + "/auth/register/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateRegister(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateRegister(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<UpdateRegisterResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<UpdateRegisterResponse>;
+        }));
+    }
+
+    protected processUpdateRegister(response: HttpResponseBase): Observable<UpdateRegisterResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UpdateRegisterResponse.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -834,9 +890,6 @@ export class RegisterCommand implements IRegisterCommand {
     name?: string;
     email?: string;
     password?: string;
-    enrollment?: number;
-    period?: number;
-    cpf?: string;
 
     constructor(data?: IRegisterCommand) {
         if (data) {
@@ -852,9 +905,6 @@ export class RegisterCommand implements IRegisterCommand {
             this.name = _data["name"];
             this.email = _data["email"];
             this.password = _data["password"];
-            this.enrollment = _data["enrollment"];
-            this.period = _data["period"];
-            this.cpf = _data["cpf"];
         }
     }
 
@@ -870,9 +920,6 @@ export class RegisterCommand implements IRegisterCommand {
         data["name"] = this.name;
         data["email"] = this.email;
         data["password"] = this.password;
-        data["enrollment"] = this.enrollment;
-        data["period"] = this.period;
-        data["cpf"] = this.cpf;
         return data;
     }
 }
@@ -881,9 +928,6 @@ export interface IRegisterCommand {
     name?: string;
     email?: string;
     password?: string;
-    enrollment?: number;
-    period?: number;
-    cpf?: string;
 }
 
 export class ResetPasswordCommand implements IResetPasswordCommand {
@@ -924,6 +968,102 @@ export class ResetPasswordCommand implements IResetPasswordCommand {
 export interface IResetPasswordCommand {
     password?: string;
     token?: string;
+}
+
+export class UpdateRegisterResponse implements IUpdateRegisterResponse {
+    id?: number;
+    name?: string;
+    period?: number;
+    email?: string;
+    cpf?: string;
+
+    constructor(data?: IUpdateRegisterResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.period = _data["period"];
+            this.email = _data["email"];
+            this.cpf = _data["cpf"];
+        }
+    }
+
+    static fromJS(data: any): UpdateRegisterResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateRegisterResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["period"] = this.period;
+        data["email"] = this.email;
+        data["cpf"] = this.cpf;
+        return data;
+    }
+}
+
+export interface IUpdateRegisterResponse {
+    id?: number;
+    name?: string;
+    period?: number;
+    email?: string;
+    cpf?: string;
+}
+
+export class UpdateRegisterCommand implements IUpdateRegisterCommand {
+    name?: string;
+    period?: number;
+    cpf?: string;
+
+    constructor(data?: IUpdateRegisterCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.period = _data["period"];
+            this.cpf = _data["cpf"];
+        }
+    }
+
+    static fromJS(data: any): UpdateRegisterCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateRegisterCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["period"] = this.period;
+        data["cpf"] = this.cpf;
+        return data;
+    }
+}
+
+export interface IUpdateRegisterCommand {
+    name?: string;
+    period?: number;
+    cpf?: string;
 }
 
 export class PaginatedListOfChatMessageResponse implements IPaginatedListOfChatMessageResponse {
