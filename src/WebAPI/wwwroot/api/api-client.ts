@@ -296,6 +296,7 @@ export class AuthClient implements IAuthClient {
 
 export interface IChatsClient {
     listMessages(chatId: number | null | undefined, otherUserId: number | null | undefined, sort: string | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfChatMessageResponse>;
+    listUsers(): Observable<ChatUserResponse[]>;
 }
 
 @Injectable({
@@ -363,6 +364,61 @@ export class ChatsClient implements IChatsClient {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = PaginatedListOfChatMessageResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    listUsers(): Observable<ChatUserResponse[]> {
+        let url_ = this.baseUrl + "/chats/users";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processListUsers(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processListUsers(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ChatUserResponse[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ChatUserResponse[]>;
+        }));
+    }
+
+    protected processListUsers(response: HttpResponseBase): Observable<ChatUserResponse[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ChatUserResponse.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -626,7 +682,8 @@ export class EventsClient implements IEventsClient {
 export interface IRegistrationsClient {
     list(status: RegistrationStatusEnum | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfRegistrationResponse>;
     create(command: CreateRegistrationCommand): Observable<RegistrationResponse>;
-    update(id: number, command: UpdateRegistrationCommand): Observable<RegistrationResponse>;
+    updateAttendance(id: number, command: UpdateAttendanceCommand): Observable<RegistrationResponse>;
+    updateStatus(id: number, command: UpdateRegistrationStatusCommand): Observable<RegistrationResponse>;
 }
 
 @Injectable({
@@ -754,8 +811,8 @@ export class RegistrationsClient implements IRegistrationsClient {
         return _observableOf(null as any);
     }
 
-    update(id: number, command: UpdateRegistrationCommand): Observable<RegistrationResponse> {
-        let url_ = this.baseUrl + "/registrations/{id}";
+    updateAttendance(id: number, command: UpdateAttendanceCommand): Observable<RegistrationResponse> {
+        let url_ = this.baseUrl + "/registrations/{id}/attendance";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -774,11 +831,11 @@ export class RegistrationsClient implements IRegistrationsClient {
         };
 
         return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUpdate(response_);
+            return this.processUpdateAttendance(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processUpdate(response_ as any);
+                    return this.processUpdateAttendance(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<RegistrationResponse>;
                 }
@@ -787,7 +844,62 @@ export class RegistrationsClient implements IRegistrationsClient {
         }));
     }
 
-    protected processUpdate(response: HttpResponseBase): Observable<RegistrationResponse> {
+    protected processUpdateAttendance(response: HttpResponseBase): Observable<RegistrationResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RegistrationResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    updateStatus(id: number, command: UpdateRegistrationStatusCommand): Observable<RegistrationResponse> {
+        let url_ = this.baseUrl + "/registrations/{id}/status";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateStatus(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateStatus(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RegistrationResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RegistrationResponse>;
+        }));
+    }
+
+    protected processUpdateStatus(response: HttpResponseBase): Observable<RegistrationResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1180,6 +1292,56 @@ export interface IChatMessageResponse {
     senderId?: number;
     content?: string;
     createdAtUtc?: Date;
+}
+
+export class ChatUserResponse implements IChatUserResponse {
+    id?: number;
+    name?: string;
+    profile?: ProfileEnum;
+
+    constructor(data?: IChatUserResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.profile = _data["profile"];
+        }
+    }
+
+    static fromJS(data: any): ChatUserResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChatUserResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["profile"] = this.profile;
+        return data;
+    }
+}
+
+export interface IChatUserResponse {
+    id?: number;
+    name?: string;
+    profile?: ProfileEnum;
+}
+
+export enum ProfileEnum {
+    Administrator = 1,
+    Monitor = 2,
+    Student = 3,
 }
 
 export class EventResponse implements IEventResponse {
@@ -1658,12 +1820,50 @@ export interface ICreateRegistrationCommand {
     eventId?: number;
 }
 
-export class UpdateRegistrationCommand implements IUpdateRegistrationCommand {
-    status?: RegistrationStatusEnum | undefined;
+export class UpdateAttendanceCommand implements IUpdateAttendanceCommand {
     attended?: boolean | undefined;
     justification?: string | undefined;
 
-    constructor(data?: IUpdateRegistrationCommand) {
+    constructor(data?: IUpdateAttendanceCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.attended = _data["attended"];
+            this.justification = _data["justification"];
+        }
+    }
+
+    static fromJS(data: any): UpdateAttendanceCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateAttendanceCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["attended"] = this.attended;
+        data["justification"] = this.justification;
+        return data;
+    }
+}
+
+export interface IUpdateAttendanceCommand {
+    attended?: boolean | undefined;
+    justification?: string | undefined;
+}
+
+export class UpdateRegistrationStatusCommand implements IUpdateRegistrationStatusCommand {
+    status?: RegistrationStatusEnum;
+
+    constructor(data?: IUpdateRegistrationStatusCommand) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1675,14 +1875,12 @@ export class UpdateRegistrationCommand implements IUpdateRegistrationCommand {
     init(_data?: any) {
         if (_data) {
             this.status = _data["status"];
-            this.attended = _data["attended"];
-            this.justification = _data["justification"];
         }
     }
 
-    static fromJS(data: any): UpdateRegistrationCommand {
+    static fromJS(data: any): UpdateRegistrationStatusCommand {
         data = typeof data === 'object' ? data : {};
-        let result = new UpdateRegistrationCommand();
+        let result = new UpdateRegistrationStatusCommand();
         result.init(data);
         return result;
     }
@@ -1690,16 +1888,12 @@ export class UpdateRegistrationCommand implements IUpdateRegistrationCommand {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["status"] = this.status;
-        data["attended"] = this.attended;
-        data["justification"] = this.justification;
         return data;
     }
 }
 
-export interface IUpdateRegistrationCommand {
-    status?: RegistrationStatusEnum | undefined;
-    attended?: boolean | undefined;
-    justification?: string | undefined;
+export interface IUpdateRegistrationStatusCommand {
+    status?: RegistrationStatusEnum;
 }
 
 export class SwaggerException extends Error {

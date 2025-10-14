@@ -60,6 +60,8 @@ namespace ExtensionEventsManager.Core.Application.Requests.Registrations.Command
             }
 
             var registration = _mapper.Map<Registration>(request);
+            // Set FK to current user to satisfy Users->Registrations constraint
+            registration.UserId = user.Id;
 
             await _context.Registrations.AddAsync(registration);
             await _context.SaveChangesAsync(cancellationToken);

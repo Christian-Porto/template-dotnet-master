@@ -43,7 +43,6 @@ public class AuthController : ApiControllerBase
     public async Task ResetPassword([FromRoute] string login, [FromBody] ResetPasswordCommand command)
     {
         command.SetEmail(login);
-
         await Mediator.Send(command);
     }
 
