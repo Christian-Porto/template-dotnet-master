@@ -1,0 +1,139 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto min-w-0 md:overflow-hidden">
+
+    <div class="relative flex flex-col md:flex-row flex-0 md:items-center md:justify-start pt-6 bg-card">
+        <button class="md:col-span-1 col-span-4 fuse-mat-dense" mat-flat-button [routerLink]="['/admin/events']">
+            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+            <span class="ml-2 mr-1">Voltar</span>
+        </button>
+    </div>
+    <div
+        class="relative flex flex-col md:flex-row flex-0 md:items-center md:justify-start gap-y-4 p-6 border-b bg-card">
+        <div class="text-4xl font-extrabold tracking-tight">Inscrições: <span class="font-normal">{{event?.name}}</span>
+        </div>
+    </div>
+
+    <div class="w-full">
+        @if(loading){
+        <div class="w-full h-96 flex justify-center items-center">
+            <mat-progress-spinner class="opacity-100 m-auto" [diameter]="100"
+                [mode]="'indeterminate'"></mat-progress-spinner>
+        </div>
+        }
+        @else {
+        @if(registrations?.items && registrations.items.length > 0){
+        <div class="w-full overflow-auto">
+            <table mat-table [dataSource]="registrations.items" class="w-full">
+
+                <!-- Nome Column -->
+                <ng-container matColumnDef="name" sticky>
+                    <th mat-header-cell *matHeaderCellDef class="bg-gray-50 dark:bg-gray-800">
+                        <span class="font-semibold">Nome</span>
+                    </th>
+                    <td mat-cell *matCellDef="let element" class="bg-white dark:bg-gray-900">
+                        <div class="py-2">
+                            {{element.userName || '-'}}
+                        </div>
+                    </td>
+                </ng-container>
+
+                <!-- Matrícula Column -->
+                <ng-container matColumnDef="enrollment">
+                    <th mat-header-cell *matHeaderCellDef class="bg-gray-50 dark:bg-gray-800">
+                        <span class="font-semibold">Matrícula</span>
+                    </th>
+                    <td mat-cell *matCellDef="let element">
+                        <div class="whitespace-nowrap">
+                            {{element.userEnrollment || '-'}}
+                        </div>
+                    </td>
+                </ng-container>
+
+                <!-- CPF Column -->
+                <ng-container matColumnDef="cpf">
+                    <th mat-header-cell *matHeaderCellDef class="bg-gray-50 dark:bg-gray-800">
+                        <span class="font-semibold">CPF</span>
+                    </th>
+                    <td mat-cell *matCellDef="let element">
+                        <div class="whitespace-nowrap">
+                            {{element.userCpf || '-'}}
+                        </div>
+                    </td>
+                </ng-container>
+
+                <!-- Período Column -->
+                <ng-container matColumnDef="period">
+                    <th mat-header-cell *matHeaderCellDef class="bg-gray-50 dark:bg-gray-800">
+                        <span class="font-semibold">Período</span>
+                    </th>
+                    <td mat-cell *matCellDef="let element">
+                        <div class="whitespace-nowrap">
+                            {{element.period || '-'}}
+                        </div>
+                    </td>
+                </ng-container>
+
+                <!-- Atividades Realizadas Column -->
+                <ng-container matColumnDef="participationsCount">
+                    <th mat-header-cell *matHeaderCellDef class="bg-gray-50 dark:bg-gray-800 text-center">
+                        <span class="font-semibold">Atividades Realizadas</span>
+                    </th>
+                    <td mat-cell *matCellDef="let element">
+                        <div class="text-center">
+                            <span class="font-medium">{{element.participationsCount || 0}}</span>
+                        </div>
+                    </td>
+                </ng-container>
+
+                <!-- Status Column -->
+                <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef class="bg-gray-50 dark:bg-gray-800">
+                        <span class="font-semibold">Status</span>
+                    </th>
+                    <td mat-cell *matCellDef="let element" class="py-2">
+                        <mat-form-field class="w-full max-w-xs" subscriptSizing="dynamic">
+                            <mat-select [value]="element.status"
+                                (selectionChange)="onStatusChange(element, $event.value)">
+                                <mat-option [value]="RegistrationStatusEnum.NotSelected">
+                                    <span class="flex items-center gap-2">
+                                        <span>Não Selecionado</span>
+                                    </span>
+                                </mat-option>
+                                <mat-option [value]="RegistrationStatusEnum.Selected">
+                                    <span class="flex items-center gap-2">
+                                        <span>Selecionado</span>
+                                    </span>
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </td>
+                </ng-container>
+
+                <!-- Paginator -->
+                <ng-container matColumnDef="paginator">
+                    <td mat-footer-cell *matFooterCellDef [colSpan]="displayedColumns.length" class="h-20">
+                        <mat-paginator class="bg-gray-50 dark:bg-transparent flex justify-end"
+                            [ngClass]="{'pointer-events-none': loading}" [length]="registrations?.totalCount || 0"
+                            [pageIndex]="pageIndex" [pageSize]="pageSize" [pageSizeOptions]="[10, 25, 50, 100]"
+                            [showFirstLastButtons]="true" (page)="onPageChange($event)">
+                        </mat-paginator>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                    class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"></tr>
+                <tr mat-footer-row *matFooterRowDef="['paginator']; sticky: true"></tr>
+            </table>
+        </div>
+        }
+        @else {
+        <div class="text-center py-20">
+            <mat-icon class="icon-size-16 text-gray-400 mb-4"
+                [svgIcon]="'heroicons_outline:clipboard-document-list'"></mat-icon>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Nenhuma inscrição encontrada</h3>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Não há inscrições para este evento.</p>
+        </div>
+        }
+        }
+    </div>
+</div>

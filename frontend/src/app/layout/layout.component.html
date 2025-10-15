@@ -1,9 +1,7 @@
-@if (layout === 'modern') {
-<modern-layout></modern-layout>
+@if (layout === 'empty') {
+    <empty-layout></empty-layout>
 }
 
-
-<!-- ----------------------------------------------------------------------------------------------------- -->
-<!-- Settings drawer - Remove this to remove the drawer and its button -->
-<!-- ----------------------------------------------------------------------------------------------------- -->
-<settings></settings>
+@if (layout === 'modern') {
+    <modern-layout></modern-layout>
+}

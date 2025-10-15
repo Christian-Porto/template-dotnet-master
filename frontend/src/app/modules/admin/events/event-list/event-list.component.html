@@ -1,0 +1,167 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto min-w-0 md:overflow-hidden">
+    <div
+        class="relative flex flex-col md:flex-row flex-0 md:items-center md:justify-between gap-y-4 p-6 border-b bg-card">
+        <div class="text-4xl font-extrabold tracking-tight">Eventos</div>
+
+        <form [formGroup]="form" class="grid grid-cols-4 gap-x-4 gap-y-4 shrink-0 items-center">
+            <mat-form-field class="md:col-span-1 col-span-4 fuse-mat-dense fuse-mat-rounded min-w-50"
+                [subscriptSizing]="'dynamic'">
+                <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_outline:magnifying-glass'"></mat-icon>
+                <input matInput formControlName="name" [autocomplete]="'off'" placeholder="Nome do evento">
+            </mat-form-field>
+
+            <mat-form-field class="md:col-span-1 col-span-4 fuse-mat-dense fuse-mat-rounded min-w-50"
+                [subscriptSizing]="'dynamic'">
+                <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_outline:magnifying-glass'"></mat-icon>
+
+                <mat-select formControlName="status" [placeholder]="'Status'">
+                    <mat-option [value]="null">Todos</mat-option>
+                    <mat-option [value]="StatusEnum.Completed"> {{StatusEnum.Completed | StatusEnum}} </mat-option>
+                    <mat-option [value]="StatusEnum.InProgress"> {{StatusEnum.InProgress | StatusEnum}} </mat-option>
+                    <mat-option [value]="StatusEnum.OpenForRegistration"> {{StatusEnum.OpenForRegistration |
+                        StatusEnum}} </mat-option>
+                    <mat-option [value]="StatusEnum.RegistrationClosed"> {{StatusEnum.RegistrationClosed | StatusEnum}}
+                    </mat-option>
+                </mat-select>
+
+            </mat-form-field>
+
+            <mat-form-field class="md:col-span-1 col-span-4 fuse-mat-dense fuse-mat-rounded min-w-50"
+                [subscriptSizing]="'dynamic'">
+                <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_outline:magnifying-glass'"></mat-icon>
+
+                <mat-select formControlName="type" [placeholder]="'Tipo'">
+                    <mat-option [value]="null">Todos</mat-option>
+                    <mat-option [value]="EventTypeEnum.Dynamic"> {{EventTypeEnum.Dynamic | EventTypeEnum}} </mat-option>
+                    <mat-option [value]="EventTypeEnum.Lecture"> {{EventTypeEnum.Lecture | EventTypeEnum}} </mat-option>
+                    <mat-option [value]="EventTypeEnum.Practice"> {{EventTypeEnum.Practice | EventTypeEnum}} </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <button class="md:col-span-1 col-span-4 fuse-mat-dense fuse-mat-rounded min-w-50" mat-flat-button
+                [color]="'primary'" [routerLink]="['/admin/events/create']">
+                <mat-icon class="icon-size-5" [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2 mr-1">Novo Evento</span>
+            </button>
+        </form>
+    </div>
+
+    @if(loading){
+    <div class="w-full h-full flex justify-center items-center m-auto">
+        <mat-progress-spinner class="opacity-100 m-auto" [diameter]="200"
+            [mode]="'indeterminate'"></mat-progress-spinner>
+    </div>
+
+    }
+    @else {
+    @if(events?.items.length > 0){
+    <div class="w-full overflow-auto">
+        <table mat-table [dataSource]="events?.items" multiTemplateDataRows>
+
+            <ng-container matColumnDef="name" sticky>
+                <th mat-header-cell *matHeaderCellDef> Nome </th>
+                <td mat-cell *matCellDef="let element" class="bg-white">
+                    <div>
+                        {{element.name}}
+                    </div>
+                </td>
+            </ng-container>
+
+
+            <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let element">
+                    <div class="whitespace-nowrap overflow-hidden">
+                        {{element.status | StatusEnum}}
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="type">
+                <th mat-header-cell *matHeaderCellDef>Tipo</th>
+                <td mat-cell *matCellDef="let element">
+                    <div>
+                        {{element.type | EventTypeEnum}}
+                    </div>
+                </td>
+            </ng-container>
+
+
+            <ng-container matColumnDef="datails">
+                <th mat-header-cell *matHeaderCellDef>
+                    <div class="w-full h-full flex justify-center">
+                        <span class="w-full text-center">Ações</span>
+                    </div>
+                </th>
+                <td mat-cell *matCellDef="let element">
+                    <div class="w-full h-full flex justify-center">
+                        <button class="min-w-10 min-h-10 px-2" mat-icon-button [matMenuTriggerFor]="postCardMenu09">
+                            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_outline:ellipsis-vertical'"></mat-icon>
+                        </button>
+                        <mat-menu #postCardMenu09="matMenu">
+                            <ng-container>
+                                <button mat-menu-item [routerLink]="['/admin/events/', element.id]">
+                                    <span class="flex items-center">
+                                        <mat-icon class="icon-size-5 mr-3"
+                                            [svgIcon]="'heroicons_outline:clipboard-document-list'"></mat-icon>
+                                        <span>Editar</span>
+                                    </span>
+                                </button>
+                                <button mat-menu-item [routerLink]="['/admin/events/', element.id, 'registrations']">
+                                    <span class="flex items-center">
+                                        <mat-icon class="icon-size-5 mr-3"
+                                            [svgIcon]="'heroicons_outline:clipboard-document-check'"></mat-icon>
+                                        <span>Inscrições</span>
+                                    </span>
+                                </button>
+                                <button mat-menu-item [routerLink]="['/admin/events/', element.id, 'attendances']">
+                                    <span class="flex items-center">
+                                        <mat-icon class="icon-size-5 mr-3"
+                                            [svgIcon]="'heroicons_outline:users'"></mat-icon>
+                                        <span>Presenças</span>
+                                    </span>
+                                </button>
+                            </ng-container>
+                        </mat-menu>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="paginator">
+                <td mat-footer-cell *matFooterCellDef [colSpan]="displayedColumns.length" class="h-20">
+                    <mat-paginator class="bg-gray-50 dark:bg-transparent flex justify-end"
+                        [ngClass]="{'pointer-events-none': loading}" [length]="events?.totalCount"
+                        [pageIndex]="pageIndex" [pageSize]="pageSize" [pageSizeOptions]="[10, 25, 50, 100]"
+                        [showFirstLastButtons]="true" (page)="pageEvent($event)">
+                    </mat-paginator>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="example-element-row"
+                [class.example-expanded-row]="expandedElement === element"></tr>
+            <tr mat-footer-row *matFooterRowDef="['paginator']; sticky: true"></tr>
+        </table>
+    </div>
+    }
+    @else {
+    <div>
+        <div class="text-center py-30">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                aria-hidden="true">
+                <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <h3 class="mt-2 text-md font-semibold text-gray-900">Sem eventos cadastrados</h3>
+            <p class="mt-1 text-md text-gray-500">Não há eventos disponíveis no momento.</p>
+            <div class="mt-6">
+                <button type="button" mat-flat-button [color]="'primary'" [routerLink]="['/admin/events/create']">
+                    <mat-icon class="icon-size-3" [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                    <span class="ml-2 mr-1">Adicionar novo evento</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    }
+    }
+</div>

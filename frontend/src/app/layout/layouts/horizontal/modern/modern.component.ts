@@ -12,7 +12,6 @@ import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { NavigationService } from 'app/core/navigation/navigation.service';
 import { Navigation } from 'app/core/navigation/navigation.types';
 import { MessagesComponent } from 'app/layout/common/messages/messages.component';
-import { NotificationsComponent } from 'app/layout/common/notifications/notifications.component';
 import { UserComponent } from 'app/layout/common/user/user.component';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -27,7 +26,6 @@ import { Subject, takeUntil } from 'rxjs';
         MatButtonModule,
         MatIconModule,
         MessagesComponent,
-        NotificationsComponent,
         UserComponent,
         RouterOutlet,
     ],
@@ -46,7 +44,7 @@ export class ModernLayoutComponent implements OnInit, OnDestroy {
         private _navigationService: NavigationService,
         private _fuseMediaWatcherService: FuseMediaWatcherService,
         private _fuseNavigationService: FuseNavigationService
-    ) { }
+    ) {}
 
     // -----------------------------------------------------------------------------------------------------
     // @ Accessors

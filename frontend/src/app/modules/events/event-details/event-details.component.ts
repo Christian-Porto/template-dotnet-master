@@ -1,0 +1,67 @@
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { EventsService } from '../services/events.service';
+import { EventResponse, EventTypeEnum, Status } from '../models/event.model';
+import { finalize } from 'rxjs';
+import { EventTypeEnumPipe } from "../pipes/EventTypeEnum.pipe";
+import { AsyncPipe, CurrencyPipe, DatePipe, NgClass, NgTemplateOutlet } from '@angular/common';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { StatusPipe } from '../pipes/Status.pipe';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatOptionModule, MatRippleModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+
+@Component({
+    selector: 'app-event-details',
+    imports: [EventTypeEnumPipe, StatusPipe, DatePipe, MatIcon, NgClass, MatProgressBarModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    NgClass,
+    MatSlideToggleModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatCheckboxModule,
+    MatRippleModule, RouterLink],
+    templateUrl: './event-details.component.html',
+    styleUrl: './event-details.component.scss'
+})
+export class EventDetailsComponent implements OnInit {
+    eventId: number | null = null;
+    event: EventResponse | null = null;
+
+    loading: boolean = false;
+
+    Status = Status;
+    EventTypeEnum = EventTypeEnum;
+    constructor(
+        private readonly eventsService: EventsService,
+        private readonly route: ActivatedRoute
+    ) { }
+
+    ngOnInit(): void {
+        this.eventId = +this.route.snapshot.paramMap.get('id');
+
+        this.getEvent();
+    }
+
+    getEvent() {
+        this.loading = true;
+        this.eventsService.getEventById(this.eventId!)
+            .pipe(finalize(() => this.loading = false))
+            .subscribe({
+                next: (event) => {
+                    this.event = event;
+                }
+            });
+    }
+}
