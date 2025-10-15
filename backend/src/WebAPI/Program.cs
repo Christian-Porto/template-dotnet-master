@@ -92,5 +92,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
     }
 }
 
+app.UseCors(x => x.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader().AllowCredentials());
+
 app.Run();
 
