@@ -28,9 +28,15 @@ namespace ExtensionEventsManager.Core.WebAPI.Controllers
             return await Mediator.Send(command);
         }
 
-        [HttpPut("{id}")]
-        [AllowAnonymous]
-        public async Task<RegistrationResponse> Update([FromRoute] int id, UpdateRegistrationCommand command)
+        [HttpPut("{id}/attendance")]
+        public async Task<RegistrationResponse> UpdateAttendance([FromRoute] int id, [FromBody] UpdateAttendanceCommand command)
+        {
+            command.SetId(id);
+            return await Mediator.Send(command);
+        }
+
+        [HttpPut("{id}/status")]
+        public async Task<RegistrationResponse> UpdateStatus([FromRoute] int id, [FromBody] UpdateRegistrationStatusCommand command)
         {
             command.SetId(id);
             return await Mediator.Send(command);

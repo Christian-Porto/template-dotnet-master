@@ -12,7 +12,6 @@ namespace ExtensionEventsManager.Core.Application.Mappings
             CreateMap<Registration, RegistrationResponse>();
             CreateMap<CreateRegistrationCommand, Registration>()
                 .ForMember(dest => dest.Date, opt => opt.MapFrom(_ => DateTime.Now));
-            CreateMap<UpdateRegistrationCommand, Registration>();
         }
     }
 }

@@ -21,10 +21,17 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
                .IsRequired()
                .HasMaxLength(2056);
 
-        builder.Property(x => x.EventDate).IsRequired();
-        builder.Property(x => x.StartDate).IsRequired();
-        builder.Property(x => x.EndDate).IsRequired();
-        builder.Property(x => x.Slots).IsRequired();
+        builder.Property(x => x.EventDate)
+                .IsRequired();
+
+        builder.Property(x => x.StartDate)
+                .IsRequired();
+
+        builder.Property(x => x.EndDate)
+                .IsRequired();
+
+        builder.Property(x => x.Slots)
+                .IsRequired();
 
         // Many-to-many with Shift uses EF Core conventions (join table EventShift)
         builder

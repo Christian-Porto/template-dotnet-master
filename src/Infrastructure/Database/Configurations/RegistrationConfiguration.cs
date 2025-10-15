@@ -13,7 +13,8 @@ public class RegistrationConfiguration : IEntityTypeConfiguration<Registration>
         builder.Property(x => x.Id)
                .UseMySqlIdentityColumn();
 
-        builder.Property(x => x.Date).IsRequired();
+        builder.Property(x => x.Date)
+                .IsRequired();
 
         builder.Property(x => x.Justification)
                .HasMaxLength(255);

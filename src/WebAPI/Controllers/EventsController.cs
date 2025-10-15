@@ -14,6 +14,13 @@ public class EventsController : ApiControllerBase
 {
     public EventsController() { }
 
+    [HttpGet("{id}")]
+    [AllowAnonymous]
+    public async Task<EventResponse> Get([FromRoute] int id)
+    {
+        return await Mediator.Send(new GetEventQuery { Id = id });
+    }
+
     [HttpGet]
     [AllowAnonymous]
     public async Task<PaginatedList<EventResponse>> List([FromQuery] ListEventsQuery query)

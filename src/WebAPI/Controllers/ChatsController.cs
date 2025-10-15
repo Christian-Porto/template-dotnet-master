@@ -16,5 +16,10 @@ public class ChatsController : ApiControllerBase
     {
         return await Mediator.Send(query);
     }
-}
 
+    [HttpGet("users")]
+    public async Task<List<ChatUserResponse>> ListUsers()
+    {
+        return await Mediator.Send(new ListChatUsersQuery());
+    }
+}

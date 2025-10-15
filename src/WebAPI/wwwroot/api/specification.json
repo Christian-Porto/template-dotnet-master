@@ -128,6 +128,55 @@
         }
       }
     },
+    "/auth/register/{id}": {
+      "put": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "Auth_UpdateRegister",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRegisterCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateRegisterResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/chats/messages": {
       "get": {
         "tags": [
@@ -202,6 +251,108 @@
         ]
       }
     },
+    "/chats/users": {
+      "get": {
+        "tags": [
+          "Chats"
+        ],
+        "operationId": "Chats_ListUsers",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatUserResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/events/{id}": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "operationId": "Events_Get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Events"
+        ],
+        "operationId": "Events_Update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEventCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/events": {
       "get": {
         "tags": [
@@ -210,13 +361,86 @@
         "operationId": "Events_List",
         "parameters": [
           {
+            "name": "Type",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/EventTypeEnum"
+                }
+              ]
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Status",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/StatusEnum"
+                }
+              ]
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Name",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "StartDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "EndDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 5
+          },
+          {
+            "name": "OnlyMine",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            },
+            "x-position": 6
+          },
+          {
+            "name": "Attended",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            },
+            "x-position": 7
+          },
+          {
             "name": "PageSize",
             "in": "query",
             "schema": {
               "type": "integer",
               "format": "int32"
             },
-            "x-position": 1
+            "x-position": 8
           },
           {
             "name": "PageIndex",
@@ -225,7 +449,7 @@
               "type": "integer",
               "format": "int32"
             },
-            "x-position": 2
+            "x-position": 9
           }
         ],
         "responses": {
@@ -257,50 +481,6 @@
           },
           "required": true,
           "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EventResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/events/{id}": {
-      "put": {
-        "tags": [
-          "Events"
-        ],
-        "operationId": "Events_Update",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateEventCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
         },
         "responses": {
           "200": {
@@ -408,12 +588,12 @@
         }
       }
     },
-    "/registrations/{id}": {
+    "/registrations/{id}/attendance": {
       "put": {
         "tags": [
           "Registrations"
         ],
-        "operationId": "Registrations_Update",
+        "operationId": "Registrations_UpdateAttendance",
         "parameters": [
           {
             "name": "id",
@@ -431,7 +611,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateRegistrationCommand"
+                "$ref": "#/components/schemas/UpdateAttendanceCommand"
               }
             }
           },
@@ -449,7 +629,61 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/registrations/{id}/status": {
+      "put": {
+        "tags": [
+          "Registrations"
+        ],
+        "operationId": "Registrations_UpdateStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRegistrationStatusCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     }
   },
@@ -488,17 +722,6 @@
           },
           "password": {
             "type": "string"
-          },
-          "enrollment": {
-            "type": "string"
-          },
-          "period": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "cpf": {
-            "type": "integer",
-            "format": "int32"
           }
         }
       },
@@ -510,6 +733,45 @@
             "type": "string"
           },
           "token": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateRegisterResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "period": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "email": {
+            "type": "string"
+          },
+          "cpf": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateRegisterCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "period": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cpf": {
             "type": "string"
           }
         }
@@ -569,35 +831,35 @@
           }
         }
       },
-      "PaginatedListOfEventResponse": {
+      "ChatUserResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/EventResponse"
-            }
-          },
-          "pageIndex": {
+          "id": {
             "type": "integer",
             "format": "int32"
           },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
+          "name": {
+            "type": "string"
           },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "hasPreviousPage": {
-            "type": "boolean"
-          },
-          "hasNextPage": {
-            "type": "boolean"
+          "profile": {
+            "$ref": "#/components/schemas/ProfileEnum"
           }
         }
+      },
+      "ProfileEnum": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Administrator",
+          "Monitor",
+          "Student"
+        ],
+        "enum": [
+          1,
+          2,
+          3
+        ]
       },
       "EventResponse": {
         "type": "object",
@@ -633,7 +895,7 @@
             "format": "int32"
           },
           "status": {
-            "$ref": "#/components/schemas/Status"
+            "$ref": "#/components/schemas/StatusEnum"
           },
           "shifts": {
             "type": "array",
@@ -657,16 +919,20 @@
           3
         ]
       },
-      "Status": {
+      "StatusEnum": {
         "type": "integer",
         "description": "",
         "x-enumNames": [
-          "Inactive",
-          "Active"
+          "OpenForRegistration",
+          "RegistrationClosed",
+          "Completed",
+          "InProgress"
         ],
         "enum": [
-          0,
-          1
+          1,
+          2,
+          3,
+          4
         ]
       },
       "ShiftEnum": {
@@ -682,6 +948,36 @@
           2,
           3
         ]
+      },
+      "PaginatedListOfEventResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventResponse"
+            }
+          },
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
       },
       "CreateEventCommand": {
         "type": "object",
@@ -713,7 +1009,7 @@
             "format": "int32"
           },
           "status": {
-            "$ref": "#/components/schemas/Status"
+            "$ref": "#/components/schemas/StatusEnum"
           },
           "shifts": {
             "type": "array",
@@ -753,7 +1049,7 @@
             "format": "int32"
           },
           "status": {
-            "$ref": "#/components/schemas/Status"
+            "$ref": "#/components/schemas/StatusEnum"
           },
           "shifts": {
             "type": "array",
@@ -843,28 +1139,16 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "userId": {
-            "type": "integer",
-            "format": "int32"
-          },
           "eventId": {
             "type": "integer",
             "format": "int32"
           }
         }
       },
-      "UpdateRegistrationCommand": {
+      "UpdateAttendanceCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "status": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/RegistrationStatusEnum"
-              }
-            ]
-          },
           "attended": {
             "type": "boolean",
             "nullable": true
@@ -872,6 +1156,15 @@
           "justification": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "UpdateRegistrationStatusCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/RegistrationStatusEnum"
           }
         }
       }

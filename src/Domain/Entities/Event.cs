@@ -1,5 +1,4 @@
 using ExtensionEventsManager.Core.Domain.Common.Entities;
-using ExtensionEventsManager.Core.Domain.Common.Enums;
 using ExtensionEventsManager.Core.Domain.Enums;
 
 namespace ExtensionEventsManager.Core.Domain.Entities;
@@ -13,7 +12,7 @@ public class Event : BaseEntity
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public int Slots { get; set; }
-    public Status Status { get; set; }
+    public StatusEnum Status { get; set; }
     public IList<Shift> Shifts { get; set; } = new List<Shift>();
 
     private Event() { }

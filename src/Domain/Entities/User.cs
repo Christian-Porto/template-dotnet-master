@@ -17,23 +17,11 @@ public class User : BaseEntity
     public int Enrollment {  get; protected set; }
     public ProfileEnum Profile { get; protected set; }
     public int Period { get; protected set; }
-    public int Cpf { get; protected set; }
+    public string? Cpf { get; protected set; }
     public string ResetPasswordToken { get; protected set; }
     public DateTime ResetPasswordTokenExpiration {  get; protected set; }
 
     private static readonly PasswordHasher<User> PasswordHasher = new PasswordHasher<User>();
-
-    public User(string name, string email, int enrollment, int period, int cpf)
-    {
-        SetName(name);
-        SetEmail(email);
-        SetEnrollment(enrollment);
-        SetPeriod(period);
-        SetCpf(cpf);
-
-        Status = Status.Active;
-        Profile = ProfileEnum.Administrator;
-    }
 
     public User(string name, string email)
     {
@@ -41,7 +29,7 @@ public class User : BaseEntity
         SetEmail(email);
 
         Status = Status.Active;
-        Profile = ProfileEnum.Administrator;
+        Profile = ProfileEnum.Student;
     }
 
     public void SetName(string name)
@@ -111,39 +99,40 @@ public class User : BaseEntity
         Period = period;
     }
 
-    public void SetCpf(int cpf)
+    public void SetCpf(string cpf)
     {
-        if (!IsValidCpf(cpf))
-        {
-            throw new DomainValidationException("CPF inválido");
-        }
+        var digits = Regex.Replace(cpf, @"\D", "");
 
-        Cpf = cpf;
+        if (!IsValidCpf(digits))
+            throw new DomainValidationException("CPF inválido.");
+
+        Cpf = digits;
     }
 
-    private static bool IsValidCpf(int cpfNumber)
+    private static bool IsValidCpf(string digitsOnly)
     {
-        var cpf = cpfNumber.ToString().PadLeft(11, '0');
-
-        if (cpf.Length != 11)
+        if (string.IsNullOrEmpty(digitsOnly) || digitsOnly.Length != 11)
             return false;
 
-        if (new string(cpf[0], cpf.Length) == cpf)
+        if (new string(digitsOnly[0], 11) == digitsOnly)
             return false;
 
         int sum = 0;
         for (int i = 0; i < 9; i++)
-            sum += (cpf[i] - '0') * (10 - i);
+            sum += (digitsOnly[i] - '0') * (10 - i);
+
         int remainder = sum % 11;
         int d1 = remainder < 2 ? 0 : 11 - remainder;
-        if ((cpf[9] - '0') != d1)
+        if ((digitsOnly[9] - '0') != d1)
             return false;
 
         sum = 0;
         for (int i = 0; i < 10; i++)
-            sum += (cpf[i] - '0') * (11 - i);
+            sum += (digitsOnly[i] - '0') * (11 - i);
+
         remainder = sum % 11;
         int d2 = remainder < 2 ? 0 : 11 - remainder;
-        return (cpf[10] - '0') == d2;
+
+        return (digitsOnly[10] - '0') == d2;
     }
 }
