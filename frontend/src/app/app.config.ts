@@ -1,8 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import {
     ApplicationConfig,
-    inject,
-    isDevMode,
     provideAppInitializer,
 } from '@angular/core';
 import { LuxonDateAdapter } from '@angular/material-luxon-adapter';
@@ -10,12 +8,12 @@ import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideFuse } from '@fuse';
-import { TranslocoService, provideTransloco } from '@jsverse/transloco';
 import { appRoutes } from 'app/app.routes';
 import { provideAuth } from 'app/core/auth/auth.provider';
 import { provideIcons } from 'app/core/icons/icons.provider';
 import { MockApiService } from 'app/mock-api';
-import { firstValueFrom } from 'rxjs';
+import { environment } from 'environments/environment';
+import { API_BASE_URL } from '../../api-client';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -44,6 +42,10 @@ export const appConfig: ApplicationConfig = {
                     monthYearA11yLabel: 'LLLL yyyy',
                 },
             },
+        },
+        {
+            provide: API_BASE_URL,
+            useValue: environment.apiBaseUrl
         },
 
         provideAppInitializer(() => { }),

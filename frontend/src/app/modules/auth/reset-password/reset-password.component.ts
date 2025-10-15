@@ -12,12 +12,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { FuseAlertComponent, FuseAlertType } from '@fuse/components/alert';
 import { FuseValidators } from '@fuse/validators';
 import { AuthService } from 'app/core/auth/auth.service';
 import { finalize } from 'rxjs';
+import { ResetPasswordCommand } from '../../../../../api-client';
 
 @Component({
     selector: 'auth-reset-password',
@@ -45,13 +46,15 @@ export class AuthResetPasswordComponent implements OnInit {
     };
     resetPasswordForm: UntypedFormGroup;
     showAlert: boolean = false;
+    token: string;
 
     /**
      * Constructor
      */
     constructor(
         private _authService: AuthService,
-        private _formBuilder: UntypedFormBuilder
+        private _formBuilder: UntypedFormBuilder,
+        private _route: ActivatedRoute
     ) {}
 
     // -----------------------------------------------------------------------------------------------------
@@ -62,9 +65,11 @@ export class AuthResetPasswordComponent implements OnInit {
      * On init
      */
     ngOnInit(): void {
+        this.token = this._route.snapshot.paramMap.get('token');
         // Create the form
         this.resetPasswordForm = this._formBuilder.group(
             {
+                email: ['', [Validators.required, Validators.email]],
                 password: ['', Validators.required],
                 passwordConfirm: ['', Validators.required],
             },
@@ -96,9 +101,14 @@ export class AuthResetPasswordComponent implements OnInit {
         // Hide the alert
         this.showAlert = false;
 
+        const command = new ResetPasswordCommand ({
+            token: this.token,
+            password: this.resetPasswordForm.get('password').value
+        });
+        
         // Send the request to the server
         this._authService
-            .resetPassword(this.resetPasswordForm.get('password').value)
+            .resetPassword(this.resetPasswordForm.get('email').value, command)
             .pipe(
                 finalize(() => {
                     // Re-enable the form

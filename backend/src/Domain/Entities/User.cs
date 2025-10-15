@@ -76,17 +76,7 @@ public class User : BaseEntity
 
     public string CreatePasswordResetToken()
     {
-        byte[] data = new byte[4];
-        RandomNumberGenerator.Fill(data);
-
-        var randomInteger = BitConverter.ToUInt32(data, 0);
-        var token = (randomInteger % 1000000).ToString("D6");
-
-        ResetPasswordToken = token;
-
-        ResetPasswordTokenExpiration = DateTime.Now.AddMinutes(30);
-
-        return token;
+        return Guid.NewGuid().ToString();
     }
 
     public void SetEnrollment(int enrollment)
