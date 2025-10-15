@@ -1,0 +1,179 @@
+<div class="flex min-w-0 flex-auto flex-col">
+
+    <div class="relative flex flex-col md:flex-row flex-0 md:items-center md:justify-start pt-6 px-6 bg-card">
+        <button class="md:col-span-1 col-span-4 fuse-mat-dense" mat-flat-button [routerLink]="['/admin/events']">
+            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+            <span class="ml-2 mr-1">Voltar</span>
+        </button>
+    </div>
+
+    <div
+        class="flex flex-col border-b bg-card px-6 py-8 dark:bg-transparent sm:flex-row sm:items-center sm:justify-between sm:px-10">
+
+        <div class="flex-1 min-w-0">
+            <h2 class="text-3xl font-extrabold leading-7 tracking-tight truncate sm:leading-10">
+                Editar Evento
+            </h2>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="flex-auto p-6 sm:p-10">
+        <!-- Form -->
+        <form class="bg-card flex flex-col overflow-hidden rounded-2xl shadow">
+            <div class="p-6 sm:p-8">
+                <!-- Basic Information -->
+                <div class="mb-8">
+                    <div class="mb-4 text-xl font-semibold">Informações Básicas</div>
+
+                    <div class="grid grid-cols-1 gap-6">
+                        <!-- Event Name -->
+                        <mat-form-field class="w-full">
+                            <mat-label>Nome do evento</mat-label>
+                            <input matInput />
+                            <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_solid:calendar'"></mat-icon>
+                        </mat-form-field>
+
+                        <!-- Description -->
+                        <mat-form-field class="w-full">
+                            <mat-label>Descrição</mat-label>
+                            <textarea matInput cdkTextareaAutosize [cdkAutosizeMinRows]="3"
+                                [cdkAutosizeMaxRows]="8"></textarea>
+                            <mat-icon class="icon-size-5" matPrefix
+                                [svgIcon]="'heroicons_solid:document-text'"></mat-icon>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <!-- Event Configuration -->
+                <div class="mb-8">
+                    <div class="mb-4 text-xl font-semibold">Configuração</div>
+
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <!-- Event Type -->
+                        <mat-form-field class="w-full">
+                            <mat-label>Tipo de evento</mat-label>
+                            <mat-select>
+                                <mat-option [value]="EventTypeEnum.Dynamic">
+                                    {{EventTypeEnum.Dynamic | EventTypeEnum}}
+                                </mat-option>
+                                <mat-option [value]="EventTypeEnum.Lecture">
+                                    {{EventTypeEnum.Lecture | EventTypeEnum}}
+                                </mat-option>
+                                <mat-option [value]="EventTypeEnum.Practice">
+                                    {{EventTypeEnum.Practice | EventTypeEnum}}
+                                </mat-option>
+                            </mat-select>
+                            <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_solid:tag'"></mat-icon>
+                        </mat-form-field>
+
+                        <!-- Event Status -->
+                        <mat-form-field class="w-full">
+                            <mat-label>Status do evento</mat-label>
+                            <mat-select>
+                                <mat-option [value]="StatusEnum.OpenForRegistration">
+                                    {{StatusEnum.OpenForRegistration | StatusEnum}}
+                                </mat-option>
+                                <mat-option [value]="StatusEnum.RegistrationClosed">
+                                    {{StatusEnum.RegistrationClosed | StatusEnum}}
+                                </mat-option>
+                                <mat-option [value]="StatusEnum.Completed">
+                                    {{StatusEnum.Completed | StatusEnum}}
+                                </mat-option>
+                                <mat-option [value]="StatusEnum.InProgress">
+                                    {{StatusEnum.InProgress | StatusEnum}}
+                                </mat-option>
+                            </mat-select>
+                            <mat-icon class="icon-size-5" matPrefix
+                                [svgIcon]="'heroicons_solid:information-circle'"></mat-icon>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <!-- Dates -->
+                <div class="mb-8">
+                    <div class="mb-4 text-xl font-semibold">Datas</div>
+
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <!-- Event Date -->
+                        <mat-form-field class="w-full">
+                            <mat-label>Data do Evento</mat-label>
+                            <input matInput [matDatepicker]="picker1" />
+                            <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_solid:calendar'"></mat-icon>
+                            <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                            <mat-datepicker #picker1></mat-datepicker>
+                        </mat-form-field>
+
+                        <!-- Registration Period -->
+                        <mat-form-field class="w-full">
+                            <mat-label>Período de Inscrição</mat-label>
+                            <input matInput [matDatepicker]="picker2" />
+                            <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_solid:calendar'"></mat-icon>
+                            <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                            <mat-datepicker #picker2></mat-datepicker>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <!-- Shifts Section -->
+                <div>
+                    <div class="mb-4 flex items-center justify-between">
+                        <div class="text-xl font-semibold">Turnos</div>
+                        <button mat-raised-button color="primary" type="button" (click)="addShift()">
+                            <mat-icon class="icon-size-5">add</mat-icon>
+                            <span class="ml-2">Adicionar Turno</span>
+                        </button>
+                    </div>
+
+                    @if (shifts.length === 0) {
+                    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-8 text-center">
+                        <mat-icon class="icon-size-16 text-gray-400" [svgIcon]="'heroicons_outline:clock'"></mat-icon>
+                        <div class="mt-4 text-lg font-medium text-gray-500 dark:text-gray-400">
+                            Nenhum turno adicionado
+                        </div>
+                        <div class="mt-2 text-sm text-gray-400 dark:text-gray-500">
+                            Clique em "Adicionar Turno" para começar
+                        </div>
+                    </div>
+                    }
+
+                    @if (shifts.length > 0) {
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        @for (shift of shifts; track shift.id; let i = $index) {
+                        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                            <div class="flex items-start justify-between mb-3">
+                                <div class="flex items-center">
+                                    <mat-icon class="icon-size-5 mr-2 text-primary"
+                                        [svgIcon]="'heroicons_solid:clock'"></mat-icon>
+                                    <span class="font-semibold">Turno {{ i + 1 }}</span>
+                                </div>
+                                <button mat-icon-button color="warn" type="button" (click)="removeShift(i)"
+                                    class="w-8 h-8 min-h-0 -mt-2">
+                                    <mat-icon class="icon-size-5">delete</mat-icon>
+                                </button>
+                            </div>
+                            <mat-form-field class="w-full">
+                                <mat-label>Horário</mat-label>
+                                <input matInput type="time" [(ngModel)]="shift.time" [name]="'shift-' + shift.id" />
+                                <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_solid:clock'"></mat-icon>
+                            </mat-form-field>
+                        </div>
+                        }
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="bg-gray-50 dark:bg-gray-800 flex items-center justify-end gap-3 px-6 py-4 sm:px-8">
+                <button mat-button type="button">
+                    Cancelar
+                </button>
+                <button mat-flat-button color="primary" type="submit">
+                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:check'"></mat-icon>
+                    <span class="ml-2">Salvar Evento</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

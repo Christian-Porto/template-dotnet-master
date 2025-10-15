@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { EventTypeEnum } from '../models/event.model';
+import { EventTypeEnum } from '../../../../../../api-client';
 
 /**
  * Finds an object from given source using the given key - value pairs

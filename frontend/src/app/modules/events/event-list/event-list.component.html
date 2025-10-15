@@ -1,0 +1,72 @@
+<div class="absolute inset-0 flex min-w-0 flex-col overflow-y-auto" cdkScrollable>
+    <img class="h-64 w-full object-cover" src="images/backgrounds/back.svg" alt="Header image" />
+    <div class="flex flex-auto p-6 sm:p-10">
+        <div class="mx-auto flex w-full max-w-xs flex-auto flex-col sm:max-w-7xl">
+            <div class="flex w-full max-w-xs flex-col items-center justify-between sm:max-w-none sm:flex-row">
+                <mat-form-field class="w-full sm:w-36" [subscriptSizing]="'dynamic'">
+                    <mat-select [value]="'all'" (selectionChange)="filterByType($event)">
+                        <mat-option [value]="'all'">Todos</mat-option>
+                        @for (
+                        type of types;
+                        track trackByFn($index, type)
+                        ) {
+                        <mat-option [value]="type">{{type | EventTypeEnum}}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field class="mt-4 w-full sm:ml-4 sm:mt-0 sm:w-36" [subscriptSizing]="'dynamic'">
+                    <mat-select [value]="'all'" (selectionChange)="filterByStatus($event)">
+                        <mat-option [value]="'all'">Todos</mat-option>
+                        @for (
+                        st of statuses;
+                        track trackByFn($index, st)
+                        ) {
+                        <mat-option [value]="st">{{st | Status}}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field class="mt-4 w-full sm:ml-4 sm:mt-0 sm:w-72" [subscriptSizing]="'dynamic'">
+                    <mat-icon matPrefix class="icon-size-5" [svgIcon]="'heroicons_solid:magnifying-glass'"></mat-icon>
+                    <input (input)="filterByQuery(query.value)" placeholder="Nome do evento" matInput #query />
+                </mat-form-field>
+                <mat-form-field class="mt-4 w-full sm:ml-4 sm:mt-0 sm:w-52" [subscriptSizing]="'dynamic'">
+                    <input matInput [matDatepicker]="picker" placeholder="Data do evento">
+                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+                <mat-form-field class="mt-4 w-full sm:ml-4 sm:mt-0 sm:w-52" [subscriptSizing]="'dynamic'">
+                    <mat-select [value]="'all'" (selectionChange)="filterByRegistrationStatus($event)" placeholder="Minhas Participações">
+                        <mat-option [value]="'all'">Todos</mat-option>
+                        @for (
+                        st of registrationStatuses;
+                        track trackByFn($index, st)
+                        ) {
+                        <mat-option [value]="st">{{st | RegistrationStatusEnum}}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field class="mt-4 w-full sm:ml-4 sm:mt-0 sm:w-36" [subscriptSizing]="'dynamic'">
+                    <mat-select [value]="'all'" (selectionChange)="filterByRegistrationStatus($event)" placeholder="Presença">
+                        <mat-option [value]="false">Presente</mat-option>
+                        <mat-option [value]="true">Ausente</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            @if (this.filteredevents.length) {
+            <div class="mt-8 grid grid-cols-1 gap-8 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
+                @for (event of filteredevents; track trackByFn($index, event)) {
+                <app-event-card [event]="event"></app-event-card>
+                }
+            </div>
+            } @else {
+            <div class="flex flex-auto flex-col items-center justify-center bg-gray-100 dark:bg-transparent">
+                <mat-icon class="icon-size-24" [svgIcon]="'heroicons_outline:document-search'"></mat-icon>
+                <div class="text-secondary mt-6 text-2xl font-semibold tracking-tight">
+                    No courses found!
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>

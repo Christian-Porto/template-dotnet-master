@@ -1,21 +1,27 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Status } from '../models/event.model';
+import { StatusEnum } from '../../../../../../api-client';
 
 /**
  * Finds an object from given source using the given key - value pairs
  */
 @Pipe({
-    name: 'Status',
+    name: 'StatusEnum',
     pure: false,
     standalone: true,
 })
-export class StatusPipe implements PipeTransform {
-    transform(value: Status): any {
-        if (value === Status.Active) {
-            return 'Ativo';
+export class StatusEnumPipe implements PipeTransform {
+    transform(value: StatusEnum): any {
+        if (value === StatusEnum.OpenForRegistration) {
+            return 'Inscrições abertas';
         }
-        if (value === Status.Inactive) {
-            return 'Inativo';
+        if (value === StatusEnum.InProgress) {
+            return 'Em andamento';
+        }
+        if (value === StatusEnum.RegistrationClosed) {
+            return 'Inscrições encerradas';
+        }
+        if (value === StatusEnum.Completed) {
+            return 'Finalizado';
         }
     }
 }

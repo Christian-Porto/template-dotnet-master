@@ -1,39 +1,121 @@
 /* eslint-disable */
 import { FuseNavigationItem } from '@fuse/components/navigation';
 
-export const defaultNavigation: FuseNavigationItem[] = [
+export const defaultNavigation: FuseNavigationItem[] = [    {
+        id: 'events',
+        title: 'Eventos',
+        type: 'basic',
+        icon: 'heroicons_outline:ticket',
+        link: '/events'
+    },
     {
-        id   : 'example',
-        title: 'Example',
-        type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/example'
-    }
-];
-export const compactNavigation: FuseNavigationItem[] = [
+        id: 'admin',
+        title: 'Admin',
+        type: 'group',
+        icon: 'heroicons_outline:cog-8-tooth',
+        children: [
+            {
+                id: 'users',
+                title: 'Usuários',
+                type: 'basic',
+                icon: 'heroicons_outline:users',
+                link: 'admin/users'
+            },
+            {
+                id: 'eventos',
+                title: 'Eventos',
+                type: 'basic',
+                icon: 'heroicons_outline:ticket',
+                link: 'admin/events'
+            }
+        ]
+    }];
+export const compactNavigation: FuseNavigationItem[] = [    {
+        id: 'events',
+        title: 'Eventos',
+        type: 'basic',
+        icon: 'heroicons_outline:ticket',
+        link: '/events'
+    },
     {
-        id   : 'example',
-        title: 'Example',
-        type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/example'
-    }
-];
-export const futuristicNavigation: FuseNavigationItem[] = [
+        id: 'admin',
+        title: 'Admin',
+        type: 'group',
+        icon: 'heroicons_outline:cog-8-tooth',
+        children: [
+            {
+                id: 'users',
+                title: 'Usuários',
+                type: 'basic',
+                icon: 'heroicons_outline:users',
+                link: 'admin/users'
+            },
+            {
+                id: 'eventos',
+                title: 'Eventos',
+                type: 'basic',
+                icon: 'heroicons_outline:ticket',
+                link: 'admin/events'
+            }
+        ]
+    }];
+export const futuristicNavigation: FuseNavigationItem[] = [    {
+        id: 'events',
+        title: 'Eventos',
+        type: 'basic',
+        icon: 'heroicons_outline:ticket',
+        link: '/events'
+    },
     {
-        id   : 'example',
-        title: 'Example',
-        type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/example'
-    }
-];
+        id: 'admin',
+        title: 'Admin',
+        type: 'group',
+        icon: 'heroicons_outline:cog-8-tooth',
+        children: [
+            {
+                id: 'users',
+                title: 'Usuários',
+                type: 'basic',
+                icon: 'heroicons_outline:users',
+                link: 'admin/users'
+            },
+            {
+                id: 'eventos',
+                title: 'Eventos',
+                type: 'basic',
+                icon: 'heroicons_outline:ticket',
+                link: 'admin/events'
+            }
+        ]
+    }];
 export const horizontalNavigation: FuseNavigationItem[] = [
     {
-        id   : 'example',
-        title: 'Example',
-        type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/example'
+        id: 'events',
+        title: 'Eventos',
+        type: 'basic',
+        icon: 'heroicons_outline:ticket',
+        link: '/events'
+    },
+    {
+        id: 'admin',
+        title: 'Admin',
+        type: 'group',
+        icon: 'heroicons_outline:cog-8-tooth',
+        children: [
+            {
+                id: 'users',
+                title: 'Usuários',
+                type: 'basic',
+                icon: 'heroicons_outline:users',
+                link: 'admin/users'
+            },
+            {
+                id: 'eventos',
+                title: 'Eventos',
+                type: 'basic',
+                icon: 'heroicons_outline:ticket',
+                link: 'admin/events'
+            }
+        ]
     }
 ];

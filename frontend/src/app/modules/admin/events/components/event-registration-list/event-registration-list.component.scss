@@ -1,0 +1,38 @@
+/* Estilos específicos para o componente de lista de inscrições */
+
+/* Ajuste do espaçamento das células */
+::ng-deep .mat-mdc-table {
+  .mat-mdc-cell {
+    padding: 8px 16px;
+  }
+
+  .mat-mdc-header-cell {
+    padding: 12px 16px;
+    font-weight: 600;
+  }
+}
+
+/* Estilo para o campo de select */
+::ng-deep mat-form-field.mat-mdc-form-field {
+  .mat-mdc-text-field-wrapper {
+    padding-bottom: 0;
+  }
+
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}
+
+/* Hover effect nas linhas */
+.mat-mdc-row:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Status visual */
+.status-selected {
+  color: #10b981;
+}
+
+.status-not-selected {
+  color: #6b7280;
+}

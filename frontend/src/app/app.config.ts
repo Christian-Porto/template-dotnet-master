@@ -16,7 +16,6 @@ import { provideAuth } from 'app/core/auth/auth.provider';
 import { provideIcons } from 'app/core/icons/icons.provider';
 import { MockApiService } from 'app/mock-api';
 import { firstValueFrom } from 'rxjs';
-import { TranslocoHttpLoader } from './core/transloco/transloco.http-loader';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -47,32 +46,7 @@ export const appConfig: ApplicationConfig = {
             },
         },
 
-        provideTransloco({
-            config: {
-                availableLangs: [
-                    {
-                        id: 'en',
-                        label: 'English',
-                    },
-                    {
-                        id: 'tr',
-                        label: 'Turkish',
-                    },
-                ],
-                defaultLang: 'en',
-                fallbackLang: 'en',
-                reRenderOnLangChange: true,
-                prodMode: !isDevMode(),
-            },
-            loader: TranslocoHttpLoader,
-        }),
-        provideAppInitializer(() => {
-            const translocoService = inject(TranslocoService);
-            const defaultLang = translocoService.getDefaultLang();
-            translocoService.setActiveLang(defaultLang);
-
-            return firstValueFrom(translocoService.load(defaultLang));
-        }),
+        provideAppInitializer(() => { }),
 
         // Fuse
         provideAuth(),
@@ -96,27 +70,7 @@ export const appConfig: ApplicationConfig = {
                     {
                         id: 'theme-default',
                         name: 'Default',
-                    },
-                    {
-                        id: 'theme-brand',
-                        name: 'Brand',
-                    },
-                    {
-                        id: 'theme-teal',
-                        name: 'Teal',
-                    },
-                    {
-                        id: 'theme-rose',
-                        name: 'Rose',
-                    },
-                    {
-                        id: 'theme-purple',
-                        name: 'Purple',
-                    },
-                    {
-                        id: 'theme-amber',
-                        name: 'Amber',
-                    },
+                    }
                 ],
             },
         }),
