@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { EventResponse, Status } from '../../models/event.model';
+import { EventResponse, Status, FormatShiftsPipe } from '../../models/event.model';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
@@ -19,24 +19,25 @@ import { RouterLink } from '@angular/router';
 @Component({
     selector: 'app-event-card',
     imports: [
-        MatFormFieldModule,
-        MatSelectModule,
-        MatOptionModule,
-        MatIconModule,
-        MatInputModule,
-        MatSlideToggleModule,
-        NgClass,
-        MatTooltipModule,
-        MatProgressBarModule,
-        MatButtonModule,
-        RouterLink,
-        EventTypeEnumPipe,
-        StatusPipe,
-        DatePipe,
-        MatFormFieldModule,
-        MatInputModule,
-        MatDatepickerModule
-    ],
+    MatFormFieldModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatIconModule,
+    MatInputModule,
+    MatSlideToggleModule,
+    NgClass,
+    MatTooltipModule,
+    MatProgressBarModule,
+    MatButtonModule,
+    RouterLink,
+    EventTypeEnumPipe,
+    StatusPipe,
+    DatePipe,
+    MatFormFieldModule,
+    MatInputModule,
+    MatDatepickerModule,
+    FormatShiftsPipe
+],
     templateUrl: './event-card.component.html',
     styleUrl: './event-card.component.scss'
 })

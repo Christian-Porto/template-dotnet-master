@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { EventsService } from '../services/events.service';
-import { EventResponse, EventTypeEnum, Status } from '../models/event.model';
+import { EventResponse, EventTypeEnum, Status, FormatShiftsPipe } from '../models/event.model';
 import { finalize } from 'rxjs';
 import { EventTypeEnumPipe } from "../pipes/EventTypeEnum.pipe";
 import { AsyncPipe, CurrencyPipe, DatePipe, NgClass, NgTemplateOutlet } from '@angular/common';
@@ -31,7 +31,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     MatSelectModule,
     MatOptionModule,
     MatCheckboxModule,
-    MatRippleModule, RouterLink],
+    MatRippleModule, RouterLink, FormatShiftsPipe],
     templateUrl: './event-details.component.html',
     styleUrl: './event-details.component.scss'
 })
