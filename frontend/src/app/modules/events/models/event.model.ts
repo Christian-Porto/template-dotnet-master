@@ -62,3 +62,12 @@ export enum RegistrationStatusEnum {
     NotSelected = 1,
     Selected = 2,
 }
+
+export interface PaginatedListOfEventResponse {
+    items: EventResponse[];
+    pageIndex: number;
+    totalPages: number;
+    totalCount: number;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+}

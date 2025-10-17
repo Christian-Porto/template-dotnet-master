@@ -49,9 +49,9 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Commands
             RuleFor(c => c.EndDate).NotEmpty().WithMessage("A data de fim das inscrições é obrigatória.");
             RuleFor(c => c.EventDate).NotEmpty().WithMessage("A data do evento é obrigatória.");
 
-            RuleFor(c => c.Status)
-                .NotEmpty().WithMessage("O status é obrigatório.")
-                .Must(v => Enum.IsDefined(typeof(StatusEnum), v)).WithMessage("Status inválido.");
+            //RuleFor(c => c.Status)
+            //    .NotEmpty().WithMessage("O status é obrigatório.")
+            //    .Must(v => Enum.IsDefined(typeof(StatusEnum), v)).WithMessage("Status inválido.");
 
             RuleFor(c => c.Slots)
                 .NotEmpty().WithMessage("O número de vagas é obrigatório.")

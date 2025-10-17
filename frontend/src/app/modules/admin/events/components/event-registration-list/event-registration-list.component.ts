@@ -10,7 +10,8 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RegistrationResponse, EventResponse, RegistrationStatusEnum } from '../../../../../../../api-client';
+import { RegistrationResponse, RegistrationStatusEnum } from '../../../../../../../api-client';
+import { EventResponse } from 'app/modules/events/models/event.model';
 import { EventsService } from '../../services/events.service';
 import { MatButtonModule } from '@angular/material/button';
 
