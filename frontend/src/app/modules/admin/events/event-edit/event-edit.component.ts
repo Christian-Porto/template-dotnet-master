@@ -146,8 +146,6 @@ export class EventEditComponent implements OnInit {
 
     trackByIndex = (_index: number) => _index;
 
-    // remova: private formatDateWire(...)
-
     onSubmit(): void {
         if (this.eventForm.invalid) {
             this.eventForm.markAllAsTouched();
@@ -155,7 +153,6 @@ export class EventEditComponent implements OnInit {
         }
         const raw = this.eventForm.getRawValue();
 
-        // ❌ remova o normalize, mantenha as datas como estão
         const command = new CreateEventCommand({
             name: raw.name ?? '',
             type: raw.eventType!,
@@ -168,10 +165,9 @@ export class EventEditComponent implements OnInit {
                 .map((s: any) => s?.shift)
                 .filter((v: any) => v !== null && v !== undefined) as ShiftEnum[],
         });
-        // Use generated serializer (no custom wrapper)
 
         this.eventsService.create(command).subscribe({
-            next: _ => this.router.navigate(['/admin/events']),
+            next: _ => this.router.navigate(['/events']),
             error: err => console.error('Erro ao criar evento:', err),
         });
     }
