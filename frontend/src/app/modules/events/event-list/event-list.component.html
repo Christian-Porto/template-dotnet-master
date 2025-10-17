@@ -1,10 +1,10 @@
-<div class="absolute inset-0 flex min-w-0 flex-col overflow-y-auto" cdkScrollable>
+﻿<div class="absolute inset-0 flex min-w-0 flex-col overflow-y-auto" cdkScrollable>
     <img class="h-64 w-full object-cover" src="images/backgrounds/back.svg" alt="Header image" />
     <div class="flex flex-auto p-6 sm:p-10">
         <div class="mx-auto flex w-full max-w-xs flex-auto flex-col sm:max-w-7xl">
             <div class="flex w-full max-w-xs flex-col items-center justify-between sm:max-w-none sm:flex-row">
                 <mat-form-field class="w-full sm:w-36" [subscriptSizing]="'dynamic'">
-                    <mat-select [value]="'all'" (selectionChange)="filterByType($event)">
+                    <mat-select [value]="'all'" (selectionChange)="filterByType($event)" placeholder="Tipo">
                         <mat-option [value]="'all'">Todos</mat-option>
                         @for (
                         type of types;
@@ -15,7 +15,7 @@
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field class="mt-4 w-full sm:ml-4 sm:mt-0 sm:w-36" [subscriptSizing]="'dynamic'">
-                    <mat-select [value]="'all'" (selectionChange)="filterByStatus($event)">
+                    <mat-select [value]="'all'" (selectionChange)="filterByStatus($event)" placeholder="Status do Evento">
                         <mat-option [value]="'all'">Todos</mat-option>
                         @for (
                         st of statuses;
@@ -27,12 +27,15 @@
                 </mat-form-field>
                 <mat-form-field class="mt-4 w-full sm:ml-4 sm:mt-0 sm:w-72" [subscriptSizing]="'dynamic'">
                     <mat-icon matPrefix class="icon-size-5" [svgIcon]="'heroicons_solid:magnifying-glass'"></mat-icon>
-                    <input (input)="filterByQuery(query.value)" placeholder="Nome do evento" matInput #query />
+                    <input (input)="filterByQuery(query.value)" placeholder="Nome do Evento" matInput #query />
                 </mat-form-field>
                 <mat-form-field class="mt-4 w-full sm:ml-4 sm:mt-0 sm:w-52" [subscriptSizing]="'dynamic'">
-                    <input matInput [matDatepicker]="picker" placeholder="Data do evento">
+                    <mat-date-range-input [rangePicker]="picker">
+                        <input matStartDate placeholder="Data início" (dateChange)="filterByStartDate($event.value)">
+                        <input matEndDate placeholder="Data fim" (dateChange)="filterByEndDate($event.value)">
+                    </mat-date-range-input>
                     <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                    <mat-datepicker #picker></mat-datepicker>
+                    <mat-date-range-picker #picker></mat-date-range-picker>
                 </mat-form-field>
                 <mat-form-field class="mt-4 w-full sm:ml-4 sm:mt-0 sm:w-52" [subscriptSizing]="'dynamic'">
                     <mat-select [value]="'all'" (selectionChange)="filterByRegistrationStatus($event)" placeholder="Minhas Participações">
@@ -63,10 +66,11 @@
             <div class="flex flex-auto flex-col items-center justify-center bg-gray-100 dark:bg-transparent">
                 <mat-icon class="icon-size-24" [svgIcon]="'heroicons_outline:document-search'"></mat-icon>
                 <div class="text-secondary mt-6 text-2xl font-semibold tracking-tight">
-                    No courses found!
+                    Nenhum evento encontrado!
                 </div>
             </div>
             }
         </div>
     </div>
 </div>
+

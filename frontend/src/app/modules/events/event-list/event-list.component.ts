@@ -1,5 +1,4 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { NgClass, PercentPipe, I18nPluralPipe, DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, Type } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
@@ -10,8 +9,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Subject, takeUntil, combineLatest } from 'rxjs';
+import { BehaviorSubject, Subject, takeUntil, combineLatest, switchMap } from 'rxjs';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { EventTypeEnum, Status, EventResponse, RegistrationStatusEnum } from '../models/event.model';
 import { EventTypeEnumPipe } from '../pipes/EventTypeEnum.pipe';
@@ -48,34 +46,36 @@ export class EventListComponent {
     EventTypeEnum = EventTypeEnum;
     RegistrationStatusEnum = RegistrationStatusEnum;
     Status = Status;
-
     types: EventTypeEnum[];
     registrationStatuses: RegistrationStatusEnum[];
-
     statuses: Status[];
+    events: EventResponse[] = [];
+    filteredevents: EventResponse[] = [];
 
-    events: EventResponse[];
-    filteredevents: EventResponse[];
     filters: {
         typeSlug$: BehaviorSubject<EventTypeEnum | 'all'>;
         status$: BehaviorSubject<Status | 'all'>;
         registrationStatus$: BehaviorSubject<RegistrationStatusEnum | 'all'>;
         query$: BehaviorSubject<string>;
         hideCompleted$: BehaviorSubject<boolean>;
+        startDate$: BehaviorSubject<Date | null>;
+        endDate$: BehaviorSubject<Date | null>;
+        attended$: BehaviorSubject<boolean | 'all'>;
     } = {
             typeSlug$: new BehaviorSubject('all'),
             status$: new BehaviorSubject('all'),
             registrationStatus$: new BehaviorSubject('all'),
             query$: new BehaviorSubject(''),
             hideCompleted$: new BehaviorSubject(false),
+            startDate$: new BehaviorSubject<Date | null>(null),
+            endDate$: new BehaviorSubject<Date | null>(null),
+            attended$: new BehaviorSubject<'all' | boolean>('all'),
         };
 
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
     constructor(
-        private _activatedRoute: ActivatedRoute,
         private _changeDetectorRef: ChangeDetectorRef,
-        private _router: Router,
         private _eventsService: EventsService
     ) { }
 
@@ -102,49 +102,36 @@ export class EventListComponent {
                 this._changeDetectorRef.markForCheck();
             });
 
-        this._eventsService.listEvents(0, 100)
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((events: EventResponse[]) => {
-                this.events = this.filteredevents = events;
-                this._changeDetectorRef.markForCheck();
-            });
-
         combineLatest([
             this.filters.typeSlug$,
-            this.filters.query$,
-            this.filters.hideCompleted$,
             this.filters.status$,
-            this.filters.registrationStatus$,
-        ]).subscribe(([typeSlug, query, hideCompleted, status, registrationStatus]) => {
-            this.filteredevents = this.events;
-
-            if (typeSlug !== 'all') {
-                this.filteredevents = this.filteredevents.filter(
-                    (eventresponse) => eventresponse.type === typeSlug
-                );
-            }
-
-            if (status !== 'all') {
-                this.filteredevents = this.filteredevents.filter(
-                    (eventresponse) => eventresponse.status === status
-                );
-            }
-            // Filter by search query
-            if (query !== '') {
-                this.filteredevents = this.filteredevents.filter(
-                    (eventresponse) =>
-                        eventresponse.name
-                            .toLowerCase()
-                            .includes(query.toLowerCase()) ||
-                        eventresponse.description
-                            .toLowerCase()
-                            .includes(query.toLowerCase()) ||
-                        eventresponse.type.toString()
-                            .toLowerCase()
-                            .includes(query.toLowerCase())
-                );
-            }
-        });
+            this.filters.query$,
+            this.filters.startDate$,
+            this.filters.endDate$,
+            this.filters.attended$,
+        ])
+            .pipe(
+                takeUntil(this._unsubscribeAll),
+                switchMap(([typeSlug, status, query, startDate, endDate, attended]) =>
+                    this._eventsService.listEvents(1, 100, {
+                        type: typeSlug,
+                        status: status,
+                        query: query,
+                        startDate: startDate ?? undefined,
+                        endDate: endDate ?? undefined,
+                        attended: attended === 'all' ? undefined : attended,
+                    })
+                )
+            )
+            .subscribe((events: EventResponse[]) => {
+                this.events = events;
+                // Aplicar filtros apenas locais (não suportados pela API)
+                this.filteredevents = this.events;
+                if (this.filters.hideCompleted$.value) {
+                    this.filteredevents = this.filteredevents.filter((e) => e.status !== Status.d);
+                }
+                this._changeDetectorRef.markForCheck();
+            });
     }
 
     ngOnDestroy(): void {
@@ -165,7 +152,27 @@ export class EventListComponent {
     }
 
     filterByRegistrationStatus(change: MatSelectChange): void {
-        this.filters.registrationStatus$.next(change.value);
+        if (change.value === true || change.value === false || change.value === 'all') {
+            this.filters.attended$.next(change.value);
+        } else {
+            this.filters.registrationStatus$.next(change.value);
+        }
+    }
+
+    filterByDate(date: Date | null): void {
+        this.filters.startDate$.next(date);
+    }
+
+    filterByStartDate(date: Date | null): void {
+        this.filters.startDate$.next(date);
+    }
+
+    filterByEndDate(date: Date | null): void {
+        this.filters.endDate$.next(date);
+    }
+
+    filterByAttended(change: MatSelectChange): void {
+        this.filters.attended$.next(change.value);
     }
 
     toggleCompleted(change: MatSlideToggleChange): void {

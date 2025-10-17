@@ -36,7 +36,7 @@
         <div class="text-secondary flex items-center text-md leading-5 mt-2">
             <mat-icon class="text-hint icon-size-5" [svgIcon]="'heroicons_solid:clock'"></mat-icon>
             <div class="ml-1.5">
-                {{ event.startDate | date:'HH:mm' }} - {{ event.endDate | date:'HH:mm' }}
+                {{ event.shifts | formatShifts }}
             </div>
         </div>
     </div>
