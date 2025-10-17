@@ -1,170 +1,206 @@
 <div class="flex min-w-0 flex-auto flex-col">
-  <div class="relative flex flex-col md:flex-row flex-0 md:items-center md:justify-start pt-6 px-6 bg-card">
-    <button class="md:col-span-1 col-span-4 fuse-mat-dense" mat-flat-button [routerLink]="['/admin/events']">
-      <mat-icon class="icon-size-5" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
-      <span class="ml-2 mr-1">Voltar</span>
-    </button>
-  </div>
-
-  <div class="flex flex-col border-b bg-card px-6 py-8 dark:bg-transparent sm:flex-row sm:items-center sm:justify-between sm:px-10">
-    <div class="flex-1 min-w-0">
-      <h2 class="text-3xl font-extrabold leading-7 tracking-tight truncate sm:leading-10">
-        {{ isEditMode ? 'Editar Evento' : 'Cadastrar Evento' }}
-      </h2>
-    </div>
-  </div>
-
-  <div class="flex-auto p-6 sm:p-10">
-    <form class="bg-card flex flex-col overflow-hidden rounded-2xl shadow"
-          [formGroup]="eventForm"
-          (ngSubmit)="onSubmit()">
-
-      <div class="p-6 sm:p-8">
-        <!-- Informações Básicas -->
-        <div class="mb-8">
-          <div class="mb-4 text-xl font-semibold">Informações Básicas</div>
-
-          <div class="grid grid-cols-1 gap-6">
-            <!-- Nome -->
-            <mat-form-field class="w-full" appearance="fill">
-              <mat-label>Nome do evento</mat-label>
-              <input matInput formControlName="name" required />
-              <mat-error *ngIf="fc.name.touched && fc.name.hasError('required')">
-                Nome do evento é obrigatório.
-              </mat-error>
-            </mat-form-field>
-
-            <!-- Descrição -->
-            <mat-form-field class="w-full" appearance="fill">
-              <mat-label>Descrição</mat-label>
-              <textarea matInput cdkTextareaAutosize [cdkAutosizeMinRows]="3" [cdkAutosizeMaxRows]="8"
-                        formControlName="description" required></textarea>
-              <mat-error *ngIf="fc.description.touched && fc.description.hasError('required')">
-                Descrição é obrigatória.
-              </mat-error>
-            </mat-form-field>
-          </div>
-        </div>
-
-        <!-- Configuração -->
-        <div class="mb-8">
-          <div class="mb-4 text-xl font-semibold">Configuração</div>
-
-          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <!-- Tipo -->
-            <mat-form-field class="w-full" appearance="fill">
-              <mat-label>Tipo de evento</mat-label>
-              <mat-select formControlName="eventType" required>
-                <mat-option [value]="EventTypeEnum.Dynamic">{{ EventTypeEnum.Dynamic | EventTypeEnum }}</mat-option>
-                <mat-option [value]="EventTypeEnum.Lecture">{{ EventTypeEnum.Lecture | EventTypeEnum }}</mat-option>
-                <mat-option [value]="EventTypeEnum.Practice">{{ EventTypeEnum.Practice | EventTypeEnum }}</mat-option>
-              </mat-select>
-              <mat-error *ngIf="fc.eventType.touched && fc.eventType.hasError('required')">
-                Tipo de evento é obrigatório.
-              </mat-error>
-            </mat-form-field>
-
-            <!-- Status -->
-            <mat-form-field class="w-full" appearance="fill">
-              <mat-label>Status do evento</mat-label>
-              <mat-select formControlName="status" required>
-                <mat-option [value]="StatusEnum.OpenForRegistration">{{ StatusEnum.OpenForRegistration | StatusEnum }}</mat-option>
-                <mat-option [value]="StatusEnum.RegistrationClosed">{{ StatusEnum.RegistrationClosed | StatusEnum }}</mat-option>
-                <mat-option [value]="StatusEnum.Completed">{{ StatusEnum.Completed | StatusEnum }}</mat-option>
-                <mat-option [value]="StatusEnum.InProgress">{{ StatusEnum.InProgress | StatusEnum }}</mat-option>
-              </mat-select>
-              <mat-error *ngIf="fc.status.touched && fc.status.hasError('required')">
-                Status do evento é obrigatório.
-              </mat-error>
-            </mat-form-field>
-          </div>
-        </div>
-
-        <!-- Datas -->
-        <div class="mb-8">
-          <div class="mb-4 text-xl font-semibold">Datas</div>
-
-          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <!-- Data do Evento -->
-            <mat-form-field class="w-full" appearance="fill">
-              <mat-label>Data do Evento</mat-label>
-              <input matInput [matDatepicker]="picker1" formControlName="eventDate" required />
-              <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
-              <mat-datepicker #picker1></mat-datepicker>
-              <mat-error *ngIf="fc.eventDate.touched && fc.eventDate.hasError('required')">
-                Data do evento é obrigatória.
-              </mat-error>
-            </mat-form-field>
-
-            <!-- Período de Inscrição (data única como no original) -->
-            <mat-form-field class="w-full" appearance="fill">
-              <mat-label>Período de Inscrição</mat-label>
-              <input matInput [matDatepicker]="picker2" formControlName="registrationDate" required />
-              <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
-              <mat-datepicker #picker2></mat-datepicker>
-              <mat-error *ngIf="fc.registrationDate.touched && fc.registrationDate.hasError('required')">
-                Período de inscrição é obrigatório.
-              </mat-error>
-            </mat-form-field>
-          </div>
-        </div>
-
-        <!-- Turnos -->
-        <div>
-          <div class="mb-4 flex items-center justify-between">
-            <div class="text-xl font-semibold">Turnos</div>
-            <button mat-raised-button color="primary" type="button" (click)="addShift()">
-              <mat-icon class="icon-size-5">add</mat-icon>
-              <span class="ml-2">Adicionar Turno</span>
-            </button>
-          </div>
-
-          <!-- Estado vazio -->
-          <div *ngIf="shiftsArray.length === 0" class="bg-gray-50 dark:bg-gray-800 rounded-lg p-8 text-center">
-            <mat-icon class="icon-size-16 text-gray-400" [svgIcon]="'heroicons_outline:clock'"></mat-icon>
-            <div class="mt-4 text-lg font-medium text-gray-500 dark:text-gray-400">Nenhum turno adicionado</div>
-            <div class="mt-2 text-sm text-gray-400 dark:text-gray-500">Clique em "Adicionar Turno" para começar</div>
-            <div class="mt-4 text-sm text-red-600" *ngIf="eventForm.touched && shiftsArray.hasError('minlength')">
-              Adicione pelo menos um turno.
-            </div>
-          </div>
-
-          <!-- Lista de turnos (IMPORTANTE: formArrayName="shifts") -->
-          <div formArrayName="shifts" *ngIf="shiftsArray.length > 0"
-               class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4"
-                 *ngFor="let shiftCtrl of shiftsArray.controls; let i = index; trackBy: trackByIndex"
-                 [formGroupName]="i">
-              <div class="flex items-start justify-between mb-3">
-                <div class="flex items-center">
-                  <mat-icon class="icon-size-5 mr-2 text-primary" [svgIcon]="'heroicons_solid:clock'"></mat-icon>
-                  <span class="font-semibold">Turno {{ i + 1 }}</span>
-                </div>
-                <button mat-icon-button color="warn" type="button" (click)="removeShift(i)" class="w-8 h-8 min-h-0 -mt-2">
-                  <mat-icon class="icon-size-5">delete</mat-icon>
-                </button>
-              </div>
-
-              <mat-form-field class="w-full" appearance="fill">
-                <mat-label>Horário</mat-label>
-                <input matInput type="time" formControlName="time" required />
-                <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_solid:clock'"></mat-icon>
-                <mat-error *ngIf="shiftCtrl.get('time')?.touched && shiftCtrl.get('time')?.hasError('required')">
-                  Horário do turno é obrigatório.
-                </mat-error>
-              </mat-form-field>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-gray-50 dark:bg-gray-800 flex items-center justify-end gap-3 px-6 py-4 sm:px-8">
-        <button mat-button type="button" (click)="onCancel()">Cancelar</button>
-        <button mat-flat-button color="primary" type="submit" [disabled]="eventForm.invalid">
-          <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:check'"></mat-icon>
-          <span class="ml-2">Salvar Evento</span>
+    <div class="relative flex flex-col md:flex-row flex-0 md:items-center md:justify-start pt-6 px-6 bg-card">
+        <button class="md:col-span-1 col-span-4 fuse-mat-dense" mat-flat-button [routerLink]="['/admin/events']">
+            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+            <span class="ml-2 mr-1">Voltar</span>
         </button>
-      </div>
-    </form>
-  </div>
+    </div>
+
+    <div
+        class="flex flex-col border-b bg-card px-6 py-8 dark:bg-transparent sm:flex-row sm:items-center sm:justify-between sm:px-10">
+        <div class="flex-1 min-w-0">
+            <h2 class="text-3xl font-extrabold leading-7 tracking-tight truncate sm:leading-10">
+                {{ isEditMode ? 'Editar Evento' : 'Cadastrar Evento' }}
+            </h2>
+        </div>
+    </div>
+
+    <div class="flex-auto p-6 sm:p-10">
+        <form class="bg-card flex flex-col overflow-hidden rounded-2xl shadow" [formGroup]="eventForm"
+            (ngSubmit)="onSubmit()">
+
+            <div class="p-6 sm:p-8">
+                <!-- Informações Básicas -->
+                <div class="mb-8">
+                    <div class="mb-4 text-xl font-semibold">Informações Básicas</div>
+
+                    <div class="grid grid-cols-1 gap-6">
+                        <!-- Nome -->
+                        <mat-form-field class="w-full" appearance="fill">
+                            <mat-label>Nome do evento</mat-label>
+                            <input matInput formControlName="name" required />
+                            <mat-error *ngIf="fc.name.touched && fc.name.hasError('required')">
+                                Nome do evento é obrigatório.
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Descrição -->
+                        <mat-form-field class="w-full" appearance="fill">
+                            <mat-label>Descrição</mat-label>
+                            <textarea matInput cdkTextareaAutosize [cdkAutosizeMinRows]="3" [cdkAutosizeMaxRows]="8"
+                                formControlName="description" required></textarea>
+                            <mat-error *ngIf="fc.description.touched && fc.description.hasError('required')">
+                                Descrição é obrigatória.
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <!-- Configuração -->
+                <div class="mb-8">
+                    <div class="mb-4 text-xl font-semibold">Configuração</div>
+
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <!-- Tipo -->
+                        <mat-form-field class="w-full" appearance="fill">
+                            <mat-label>Tipo de evento</mat-label>
+                            <mat-select formControlName="eventType" required>
+                                <mat-option [value]="EventTypeEnum.Dynamic">{{ EventTypeEnum.Dynamic | EventTypeEnum
+                                    }}</mat-option>
+                                <mat-option [value]="EventTypeEnum.Lecture">{{ EventTypeEnum.Lecture | EventTypeEnum
+                                    }}</mat-option>
+                                <mat-option [value]="EventTypeEnum.Practice">{{ EventTypeEnum.Practice | EventTypeEnum
+                                    }}</mat-option>
+                            </mat-select>
+                            <mat-error *ngIf="fc.eventType.touched && fc.eventType.hasError('required')">
+                                Tipo de evento é obrigatório.
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Quantidade de vagas -->
+                        <mat-form-field class="w-full" appearance="fill">
+                            <mat-label>Quantidade de vagas</mat-label>
+                            <input matInput type="number" formControlName="slots" required min="1" />
+                            <mat-error *ngIf="fc.slots.touched && fc.slots.hasError('required')">
+                                Quantidade de vagas é obrigatória.
+                            </mat-error>
+                            <mat-error *ngIf="fc.slots.touched && fc.slots.hasError('min')">
+                                Informe ao menos 1 vaga.
+                            </mat-error>
+                        </mat-form-field>
+
+                    </div>
+                </div>
+
+                <!-- Datas -->
+                <div class="mb-8">
+                    <div class="mb-4 text-xl font-semibold">Datas</div>
+
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <!-- Data do Evento -->
+                        <mat-form-field class="w-full" appearance="fill">
+                            <mat-label>Data do Evento</mat-label>
+                            <input matInput [matDatepicker]="picker1" formControlName="eventDate" required />
+                            <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                            <mat-datepicker #picker1></mat-datepicker>
+                            <mat-error *ngIf="fc.eventDate.touched && fc.eventDate.hasError('required')">
+                                Data do evento é obrigatória.
+                            </mat-error>
+                            <mat-error *ngIf="fc.eventDate.touched && fc.eventDate.hasError('eventBeforeRegistrationEnd')">
+                                A data do evento deve ser igual ou posterior ao fim das inscrições.
+                            </mat-error>
+                        </mat-form-field>
+
+                        <!-- Período de Inscrição (date range) -->
+                        <mat-form-field class="w-full" appearance="fill">
+                            <mat-label>Período de Inscrição</mat-label>
+
+                            <mat-date-range-input [rangePicker]="regPicker">
+                                <input matStartDate formControlName="startDate" placeholder="Início" required />
+                                <input matEndDate formControlName="endDate" placeholder="Fim" required />
+                            </mat-date-range-input>
+
+                            <mat-datepicker-toggle matSuffix [for]="regPicker"></mat-datepicker-toggle>
+                            <mat-date-range-picker #regPicker></mat-date-range-picker>
+
+                            <!-- obrigatoriedade -->
+                            <mat-error *ngIf="(fc.startDate.touched && fc.startDate.hasError('required')) ||
+                     (fc.endDate.touched   && fc.endDate.hasError('required'))">
+                                Período de inscrição é obrigatório.
+                            </mat-error>
+
+                            <!-- intervalo inválido -->
+                            <mat-error *ngIf="eventForm.hasError('registrationRangeInvalid') &&
+                    (fc.startDate.touched || fc.endDate.touched)">
+                                Data final deve ser maior ou igual à data inicial.
+                            </mat-error>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+                <!-- Turnos -->
+                <div>
+                    <div class="mb-4 flex items-center justify-between">
+                        <div class="text-xl font-semibold">Turnos</div>
+                        <button mat-raised-button color="primary" type="button" (click)="addShift()"
+                            [disabled]="!canAddShift">
+                            <mat-icon class="icon-size-5">add</mat-icon>
+                            <span class="ml-2">Adicionar Turno</span>
+                        </button>
+                    </div>
+
+                    <div *ngIf="shiftsArray.hasError('duplicateShifts')" class="mb-4 text-sm text-red-600"
+                        aria-live="polite">
+                        Existem turnos repetidos. Cada turno deve ser diferente.
+                    </div>
+
+                    <!-- Estado vazio -->
+                    <div *ngIf="shiftsArray.length === 0"
+                        class="bg-gray-50 dark:bg-gray-800 rounded-lg p-8 text-center">
+                        <mat-icon class="icon-size-16 text-gray-400" [svgIcon]="'heroicons_outline:clock'"></mat-icon>
+                        <div class="mt-4 text-lg font-medium text-gray-500 dark:text-gray-400">Nenhum turno adicionado
+                        </div>
+                        <div class="mt-2 text-sm text-gray-400 dark:text-gray-500">Clique em "Adicionar Turno" para
+                            começar</div>
+                        <div class="mt-4 text-sm text-red-600"
+                            *ngIf="eventForm.touched && shiftsArray.hasError('minlength')">
+                            Adicione pelo menos um turno.
+                        </div>
+                    </div>
+
+                    <!-- Lista de turnos -->
+                    <div formArrayName="shifts" *ngIf="shiftsArray.length > 0"
+                        class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4"
+                            *ngFor="let shiftCtrl of shiftsArray.controls; let i = index; trackBy: trackByIndex"
+                            [formGroupName]="i">
+
+                            <div class="flex items-start justify-between mb-3">
+                                <div class="flex items-center">
+                                    <mat-icon class="icon-size-5 mr-2 text-primary"
+                                        [svgIcon]="'heroicons_solid:clock'"></mat-icon>
+                                    <span class="font-semibold">Turno {{ i + 1 }}</span>
+                                </div>
+                                <button mat-icon-button color="warn" type="button" (click)="removeShift(i)"
+                                    class="w-8 h-8 min-h-0 -mt-2">
+                                    <mat-icon class="icon-size-5">delete</mat-icon>
+                                </button>
+                            </div>
+
+                            <mat-form-field class="w-full" appearance="fill">
+                                <mat-label>Turno</mat-label>
+                                <mat-select formControlName="shift" required>
+                                    <mat-option [value]="ShiftEnum.Morning">Manhã</mat-option>
+                                    <mat-option [value]="ShiftEnum.Afternoon">Tarde</mat-option>
+                                    <mat-option [value]="ShiftEnum.Evening">Noite</mat-option>
+                                </mat-select>
+                                <mat-error
+                                    *ngIf="shiftCtrl.get('shift')?.touched && shiftCtrl.get('shift')?.hasError('required')">
+                                    Turno é obrigatório.
+                                </mat-error>
+                            </mat-form-field>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-gray-800 flex items-center justify-end gap-3 px-6 py-4 sm:px-8">
+                <button mat-button type="button" (click)="onCancel()">Cancelar</button>
+                <button mat-flat-button color="primary" type="submit" [disabled]="eventForm.invalid">
+                    <span class="ml-2">Salvar Evento</span>
+                </button>
+            </div>
+        </form>
+    </div>
 </div>

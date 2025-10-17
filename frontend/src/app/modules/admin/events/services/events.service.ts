@@ -1,11 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { EventResponse, EventTypeEnum, PaginatedListOfEventResponse, RegistrationStatusEnum, StatusEnum } from '../../../../../../api-client';
+import { CreateEventCommand, EventsClient } from '../../../../../../api-client';
 
 @Injectable({
     providedIn: 'root'
 })
 export class EventsService {
+    private _eventsClient = inject(EventsClient);
 
     constructor() { }
 
@@ -176,12 +178,12 @@ Suspendisse id dui elit. Phasellus at tristique magna, et porta purus. Suspendis
     }
 
     public listAttendances(eventId: number, pageIndex: number, pageSize: number) {
-        // Mock: retorna lista de presença
+        // Mock: retorna lista de presenÃƒÂ¢Ã¢â‚¬ÂÃ…â€œÃƒâ€šÃ‚Âºa
         return of({
             items: [
                 {
                     id: 1,
-                    userName: 'João Silva',
+                    userName: 'JoÃƒÂ¢Ã¢â‚¬ÂÃ…â€œÃƒÆ’Ã‚Âºo Silva',
                     userEnrollment: '2023001',
                     attended: true,
                     justification: '',
@@ -193,7 +195,7 @@ Suspendisse id dui elit. Phasellus at tristique magna, et porta purus. Suspendis
                     userName: 'Maria Santos',
                     userEnrollment: '2023002',
                     attended: false,
-                    justification: 'Atestado médico',
+                    justification: 'Atestado mÃƒÂ¢Ã¢â‚¬ÂÃ…â€œÃƒâ€šÃ‚Â®dico',
                     status: RegistrationStatusEnum.Selected,
                     participationsCount: 3
                 }
@@ -207,7 +209,7 @@ Suspendisse id dui elit. Phasellus at tristique magna, et porta purus. Suspendis
     }
 
     public listRegistrations(eventId: number, pageIndex: number, pageSize: number) {
-        // Mock: retorna lista de inscrições
+        // Mock: retorna lista de inscriÃƒÂ¢Ã¢â‚¬ÂÃ…â€œÃƒâ€šÃ‚ÂºÃƒÂ¢Ã¢â‚¬ÂÃ…â€œÃƒÆ’Ã‚Âes
         return of({
             items: [
                 {
@@ -291,5 +293,9 @@ Suspendisse id dui elit. Phasellus at tristique magna, et porta purus. Suspendis
             StatusEnum.OpenForRegistration,
             StatusEnum.RegistrationClosed,
         ]);
+    }
+
+    public create(command: CreateEventCommand): Observable<EventResponse> {
+        return this._eventsClient.create(command);
     }
 }

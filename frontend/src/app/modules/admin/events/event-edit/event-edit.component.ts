@@ -1,127 +1,268 @@
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
-  FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
+    AbstractControl,
+    FormArray,
+    FormBuilder,
+    FormControl,
+    FormGroup,
+    ReactiveFormsModule,
+    ValidationErrors,
+    ValidatorFn,
+    Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatOptionModule, MatNativeDateModule } from '@angular/material/core';
+import { MatOptionModule, MatNativeDateModule, MAT_DATE_LOCALE, MAT_DATE_FORMATS, DateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-
-import { EventTypeEnum, StatusEnum } from '../../../../../../api-client';
+import { CreateEventCommand, EventTypeEnum, ShiftEnum, StatusEnum } from '../../../../../../api-client';
 import { EventTypeEnumPipe } from '../pipes/EventTypeEnum.pipe';
-import { StatusEnumPipe } from '../pipes/Status.pipe';
+import { EventsService } from '../services/events.service';
+
+export const BR_DATE_FORMATS = {
+    parse: {
+        dateInput: 'DD/MM/YYYY',
+    },
+    display: {
+        dateInput: 'DD/MM/YYYY',
+        monthYearLabel: 'MM/YYYY',
+        dateA11yLabel: 'DD/MM/YYYY',
+        monthYearA11yLabel: 'MM/YYYY',
+    },
+};
 
 @Component({
-  selector: 'app-event-edit',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    TextFieldModule,
-    MatButtonToggleModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatOptionModule,
-    MatChipsModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    EventTypeEnumPipe,
-    StatusEnumPipe,
-    RouterLink,
-  ],
-  templateUrl: './event-edit.component.html',
-  styleUrl: './event-edit.component.scss',
+    selector: 'app-event-edit',
+    standalone: true,
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        TextFieldModule,
+        MatButtonToggleModule,
+        MatButtonModule,
+        MatSelectModule,
+        MatOptionModule,
+        MatChipsModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        EventTypeEnumPipe,
+        RouterLink,
+    ],
+    templateUrl: './event-edit.component.html',
+    styleUrl: './event-edit.component.scss',
+    providers: [
+        { provide: MAT_DATE_LOCALE, useValue: 'pt-BR' },
+        { provide: MAT_DATE_FORMATS, useValue: BR_DATE_FORMATS }
+    ],
 })
 export class EventEditComponent implements OnInit {
-  EventTypeEnum = EventTypeEnum;
-  StatusEnum = StatusEnum;
+    EventTypeEnum = EventTypeEnum;
+    StatusEnum = StatusEnum;
+    ShiftEnum = ShiftEnum;
 
-  eventForm!: FormGroup;
-  isEditMode = false;
-  private shiftCounter = 0;
+    eventForm!: FormGroup;
+    isEditMode = false;
+    private shiftCounter = 0;
 
-  constructor(private readonly route: ActivatedRoute, private readonly fb: FormBuilder) {}
-
-  ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    this.isEditMode = !!id;
-
-    this.eventForm = this.fb.group({
-      name: ['', Validators.required],
-      description: ['', Validators.required],
-      eventType: [null, Validators.required],
-      status: [null, Validators.required],
-      eventDate: [null, Validators.required],
-      registrationDate: [null, Validators.required],
-      // pelo menos 1 turno
-      shifts: this.fb.array([], [Validators.minLength(1)]),
-    });
-
-    // exemplo: adicionar um primeiro turno vazio (opcional)
-    // this.addShift();
-  }
-
-  // getters
-  get fc() {
-    return this.eventForm.controls as {
-      name: FormControl<string | null>;
-      description: FormControl<string | null>;
-      eventType: FormControl<EventTypeEnum | null>;
-      status: FormControl<StatusEnum | null>;
-      eventDate: FormControl<Date | null>;
-      registrationDate: FormControl<Date | null>;
-      shifts: FormArray;
-    };
-  }
-
-  get shiftsArray(): FormArray {
-    return this.fc.shifts as FormArray;
-  }
-
-  addShift(): void {
-    this.shiftCounter++;
-    const group = this.fb.group({
-      id: [this.shiftCounter],
-      time: ['', Validators.required],
-    });
-    this.shiftsArray.push(group);
-    this.shiftsArray.updateValueAndValidity();
-  }
-
-  removeShift(index: number): void {
-    this.shiftsArray.removeAt(index);
-    this.shiftsArray.updateValueAndValidity();
-  }
-
-  trackByIndex = (_index: number) => _index;
-
-  onSubmit(): void {
-    if (this.eventForm.invalid) {
-      this.eventForm.markAllAsTouched();
-      return;
+    constructor(
+        private readonly route: ActivatedRoute,
+        private readonly fb: FormBuilder,
+        private readonly eventsService: EventsService,
+        private readonly router: Router,
+        private readonly dateAdapter: DateAdapter<Date>
+    ) {
+        this.dateAdapter.setLocale('pt-BR');
     }
-    const payload = this.eventForm.getRawValue();
-    console.log('Salvar Evento ->', payload);
-    // TODO: chamar serviço de save
-  }
 
-  onCancel(): void {
-    window.history.back();
-  }
+    ngOnInit(): void {
+        const id = this.route.snapshot.paramMap.get('id');
+        this.isEditMode = !!id;
+
+        this.eventForm = this.fb.group(
+            {
+                name: ['', Validators.required],
+                description: ['', Validators.required],
+                eventType: [null, Validators.required],
+                eventDate: [null, Validators.required],
+                startDate: [null, Validators.required],
+                endDate: [null, Validators.required],
+                slots: [null, [Validators.required, Validators.min(1)]],
+                shifts: this.fb.array(
+                    [],
+                    [this.requiredShiftValidator(), Validators.maxLength(3), this.uniqueShiftsValidator()]
+                ),
+            },
+            { validators: [this.dateConsistencyValidator()] }
+        );
+    }
+
+    get fc() {
+        return this.eventForm.controls as {
+            name: FormControl<string | null>;
+            description: FormControl<string | null>;
+            eventType: FormControl<EventTypeEnum | null>;
+            eventDate: FormControl<Date | null>;
+            startDate: FormControl<Date | null>;
+            endDate: FormControl<Date | null>;
+            slots: FormControl<number | null>;
+            shifts: FormArray;
+        };
+    }
+
+
+    get shiftsArray(): FormArray {
+        return this.fc.shifts as FormArray;
+    }
+
+    get canAddShift(): boolean {
+        return this.shiftsArray.length < 3;
+    }
+
+    addShift(): void {
+        if (!this.canAddShift) return;
+        this.shiftCounter++;
+        const group = this.fb.group({
+            id: [this.shiftCounter],
+            shift: [null, Validators.required],
+        });
+        this.shiftsArray.push(group);
+        this.shiftsArray.updateValueAndValidity();
+    }
+
+    removeShift(index: number): void {
+        this.shiftsArray.removeAt(index);
+        this.shiftsArray.updateValueAndValidity();
+    }
+
+    trackByIndex = (_index: number) => _index;
+
+    // remova: private formatDateWire(...)
+
+    onSubmit(): void {
+        if (this.eventForm.invalid) {
+            this.eventForm.markAllAsTouched();
+            return;
+        }
+        const raw = this.eventForm.getRawValue();
+
+        // ❌ remova o normalize, mantenha as datas como estão
+        const command = new CreateEventCommand({
+            name: raw.name ?? '',
+            type: raw.eventType!,
+            description: raw.description ?? '',
+            eventDate: raw.eventDate!,
+            startDate: raw.startDate!,
+            endDate: raw.endDate!,
+            slots: raw.slots!,
+            shifts: (raw.shifts || [])
+                .map((s: any) => s?.shift)
+                .filter((v: any) => v !== null && v !== undefined) as ShiftEnum[],
+        });
+        // Use generated serializer (no custom wrapper)
+
+        this.eventsService.create(command).subscribe({
+            next: _ => this.router.navigate(['/admin/events']),
+            error: err => console.error('Erro ao criar evento:', err),
+        });
+    }
+
+    onCancel(): void {
+        window.history.back();
+    }
+
+    private uniqueShiftsValidator(): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            if (!(control instanceof FormArray)) return null;
+
+            control.controls.forEach(c => {
+                const sc = c.get('shift');
+                if (!sc) return;
+                const errors = sc.errors || {};
+                if ('duplicate' in errors) {
+                    delete errors['duplicate'];
+                    sc.setErrors(Object.keys(errors).length ? errors : null);
+                }
+            });
+
+            const values = control.controls
+                .map(c => c.get('shift')?.value)
+                .filter(v => v !== null && v !== undefined);
+
+            const seen = new Map<number, number[]>();
+            values.forEach((v, idx) => {
+                const arr = seen.get(v) ?? [];
+                arr.push(idx);
+                seen.set(v, arr);
+            });
+
+            let hasDuplicate = false;
+            seen.forEach(indexes => {
+                if (indexes.length > 1) {
+                    hasDuplicate = true;
+                    indexes.forEach(i => {
+                        const sc = control.at(i).get('shift');
+                        if (!sc) return;
+                        const errors = sc.errors || {};
+                        errors['duplicate'] = true;
+                        sc.setErrors(errors);
+                    });
+                }
+            });
+
+            return hasDuplicate ? { duplicateShifts: true } : null;
+        };
+    }
+
+    private requiredShiftValidator(): ValidatorFn {
+        return (control: AbstractControl): ValidationErrors | null => {
+            if (!(control instanceof FormArray)) return null;
+
+            const hasAtLeastOne = control.length > 0;
+            if (!hasAtLeastOne) {
+                return { required: true };
+            }
+
+            const hasValidShift = control.controls.some(c => !!c.get('shift')?.value);
+            return hasValidShift ? null : { required: true };
+        };
+    }
+
+    private dateConsistencyValidator(): ValidatorFn {
+        return (form: AbstractControl): ValidationErrors | null => {
+            const startC = form.get('startDate');
+            const endC = form.get('endDate');
+            const eventC = form.get('eventDate');
+
+            const norm = (d: Date | null) => d ? new Date(d.getFullYear(), d.getMonth(), d.getDate()) : null;
+            const s = norm(startC?.value || null);
+            const e = norm(endC?.value || null);
+            const ev = norm(eventC?.value || null);
+
+            const groupErrors: any = {};
+
+            if (s && e && e < s) groupErrors.registrationRangeInvalid = true;
+
+            const evErrors = eventC?.errors || {};
+            if (ev && e && ev < e) {
+                eventC?.setErrors({ ...evErrors, eventBeforeRegistrationEnd: true });
+            } else {
+                if ('eventBeforeRegistrationEnd' in evErrors) {
+                    delete evErrors['eventBeforeRegistrationEnd'];
+                    eventC?.setErrors(Object.keys(evErrors).length ? evErrors : null);
+                }
+            }
+
+            return Object.keys(groupErrors).length ? groupErrors : null;
+        };
+    }
 }
