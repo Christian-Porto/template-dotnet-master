@@ -416,11 +416,15 @@
             "x-position": 5
           },
           {
-            "name": "OnlyMine",
+            "name": "RegistrationStatus",
             "in": "query",
             "schema": {
-              "type": "boolean",
-              "nullable": true
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/RegistrationStatusEnum"
+                }
+              ]
             },
             "x-position": 6
           },
@@ -979,6 +983,20 @@
           }
         }
       },
+      "RegistrationStatusEnum": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Registered",
+          "NotSelected",
+          "Selected"
+        ],
+        "enum": [
+          0,
+          1,
+          2
+        ]
+      },
       "CreateEventCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -1122,18 +1140,6 @@
             "format": "int32"
           }
         }
-      },
-      "RegistrationStatusEnum": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "NotSelected",
-          "Selected"
-        ],
-        "enum": [
-          0,
-          1
-        ]
       },
       "CreateRegistrationCommand": {
         "type": "object",

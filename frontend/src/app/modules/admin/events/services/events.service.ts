@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { EventResponse, EventTypeEnum, RegistrationStatusEnum, Status, PaginatedListOfEventResponse } from 'app/modules/events/models/event.model';
 import { Observable, of, map } from 'rxjs';
-import { EventsClient, StatusEnum as ApiStatusEnum, EventTypeEnum as ApiEventTypeEnum, CreateEventCommand, RegistrationsClient, PaginatedListOfRegistrationResponse, UpdateEventCommand } from '../../../../../../api-client';
+import { EventsClient, StatusEnum as ApiStatusEnum, EventTypeEnum as ApiEventTypeEnum, CreateEventCommand, RegistrationsClient, PaginatedListOfRegistrationResponse, UpdateEventCommand, RegistrationStatusEnum as ApiRegistrationStatusEnum } from '../../../../../../api-client';
 
 @Injectable({ providedIn: 'root' })
 export class EventsService {
@@ -17,7 +17,7 @@ export class EventsService {
             query?: string;
             startDate?: Date;
             endDate?: Date;
-            onlyMine?: boolean;
+            registrationStatus?: RegistrationStatusEnum | 'all';
             attended?: boolean;
         }
     ): Observable<PaginatedListOfEventResponse> {
@@ -41,7 +41,10 @@ export class EventsService {
         };
         const startDateParam = coerceToDate(filter?.startDate);
         const endDateParam = coerceToDate(filter?.endDate);
-        const onlyMineParam = filter?.onlyMine;
+        const registrationStatusParam: ApiRegistrationStatusEnum | undefined =
+            filter?.registrationStatus && filter.registrationStatus !== 'all'
+                ? (filter.registrationStatus as unknown as ApiRegistrationStatusEnum)
+                : undefined;
         const attendedParam = filter?.attended;
 
         return this._eventsClient
@@ -51,7 +54,7 @@ export class EventsService {
                 nameParam,
                 startDateParam,
                 endDateParam,
-                onlyMineParam ?? undefined,
+                registrationStatusParam,
                 attendedParam ?? undefined,
                 pageSize,
                 pageIndex

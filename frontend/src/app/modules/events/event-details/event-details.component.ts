@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EventsService } from '../services/events.service';
 import { EventResponse, EventTypeEnum, Status, FormatShiftsPipe } from '../models/event.model';
 import { finalize } from 'rxjs';
 import { EventTypeEnumPipe } from "../pipes/EventTypeEnum.pipe";
-import { AsyncPipe, CurrencyPipe, DatePipe, NgClass, NgTemplateOutlet } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { StatusPipe } from '../pipes/Status.pipe';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -45,7 +45,8 @@ export class EventDetailsComponent implements OnInit {
     EventTypeEnum = EventTypeEnum;
     constructor(
         private readonly eventsService: EventsService,
-        private readonly route: ActivatedRoute
+        private readonly route: ActivatedRoute,
+        private readonly router: Router
     ) { }
 
     ngOnInit(): void {
@@ -61,6 +62,20 @@ export class EventDetailsComponent implements OnInit {
             .subscribe({
                 next: (event) => {
                     this.event = event;
+                }
+            });
+    }
+
+    onRegister(): void {
+        if (!this.eventId || this.loading) return;
+        this.loading = true;
+        this.eventsService
+            .registerToEvent(this.eventId)
+            .pipe(finalize(() => this.loading = false))
+            .subscribe({
+                next: () => {
+                    console.log('Cadastro realizado com sucesso');
+                    this.router.navigate(['/events']);
                 }
             });
     }

@@ -59,6 +59,15 @@ namespace ExtensionEventsManager.Core.Application.Requests.Registrations.Command
                 throw new BadRequestException("O usuário deve ter CPF preenchido.");
             }
 
+            // Prevent duplicate registration for the same event by the same user
+            var alreadyRegistered = await _context.Registrations
+                .AnyAsync(r => r.UserId == user.Id && r.EventId == request.EventId, cancellationToken);
+
+            if (alreadyRegistered)
+            {
+                throw new BadRequestException("Usuario ja esta inscrito neste evento.");
+            }
+
             var registration = _mapper.Map<Registration>(request);
             // Set FK to current user to satisfy Users->Registrations constraint
             registration.UserId = user.Id;
