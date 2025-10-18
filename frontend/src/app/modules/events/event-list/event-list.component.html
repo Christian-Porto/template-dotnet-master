@@ -64,9 +64,10 @@
             </div>
             } @else {
             <div class="flex flex-auto flex-col items-center justify-center bg-gray-100 dark:bg-transparent">
-                <mat-icon class="icon-size-24" [svgIcon]="'heroicons_outline:document-search'"></mat-icon>
-                <div class="text-secondary mt-6 text-2xl font-semibold tracking-tight">
-                    Nenhum evento encontrado!
+                <mat-icon class="mx-auto icon-size-12 text-amber-500"
+                    [svgIcon]="'heroicons_outline:exclamation-triangle'"></mat-icon>
+                <div class="text-secondary mt-2 text-2xl font-semibold tracking-tight">
+                    Nenhum evento encontrado
                 </div>
             </div>
             }

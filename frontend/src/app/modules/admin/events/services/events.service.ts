@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { EventResponse, EventTypeEnum, RegistrationStatusEnum, Status, PaginatedListOfEventResponse } from 'app/modules/events/models/event.model';
 import { Observable, of, map } from 'rxjs';
-import { EventsClient, StatusEnum as ApiStatusEnum, EventTypeEnum as ApiEventTypeEnum, CreateEventCommand, RegistrationsClient, PaginatedListOfRegistrationResponse } from '../../../../../../api-client';
+import { EventsClient, StatusEnum as ApiStatusEnum, EventTypeEnum as ApiEventTypeEnum, CreateEventCommand, RegistrationsClient, PaginatedListOfRegistrationResponse, UpdateEventCommand } from '../../../../../../api-client';
 
 @Injectable({ providedIn: 'root' })
 export class EventsService {
@@ -163,6 +163,42 @@ export class EventsService {
     public create(command: CreateEventCommand): Observable<EventResponse> {
         return this._eventsClient
             .create(command)
+            .pipe(
+                map((e) => {
+                    const mapStatus = (status?: ApiStatusEnum): Status => {
+                        switch (status) {
+                            case ApiStatusEnum.OpenForRegistration:
+                                return Status.a;
+                            case ApiStatusEnum.InProgress:
+                                return Status.b;
+                            case ApiStatusEnum.RegistrationClosed:
+                                return Status.c;
+                            case ApiStatusEnum.Completed:
+                                return Status.d;
+                            default:
+                                return Status.a;
+                        }
+                    };
+
+                    return {
+                        id: e.id as number,
+                        name: e.name ?? '',
+                        type: (e.type as unknown) as EventTypeEnum,
+                        description: e.description ?? '',
+                        eventDate: e.eventDate as Date,
+                        startDate: e.startDate as Date,
+                        endDate: e.endDate as Date,
+                        slots: (e.slots ?? 0) as number,
+                        status: mapStatus(e.status),
+                        shifts: (e.shifts as unknown) as number[],
+                    } as EventResponse;
+                })
+            );
+    }
+
+    public update(id: number, command: UpdateEventCommand): Observable<EventResponse> {
+        return this._eventsClient
+            .update(id, command)
             .pipe(
                 map((e) => {
                     const mapStatus = (status?: ApiStatusEnum): Status => {
