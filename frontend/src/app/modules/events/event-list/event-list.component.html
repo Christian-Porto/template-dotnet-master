@@ -49,7 +49,7 @@
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field class="mt-4 w-full sm:ml-4 sm:mt-0 sm:w-36" [subscriptSizing]="'dynamic'">
-                    <mat-select [value]="'all'" (selectionChange)="filterByRegistrationStatus($event)" placeholder="Presença">
+                    <mat-select [value]="'all'" (selectionChange)="filterByAttended($event)" placeholder="Presença">
                         <mat-option [value]="false">Presente</mat-option>
                         <mat-option [value]="true">Ausente</mat-option>
                     </mat-select>

@@ -78,17 +78,15 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Queries
                 else
                 {
                     var uid = me.Value;
-                    var inscribedStatuses = new[] { RegistrationStatusEnum.Selected, RegistrationStatusEnum.NotSelected };
 
                     switch (request.RegistrationStatus.Value)
                     {
                         case RegistrationStatusEnum.Registered:
+                            // Any registration by the current user, regardless of selection outcome
                             query = query.Where(e =>
                                 _context.Registrations.Any(r =>
                                     r.EventId == e.Id &&
-                                    r.UserId == uid &&
-                                    r.Status.HasValue &&
-                                    inscribedStatuses.Contains(r.Status.Value)));
+                                    r.UserId == uid));
                             break;
 
                         case RegistrationStatusEnum.NotSelected:
@@ -96,8 +94,7 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Queries
                                 _context.Registrations.Any(r =>
                                     r.EventId == e.Id &&
                                     r.UserId == uid &&
-                                    r.Status.HasValue &&
-                                    r.Status.Value == RegistrationStatusEnum.NotSelected));
+                                    r.Status == RegistrationStatusEnum.NotSelected));
                             break;
 
                         case RegistrationStatusEnum.Selected:
@@ -105,8 +102,7 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Queries
                                 _context.Registrations.Any(r =>
                                     r.EventId == e.Id &&
                                     r.UserId == uid &&
-                                    r.Status.HasValue &&
-                                    r.Status.Value == RegistrationStatusEnum.Selected));
+                                    r.Status == RegistrationStatusEnum.Selected));
                             break;
                     }
                 }

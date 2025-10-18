@@ -154,11 +154,7 @@ export class EventListComponent {
     }
 
     filterByRegistrationStatus(change: MatSelectChange): void {
-        if (change.value === true || change.value === false || change.value === 'all') {
-            this.filters.attended$.next(change.value);
-        } else {
-            this.filters.registrationStatus$.next(change.value);
-        }
+        this.filters.registrationStatus$.next(change.value);
     }
 
     filterByDate(date: Date | null): void {

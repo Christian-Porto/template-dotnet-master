@@ -61,7 +61,7 @@ export class EventsService {
         const startDateParam = coerceToDate(filter?.startDate);
         const endDateParam = coerceToDate(filter?.endDate);
         const registrationStatusParam: ApiRegistrationStatusEnum | undefined =
-            filter?.registrationStatus && filter.registrationStatus !== 'all'
+            (filter?.registrationStatus !== undefined && filter.registrationStatus !== 'all')
                 ? (filter.registrationStatus as unknown as ApiRegistrationStatusEnum)
                 : undefined;
         const attendedParam = filter?.attended;
