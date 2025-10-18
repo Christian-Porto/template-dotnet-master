@@ -433,7 +433,7 @@ export class ChatsClient implements IChatsClient {
 export interface IEventsClient {
     get(id: number): Observable<EventResponse>;
     update(id: number, command: UpdateEventCommand): Observable<EventResponse>;
-    list(type: EventTypeEnum | null | undefined, status: StatusEnum | null | undefined, name: string | null | undefined, startDate: Date | null | undefined, endDate: Date | null | undefined, onlyMine: boolean | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse>;
+    list(type: EventTypeEnum | null | undefined, status: StatusEnum | null | undefined, name: string | null | undefined, startDate: Date | null | undefined, endDate: Date | null | undefined, registrationStatus: RegistrationStatusEnum | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse>;
     create(command: CreateEventCommand): Observable<EventResponse>;
 }
 
@@ -556,7 +556,7 @@ export class EventsClient implements IEventsClient {
         return _observableOf(null as any);
     }
 
-    list(type: EventTypeEnum | null | undefined, status: StatusEnum | null | undefined, name: string | null | undefined, startDate: Date | null | undefined, endDate: Date | null | undefined, onlyMine: boolean | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse> {
+    list(type: EventTypeEnum | null | undefined, status: StatusEnum | null | undefined, name: string | null | undefined, startDate: Date | null | undefined, endDate: Date | null | undefined, registrationStatus: RegistrationStatusEnum | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse> {
         let url_ = this.baseUrl + "/events?";
         if (type !== undefined && type !== null)
             url_ += "Type=" + encodeURIComponent("" + type) + "&";
@@ -568,8 +568,8 @@ export class EventsClient implements IEventsClient {
             url_ += "StartDate=" + encodeURIComponent(startDate ? "" + startDate.toISOString() : "") + "&";
         if (endDate !== undefined && endDate !== null)
             url_ += "EndDate=" + encodeURIComponent(endDate ? "" + endDate.toISOString() : "") + "&";
-        if (onlyMine !== undefined && onlyMine !== null)
-            url_ += "OnlyMine=" + encodeURIComponent("" + onlyMine) + "&";
+        if (registrationStatus !== undefined && registrationStatus !== null)
+            url_ += "RegistrationStatus=" + encodeURIComponent("" + registrationStatus) + "&";
         if (attended !== undefined && attended !== null)
             url_ += "Attended=" + encodeURIComponent("" + attended) + "&";
         if (pageSize === null)
@@ -1507,6 +1507,12 @@ export interface IPaginatedListOfEventResponse {
     hasNextPage?: boolean;
 }
 
+export enum RegistrationStatusEnum {
+    Registered = 0,
+    NotSelected = 1,
+    Selected = 2,
+}
+
 export class CreateEventCommand implements ICreateEventCommand {
     name?: string;
     type?: EventTypeEnum;
@@ -1777,11 +1783,6 @@ export interface IRegistrationResponse {
     attended?: boolean | undefined;
     justification?: string | undefined;
     participationsCount?: number;
-}
-
-export enum RegistrationStatusEnum {
-    NotSelected = 0,
-    Selected = 1,
 }
 
 export class CreateRegistrationCommand implements ICreateRegistrationCommand {

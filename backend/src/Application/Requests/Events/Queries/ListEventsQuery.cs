@@ -16,9 +16,7 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Queries
         public string? Name { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-
-        // Minhas participações (eventos em que o usuário atual está inscrito)
-        public bool? OnlyMine { get; set; }
+        public RegistrationStatusEnum? RegistrationStatus { get; set; }
 
         // Presença do usuário atual no evento (true/false)
         public bool? Attended { get; set; }
@@ -70,16 +68,43 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Queries
             }
 
             var me = _currentUser.Id;
-            if (request.OnlyMine == true)
+
+            if (request.RegistrationStatus.HasValue)
             {
                 if (!me.HasValue)
                 {
-                    query = query.Where(e => false);
+                    query = query.Where(_ => false);
                 }
                 else
                 {
                     var uid = me.Value;
-                    query = query.Where(e => _context.Registrations.Any(r => r.EventId == e.Id && r.UserId == uid));
+
+                    switch (request.RegistrationStatus.Value)
+                    {
+                        case RegistrationStatusEnum.Registered:
+                            // Any registration by the current user, regardless of selection outcome
+                            query = query.Where(e =>
+                                _context.Registrations.Any(r =>
+                                    r.EventId == e.Id &&
+                                    r.UserId == uid));
+                            break;
+
+                        case RegistrationStatusEnum.NotSelected:
+                            query = query.Where(e =>
+                                _context.Registrations.Any(r =>
+                                    r.EventId == e.Id &&
+                                    r.UserId == uid &&
+                                    r.Status == RegistrationStatusEnum.NotSelected));
+                            break;
+
+                        case RegistrationStatusEnum.Selected:
+                            query = query.Where(e =>
+                                _context.Registrations.Any(r =>
+                                    r.EventId == e.Id &&
+                                    r.UserId == uid &&
+                                    r.Status == RegistrationStatusEnum.Selected));
+                            break;
+                    }
                 }
             }
 

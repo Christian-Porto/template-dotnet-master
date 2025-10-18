@@ -109,10 +109,11 @@ export class EventListComponent {
             this.filters.startDate$,
             this.filters.endDate$,
             this.filters.attended$,
+            this.filters.registrationStatus$, // ensure changes trigger refresh
         ])
             .pipe(
                 takeUntil(this._unsubscribeAll),
-                switchMap(([typeSlug, status, query, startDate, endDate, attended]) =>
+                switchMap(([typeSlug, status, query, startDate, endDate, attended, registrationStatus]) =>
                     this._eventsService.listEvents(1, 100, {
                         type: typeSlug,
                         status: status,
@@ -120,6 +121,7 @@ export class EventListComponent {
                         startDate: startDate ?? undefined,
                         endDate: endDate ?? undefined,
                         attended: attended === 'all' ? undefined : attended,
+                        registrationStatus: registrationStatus,
                     })
                 )
             )
@@ -152,11 +154,7 @@ export class EventListComponent {
     }
 
     filterByRegistrationStatus(change: MatSelectChange): void {
-        if (change.value === true || change.value === false || change.value === 'all') {
-            this.filters.attended$.next(change.value);
-        } else {
-            this.filters.registrationStatus$.next(change.value);
-        }
+        this.filters.registrationStatus$.next(change.value);
     }
 
     filterByDate(date: Date | null): void {

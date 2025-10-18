@@ -1,11 +1,12 @@
 ﻿import { inject, Injectable } from '@angular/core';
 import { EventResponse, EventTypeEnum, RegistrationStatusEnum, Status } from '../models/event.model';
 import { Observable, of, map } from 'rxjs';
-import { EventsClient, StatusEnum as ApiStatusEnum, EventTypeEnum as ApiEventTypeEnum } from '../../../../../api-client';
+import { EventsClient, StatusEnum as ApiStatusEnum, EventTypeEnum as ApiEventTypeEnum, IRegistrationsClient, RegistrationsClient, CreateRegistrationCommand, RegistrationResponse, RegistrationStatusEnum as ApiRegistrationStatusEnum } from '../../../../../api-client';
 
 @Injectable({ providedIn: 'root' })
 export class EventsService {
     private _eventsClient = inject(EventsClient);
+    private _registrationsClient: IRegistrationsClient = inject(RegistrationsClient);
 
     public listEvents(
         pageIndex: number,
@@ -16,7 +17,7 @@ export class EventsService {
             query?: string;
             startDate?: Date;
             endDate?: Date;
-            onlyMine?: boolean;
+            registrationStatus?: RegistrationStatusEnum | 'all';
             attended?: boolean;
         }
     ): Observable<EventResponse[]> {
@@ -59,7 +60,10 @@ export class EventsService {
 
         const startDateParam = coerceToDate(filter?.startDate);
         const endDateParam = coerceToDate(filter?.endDate);
-        const onlyMineParam = filter?.onlyMine;
+        const registrationStatusParam: ApiRegistrationStatusEnum | undefined =
+            (filter?.registrationStatus !== undefined && filter.registrationStatus !== 'all')
+                ? (filter.registrationStatus as unknown as ApiRegistrationStatusEnum)
+                : undefined;
         const attendedParam = filter?.attended;
 
         return this._eventsClient
@@ -69,7 +73,7 @@ export class EventsService {
                 nameParam,
                 startDateParam,
                 endDateParam,
-                onlyMineParam ?? undefined,
+                registrationStatusParam,
                 attendedParam ?? undefined,
                 pageSize,
                 pageIndex
@@ -168,5 +172,10 @@ export class EventsService {
             Status.c,
             Status.d,
         ]);
+    }
+
+    public registerToEvent(eventId: number): Observable<RegistrationResponse> {
+        const command = new CreateRegistrationCommand({ eventId });
+        return this._registrationsClient.create(command);
     }
 }

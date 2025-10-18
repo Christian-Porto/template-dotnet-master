@@ -6,18 +6,18 @@
                     <div class="flex-1 min-w-0">
                         <h1
                             class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white leading-tight break-words">
-                            {{event.name}}
+                            {{event?.name}}
                         </h1>
                     </div>
                     <div class="flex-shrink-0">
                         <div class="rounded-full px-4 py-2 text-sm sm:text-base font-semibold whitespace-nowrap"
                             [ngClass]="{
-                                'bg-blue-100 text-blue-800 dark:bg-blue-500 dark:text-blue-50': event.status === Status.b,
-                                'bg-green-100 text-green-800 dark:bg-green-500 dark:text-green-50': event.status === Status.a,
-                                'bg-amber-100 text-amber-800 dark:bg-amber-500 dark:text-amber-50': event.status === Status.c,
-                                'bg-pink-100 text-pink-800 dark:bg-pink-500 dark:text-pink-50': event.status === Status.d
+                                'bg-blue-100 text-blue-800 dark:bg-blue-500 dark:text-blue-50': event?.status === Status.b,
+                                'bg-green-100 text-green-800 dark:bg-green-500 dark:text-green-50': event?.status === Status.a,
+                                'bg-amber-100 text-amber-800 dark:bg-amber-500 dark:text-amber-50': event?.status === Status.c,
+                                'bg-pink-100 text-pink-800 dark:bg-pink-500 dark:text-pink-50': event?.status === Status.d
                             }">
-                            {{ event.status | Status }}
+                            {{ event?.status | Status }}
                         </div>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                             <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Tipo
                             </p>
                             <p class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white truncate">
-                                {{ event.type | EventTypeEnum }}
+                                {{ event?.type | EventTypeEnum }}
                             </p>
                         </div>
                     </div>
@@ -53,7 +53,7 @@
                             <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Data
                             </p>
                             <p class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
-                                {{ event.eventDate | date:'dd/MM/yyyy' }}
+                                {{ event?.eventDate | date:'dd/MM/yyyy' }}
                             </p>
                         </div>
                     </div>
@@ -70,7 +70,7 @@
                             <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                                 Horário</p>
                             <p class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
-                                {{ event.shifts | formatShifts }}
+                                {{ event?.shifts | formatShifts }}
                             </p>
                         </div>
                     </div>
@@ -83,7 +83,7 @@
                     </h2>
                     <div class="prose prose-sm sm:prose max-w-none">
                         <p class="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed text-justify">
-                            {{event.description}}
+                            {{event?.description}}
                         </p>
                     </div>
                 </div>
@@ -97,7 +97,7 @@
                         <mat-icon [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
                         <span class="ml-2">Voltar</span>
                     </a>
-                    <button mat-flat-button [color]="'primary'" class="w-full sm:w-auto order-1 sm:order-2">
+                    <button mat-flat-button [color]="'primary'" class="w-full sm:w-auto order-1 sm:order-2" (click)="onRegister()" [disabled]="loading">
                         <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
                         <span class="ml-2">Inscrever-se</span>
                     </button>
@@ -113,7 +113,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm sm:text-base text-gray-600 dark:text-gray-400">
                 <div class="flex items-center gap-2">
                     <mat-icon class="icon-size-5 text-gray-400" [svgIcon]="'heroicons_solid:users'"></mat-icon>
-                    <span>Vagas disponíveis: {{ event.slots }}</span>
+                    <span>Vagas disponíveis: {{ event?.slots }}</span>
                 </div>
             </div>
         </div>

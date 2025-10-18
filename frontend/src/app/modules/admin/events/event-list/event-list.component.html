@@ -7,7 +7,7 @@
             <mat-form-field class="md:col-span-1 col-span-4 fuse-mat-dense fuse-mat-rounded min-w-50"
                 [subscriptSizing]="'dynamic'">
                 <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_outline:magnifying-glass'"></mat-icon>
-                <input matInput formControlName="name" [autocomplete]="'off'" placeholder="Nome do evento">
+                <input matInput formControlName="query" [autocomplete]="'off'" placeholder="Nome do evento">
             </mat-form-field>
 
             <mat-form-field class="md:col-span-1 col-span-4 fuse-mat-dense fuse-mat-rounded min-w-50"
@@ -72,7 +72,7 @@
                 <th mat-header-cell *matHeaderCellDef>Status</th>
                 <td mat-cell *matCellDef="let element">
                     <div class="whitespace-nowrap overflow-hidden">
-                        {{element.status | StatusEnum}}
+                        {{ element.status | Status }}
                     </div>
                 </td>
             </ng-container>
@@ -145,23 +145,13 @@
     </div>
     }
     @else {
-    <div>
-        <div class="text-center py-30">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                aria-hidden="true">
-                <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <h3 class="mt-2 text-md font-semibold text-gray-900">Sem eventos cadastrados</h3>
-            <p class="mt-1 text-md text-gray-500">Não há eventos disponíveis no momento.</p>
-            <div class="mt-6">
-                <button type="button" mat-flat-button [color]="'primary'" [routerLink]="['/admin/events/create']">
-                    <mat-icon class="icon-size-3" [svgIcon]="'heroicons_outline:plus'"></mat-icon>
-                    <span class="ml-2 mr-1">Adicionar novo evento</span>
-                </button>
+        <div class="flex flex-auto flex-col items-center justify-center bg-gray-100 dark:bg-transparent">
+            <mat-icon class="mx-auto icon-size-12 text-amber-500" 
+                [svgIcon]="'heroicons_outline:exclamation-triangle'"></mat-icon>
+            <div class="text-secondary mt-2 text-2xl font-semibold tracking-tight">
+                Nenhum evento encontrado
             </div>
         </div>
-    </div>
     }
     }
 </div>

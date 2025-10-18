@@ -22,7 +22,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { CreateEventCommand, EventTypeEnum, ShiftEnum, StatusEnum } from '../../../../../../api-client';
+import { CreateEventCommand, EventTypeEnum, ShiftEnum, StatusEnum, UpdateEventCommand } from '../../../../../../api-client';
 import { EventTypeEnumPipe } from '../pipes/EventTypeEnum.pipe';
 import { EventsService } from '../services/events.service';
 
@@ -72,6 +72,7 @@ export class EventEditComponent implements OnInit {
 
     eventForm!: FormGroup;
     isEditMode = false;
+    private eventId: number | null = null;
     private shiftCounter = 0;
 
     constructor(
@@ -104,6 +105,36 @@ export class EventEditComponent implements OnInit {
             },
             { validators: [this.dateConsistencyValidator()] }
         );
+        if (this.isEditMode && id) {
+            const eventIdNum = Number(id);
+            this.eventId = isNaN(eventIdNum) ? null : eventIdNum;
+            if (this.eventId !== null) {
+                this.eventsService.getEventById(this.eventId).subscribe((ev) => {
+                    this.fc.name.setValue(ev.name);
+                    this.fc.description.setValue(ev.description);
+                    this.fc.eventType.setValue(ev.type as EventTypeEnum);
+                    this.fc.eventDate.setValue(new Date(ev.eventDate));
+                    this.fc.startDate.setValue(new Date(ev.startDate));
+                    this.fc.endDate.setValue(new Date(ev.endDate));
+                    this.fc.slots.setValue(ev.slots);
+
+                    // reset shifts
+                    while (this.shiftsArray.length > 0) {
+                        this.shiftsArray.removeAt(0);
+                    }
+                    this.shiftCounter = 0;
+                    (ev.shifts || []).forEach((s) => {
+                        this.shiftCounter++;
+                        const group = this.fb.group({
+                            id: [this.shiftCounter],
+                            shift: [s, Validators.required],
+                        });
+                        this.shiftsArray.push(group);
+                    });
+                    this.shiftsArray.updateValueAndValidity();
+                });
+            }
+        }
     }
 
     get fc() {
@@ -153,23 +184,41 @@ export class EventEditComponent implements OnInit {
         }
         const raw = this.eventForm.getRawValue();
 
-        const command = new CreateEventCommand({
-            name: raw.name ?? '',
-            type: raw.eventType!,
-            description: raw.description ?? '',
-            eventDate: raw.eventDate!,
-            startDate: raw.startDate!,
-            endDate: raw.endDate!,
-            slots: raw.slots!,
-            shifts: (raw.shifts || [])
-                .map((s: any) => s?.shift)
-                .filter((v: any) => v !== null && v !== undefined) as ShiftEnum[],
-        });
+        const shifts = (raw.shifts || [])
+            .map((s: any) => s?.shift)
+            .filter((v: any) => v !== null && v !== undefined) as ShiftEnum[];
 
-        this.eventsService.create(command).subscribe({
-            next: _ => this.router.navigate(['/events']),
-            error: err => console.error('Erro ao criar evento:', err),
-        });
+        if (this.isEditMode && this.eventId !== null) {
+            const command = new UpdateEventCommand({
+                name: raw.name ?? '',
+                type: raw.eventType!,
+                description: raw.description ?? '',
+                eventDate: raw.eventDate!,
+                startDate: raw.startDate!,
+                endDate: raw.endDate!,
+                slots: raw.slots!,
+                shifts: shifts,
+            });
+            this.eventsService.update(this.eventId, command).subscribe({
+                next: _ => this.router.navigate(['/admin/events']),
+                error: err => console.error('Erro ao atualizar evento:', err),
+            });
+        } else {
+            const command = new CreateEventCommand({
+                name: raw.name ?? '',
+                type: raw.eventType!,
+                description: raw.description ?? '',
+                eventDate: raw.eventDate!,
+                startDate: raw.startDate!,
+                endDate: raw.endDate!,
+                slots: raw.slots!,
+                shifts: shifts,
+            });
+            this.eventsService.create(command).subscribe({
+                next: _ => this.router.navigate(['/admin/events']),
+                error: err => console.error('Erro ao criar evento:', err),
+            });
+        }
     }
 
     onCancel(): void {

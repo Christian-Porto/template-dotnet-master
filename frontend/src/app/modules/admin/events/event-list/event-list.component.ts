@@ -28,7 +28,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { StatusEnum, EventTypeEnum } from '../../../../../../api-client';
 import { PaginatedListOfEventResponse } from 'app/modules/events/models/event.model';
 import { EventsService } from '../services/events.service';
-import { finalize } from 'rxjs';
+import { finalize, debounceTime } from 'rxjs';
+import { StatusPipe } from 'app/modules/events/pipes/Status.pipe';
 import { StatusEnumPipe } from '../pipes/Status.pipe';
 import { EventTypeEnumPipe } from '../pipes/EventTypeEnum.pipe';
 import { RouterLink } from '@angular/router';
@@ -71,6 +72,7 @@ import { RouterLink } from '@angular/router';
         MatProgressBarModule,
         MatProgressSpinnerModule,
         MatChipsModule,
+        StatusPipe,
         StatusEnumPipe,
         EventTypeEnumPipe,
         RouterLink
@@ -89,7 +91,7 @@ export class EventListComponent {
     displayedColumns: string[] = ['name', 'status', 'type', 'datails'];
 
     form: FormGroup = new FormGroup({
-        name: new FormControl<string>(''),
+        query: new FormControl<string>(''),
         status: new FormControl<StatusEnum | null>(null),
         type: new FormControl<EventTypeEnum | null>(null),
     });
@@ -101,6 +103,13 @@ export class EventListComponent {
 
     ngOnInit(): void {
         this.loadEvents();
+
+        this.form.valueChanges
+            .pipe(debounceTime(300))
+            .subscribe(() => {
+                this.pageIndex = 0;
+                this.loadEvents();
+            });
     }
 
     loadEvents(): void {

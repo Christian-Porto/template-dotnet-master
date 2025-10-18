@@ -4,9 +4,12 @@ namespace ExtensionEventsManager.Core.Domain.Enums;
 
 public enum RegistrationStatusEnum
 {
+    [Description("Inscrito")]
+    Registered = 0,
+
     [Description("Não selecionado")]
-    NotSelected = 0,
+    NotSelected = 1,
 
     [Description("Selecionado")]
-    Selected = 1
+    Selected = 2
 }
