@@ -508,26 +508,13 @@
         "operationId": "Registrations_List",
         "parameters": [
           {
-            "name": "Status",
+            "name": "EventId",
             "in": "query",
             "schema": {
-              "nullable": true,
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/RegistrationStatusEnum"
-                }
-              ]
+              "type": "integer",
+              "format": "int32"
             },
             "x-position": 1
-          },
-          {
-            "name": "Attended",
-            "in": "query",
-            "schema": {
-              "type": "boolean",
-              "nullable": true
-            },
-            "x-position": 2
           },
           {
             "name": "PageSize",
@@ -536,7 +523,7 @@
               "type": "integer",
               "format": "int32"
             },
-            "x-position": 3
+            "x-position": 2
           },
           {
             "name": "PageIndex",
@@ -545,7 +532,7 @@
               "type": "integer",
               "format": "int32"
             },
-            "x-position": 4
+            "x-position": 3
           }
         ],
         "responses": {
@@ -1134,6 +1121,22 @@
           "justification": {
             "type": "string",
             "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "enrollment": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cpf": {
+            "type": "string",
+            "nullable": true
+          },
+          "period": {
+            "type": "integer",
+            "format": "int32"
           },
           "participationsCount": {
             "type": "integer",
