@@ -680,7 +680,7 @@ export class EventsClient implements IEventsClient {
 }
 
 export interface IRegistrationsClient {
-    list(status: RegistrationStatusEnum | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfRegistrationResponse>;
+    list(eventId: number | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfRegistrationResponse>;
     create(command: CreateRegistrationCommand): Observable<RegistrationResponse>;
     updateAttendance(id: number, command: UpdateAttendanceCommand): Observable<RegistrationResponse>;
     updateStatus(id: number, command: UpdateRegistrationStatusCommand): Observable<RegistrationResponse>;
@@ -699,12 +699,12 @@ export class RegistrationsClient implements IRegistrationsClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    list(status: RegistrationStatusEnum | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfRegistrationResponse> {
+    list(eventId: number | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfRegistrationResponse> {
         let url_ = this.baseUrl + "/registrations?";
-        if (status !== undefined && status !== null)
-            url_ += "Status=" + encodeURIComponent("" + status) + "&";
-        if (attended !== undefined && attended !== null)
-            url_ += "Attended=" + encodeURIComponent("" + attended) + "&";
+        if (eventId === null)
+            throw new Error("The parameter 'eventId' cannot be null.");
+        else if (eventId !== undefined)
+        url_ += "EventId=" + encodeURIComponent("" + eventId) + "&";
         if (pageSize === null)
             throw new Error("The parameter 'pageSize' cannot be null.");
         else if (pageSize !== undefined)
@@ -1729,6 +1729,10 @@ export class RegistrationResponse implements IRegistrationResponse {
     status?: RegistrationStatusEnum | undefined;
     attended?: boolean | undefined;
     justification?: string | undefined;
+    name?: string | undefined;
+    enrollment?: number;
+    cpf?: string | undefined;
+    period?: number;
     participationsCount?: number;
 
     constructor(data?: IRegistrationResponse) {
@@ -1747,6 +1751,10 @@ export class RegistrationResponse implements IRegistrationResponse {
             this.status = _data["status"];
             this.attended = _data["attended"];
             this.justification = _data["justification"];
+            this.name = _data["name"];
+            this.enrollment = _data["enrollment"];
+            this.cpf = _data["cpf"];
+            this.period = _data["period"];
             this.participationsCount = _data["participationsCount"];
         }
     }
@@ -1765,6 +1773,10 @@ export class RegistrationResponse implements IRegistrationResponse {
         data["status"] = this.status;
         data["attended"] = this.attended;
         data["justification"] = this.justification;
+        data["name"] = this.name;
+        data["enrollment"] = this.enrollment;
+        data["cpf"] = this.cpf;
+        data["period"] = this.period;
         data["participationsCount"] = this.participationsCount;
         return data;
     }
@@ -1776,6 +1788,10 @@ export interface IRegistrationResponse {
     status?: RegistrationStatusEnum | undefined;
     attended?: boolean | undefined;
     justification?: string | undefined;
+    name?: string | undefined;
+    enrollment?: number;
+    cpf?: string | undefined;
+    period?: number;
     participationsCount?: number;
 }
 

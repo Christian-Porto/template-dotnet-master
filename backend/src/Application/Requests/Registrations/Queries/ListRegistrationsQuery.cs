@@ -9,8 +9,7 @@ namespace ExtensionEventsManager.Core.Application.Requests.Registrations.Queries
 {
     public class ListRegistrationsQuery : QueryRequestBase, IRequest<PaginatedList<RegistrationResponse>>
     {
-        public RegistrationStatusEnum? Status { get; set; }
-        public bool? Attended { get; set; }
+        public int EventId { get; set; }
     }
 
     public class ListRegistrationsQueryHandler : IRequestHandler<ListRegistrationsQuery, PaginatedList<RegistrationResponse>>
@@ -28,15 +27,7 @@ namespace ExtensionEventsManager.Core.Application.Requests.Registrations.Queries
                 .AsNoTracking()
                 .AsQueryable();
 
-            if (request.Status.HasValue)
-            {
-                registrations = registrations.Where(r => r.Status == request.Status);
-            }
-
-            if (request.Attended.HasValue)
-            {
-                registrations = registrations.Where(r => r.Attended == request.Attended);
-            }
+            registrations = registrations.Where(r => r.EventId == request.EventId);
 
             var query = registrations
                 .Select(r => new RegistrationResponse
@@ -46,7 +37,11 @@ namespace ExtensionEventsManager.Core.Application.Requests.Registrations.Queries
                     Status = r.Status,
                     Attended = r.Attended,
                     Justification = r.Justification,
-                    ParticipationsCount = _context.Registrations.Count(rr => rr.UserId == r.UserId && rr.Attended == true)
+                    Name = r.User.Name,
+                    Enrollment = r.User.Enrollment,
+                    Cpf = r.User.Cpf,
+                    Period = r.User.Period,
+                    ParticipationsCount = _context.Registrations.Count(rr => rr.EventId == r.EventId && rr.UserId == r.UserId && rr.Attended == true && rr.Status == RegistrationStatusEnum.Selected)
                 });
 
             return await PaginatedList<RegistrationResponse>.CreateAsync(query, request.PageIndex, request.PageSize);

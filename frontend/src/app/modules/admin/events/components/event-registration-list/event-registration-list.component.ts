@@ -10,26 +10,12 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RegistrationResponse, RegistrationStatusEnum } from '../../../../../../../api-client';
+import { PaginatedListOfRegistrationResponse, RegistrationResponse, RegistrationStatusEnum } from '../../../../../../../api-client';
 import { EventResponse } from 'app/modules/events/models/event.model';
 import { EventsService } from '../../services/events.service';
 import { MatButtonModule } from '@angular/material/button';
 
-export interface RegistrationWithUserDetails extends RegistrationResponse {
-    userName?: string;
-    userEnrollment?: string;
-    userCpf?: string;
-    period?: string;
-}
-
-export interface PaginatedListOfRegistrationWithUserDetails {
-    items?: RegistrationWithUserDetails[];
-    pageIndex?: number;
-    totalPages?: number;
-    totalCount?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
-}
+// name, enrollment, cpf and period already come from RegistrationResponse
 
 @Component({
     selector: 'app-event-registration-list',
@@ -52,7 +38,7 @@ export interface PaginatedListOfRegistrationWithUserDetails {
 })
 export class EventRegistrationListComponent implements OnDestroy {
     event: EventResponse | null = null;
-    registrations: PaginatedListOfRegistrationWithUserDetails | null = null;
+    registrations: PaginatedListOfRegistrationResponse | null = null;
     loading: boolean = false;
     pageIndex: number = 0;
     pageSize: number = 25;
@@ -77,7 +63,7 @@ export class EventRegistrationListComponent implements OnDestroy {
                 });
                 this.eventsService.listRegistrations(eventId, this.pageIndex, this.pageSize).subscribe({
                     next: registrations => {
-                        this.registrations = registrations as any;
+                        this.registrations = registrations;
                         this.loading = false;
                     },
                     error: () => {
@@ -91,7 +77,7 @@ export class EventRegistrationListComponent implements OnDestroy {
     ngOnDestroy(): void {
     }
 
-    onStatusChange(registration: RegistrationWithUserDetails, status: RegistrationStatusEnum): void {
+    onStatusChange(registration: RegistrationResponse, status: RegistrationStatusEnum): void {
         console.log('Alterar status:', registration.id, 'para', status);
 
     }
@@ -103,7 +89,7 @@ export class EventRegistrationListComponent implements OnDestroy {
             this.loading = true;
             this.eventsService.listRegistrations(this.event.id, this.pageIndex, this.pageSize).subscribe({
                 next: registrations => {
-                    this.registrations = registrations as any;
+                    this.registrations = registrations;
                     this.loading = false;
                 },
                 error: () => {

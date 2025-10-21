@@ -139,6 +139,23 @@ export class EventsService {
             );
     }
 
+    public listRegistrations(
+        eventId: number,
+        pageIndex: number,
+        pageSize: number
+    ): Observable<PaginatedListOfRegistrationResponse> {
+        return this._registrationsClient.list(eventId, pageSize, pageIndex);
+    }
+
+    public listAttendances(
+        eventId: number,
+        pageIndex: number,
+        pageSize: number
+    ): Observable<PaginatedListOfRegistrationResponse> {
+        // Attendance list mirrors registrations list; includes attended/justification fields
+        return this._registrationsClient.list(eventId, pageSize, pageIndex);
+    }
+
     public get types(): Observable<EventTypeEnum[]> {
         return of([
             EventTypeEnum.Lecture,
@@ -234,14 +251,5 @@ export class EventsService {
                 })
             );
     }
-
-    public listRegistrations(eventId: number, pageIndex: number, pageSize: number): Observable<PaginatedListOfRegistrationResponse> {
-        // Current API does not filter by event; returning paginated list.
-        return this._registrationsClient.list(undefined, undefined, pageSize, pageIndex);
-    }
-
-    public listAttendances(eventId: number, pageIndex: number, pageSize: number): Observable<PaginatedListOfRegistrationResponse> {
-        // Attendance view: show registrations with attended flag when available.
-        return this._registrationsClient.list(undefined, undefined, pageSize, pageIndex);
-    }
+    
 }

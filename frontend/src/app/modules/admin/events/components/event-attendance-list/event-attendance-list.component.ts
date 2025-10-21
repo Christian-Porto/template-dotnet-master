@@ -10,26 +10,14 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RegistrationResponse } from '../../../../../../../api-client';
+import { PaginatedListOfRegistrationResponse, RegistrationResponse } from '../../../../../../../api-client';
 import { EventResponse } from 'app/modules/events/models/event.model';
 import { EventsService } from '../../services/events.service';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { MatButtonModule } from '@angular/material/button';
 
-export interface RegistrationWithUser extends RegistrationResponse {
-    userName?: string;
-    userEnrollment?: string;
-}
-
-export interface PaginatedListOfRegistrationWithUser {
-    items?: RegistrationWithUser[];
-    pageIndex?: number;
-    totalPages?: number;
-    totalCount?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
-}
+// Using RegistrationResponse fields directly (name, enrollment)
 
 @Component({
     selector: 'app-event-attendance-list',
@@ -52,7 +40,7 @@ export interface PaginatedListOfRegistrationWithUser {
 })
 export class EventAttendanceListComponent implements OnDestroy {
     event: EventResponse | null = null;
-    registrations: PaginatedListOfRegistrationWithUser | null = null;
+    registrations: PaginatedListOfRegistrationResponse | null = null;
     loading: boolean = false;
     pageIndex: number = 0;
     pageSize: number = 25;
@@ -87,7 +75,7 @@ export class EventAttendanceListComponent implements OnDestroy {
                 });
                 this.eventsService.listAttendances(eventId, this.pageIndex, this.pageSize).subscribe({
                     next: registrations => {
-                        this.registrations = <unknown>registrations;
+                        this.registrations = registrations;
                         this.loading = false;
                     },
                     error: () => {
@@ -102,7 +90,7 @@ export class EventAttendanceListComponent implements OnDestroy {
         this.justificationSubject.complete();
     }
 
-    onAttendanceChange(registration: RegistrationWithUser, attended: boolean): void {
+    onAttendanceChange(registration: RegistrationResponse, attended: boolean): void {
         console.log('Alterar presença:', registration.id, 'para', attended);
         // TODO: Implementar chamada à API
         // this.registrationService.updateAttendance(registration.id!, { attended }).subscribe({

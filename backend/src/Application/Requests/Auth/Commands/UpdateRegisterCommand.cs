@@ -41,7 +41,7 @@ public class UpdateRegisterCommandHandler : IRequestHandler<UpdateRegisterComman
             throw new NotFoundException("Usuário não encontrado");
         }
 
-        user.SetName(request.Name);
+        user.SetName(request.Name); // TODO Usar sobrecarga de construtor
         user.SetPeriod(request.Period);
         user.SetCpf(request.Cpf);
 
