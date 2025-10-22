@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { ChangeDetectorRef, Component, Type } from '@angular/core';
+import { ChangeDetectorRef, Component, Type, ViewChild, AfterViewInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,7 +9,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { BehaviorSubject, Subject, takeUntil, combineLatest, switchMap } from 'rxjs';
+import { BehaviorSubject, Subject, takeUntil, combineLatest, switchMap, debounceTime, filter } from 'rxjs';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { EventTypeEnum, Status, EventResponse, RegistrationStatusEnum } from '../models/event.model';
 import { EventTypeEnumPipe } from '../pipes/EventTypeEnum.pipe';
@@ -17,6 +17,7 @@ import { StatusPipe } from '../pipes/Status.pipe';
 import { EventsService } from '../services/events.service';
 import { EventCardComponent } from './event-card/event-card.component';
 import { RegistrationStatusEnumPipe } from '../pipes/RegistrationStatusEnum.pipe';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
     selector: 'app-event-list',
@@ -37,12 +38,14 @@ import { RegistrationStatusEnumPipe } from '../pipes/RegistrationStatusEnum.pipe
         MatInputModule,
         MatDatepickerModule,
         EventCardComponent,
-        RegistrationStatusEnumPipe
+        RegistrationStatusEnumPipe,
+        MatProgressSpinnerModule
     ],
     templateUrl: './event-list.component.html',
     styleUrl: './event-list.component.scss',
 })
-export class EventListComponent {
+export class EventListComponent implements AfterViewInit {
+    @ViewChild(CdkScrollable) scrollable!: CdkScrollable;
     EventTypeEnum = EventTypeEnum;
     RegistrationStatusEnum = RegistrationStatusEnum;
     Status = Status;
@@ -51,6 +54,11 @@ export class EventListComponent {
     statuses: Status[];
     events: EventResponse[] = [];
     filteredevents: EventResponse[] = [];
+    
+    pageIndex: number = 1;
+    pageSize: number = 12;
+    isLoading: boolean = false;
+    hasMoreData: boolean = true;
 
     filters: {
         typeSlug$: BehaviorSubject<EventTypeEnum | 'all'>;
@@ -112,28 +120,92 @@ export class EventListComponent {
             this.filters.registrationStatus$, // ensure changes trigger refresh
         ])
             .pipe(
-                takeUntil(this._unsubscribeAll),
-                switchMap(([typeSlug, status, query, startDate, endDate, attended, registrationStatus]) =>
-                    this._eventsService.listEvents(1, 100, {
-                        type: typeSlug,
-                        status: status,
-                        query: query,
-                        startDate: startDate ?? undefined,
-                        endDate: endDate ?? undefined,
-                        attended: attended === 'all' ? undefined : attended,
-                        registrationStatus: registrationStatus,
-                    })
-                )
+                takeUntil(this._unsubscribeAll)
             )
-            .subscribe((events: EventResponse[]) => {
-                this.events = events;
+            .subscribe(() => {
+                // Reset pagination when filters change
+                this.resetAndLoadEvents();
+            });
+    }
+
+    ngAfterViewInit(): void {
+        // Setup infinite scroll
+        this.scrollable.elementScrolled()
+            .pipe(
+                takeUntil(this._unsubscribeAll),
+                debounceTime(200),
+                filter(() => !this.isLoading && this.hasMoreData)
+            )
+            .subscribe(() => {
+                this.checkScrollPosition();
+            });
+    }
+
+    private checkScrollPosition(): void {
+        const element = this.scrollable.getElementRef().nativeElement;
+        const scrollPosition = element.scrollTop + element.clientHeight;
+        const scrollHeight = element.scrollHeight;
+        
+        // Load more when user is within 300px of the bottom
+        if (scrollHeight - scrollPosition < 300) {
+            this.loadMoreEvents();
+        }
+    }
+
+    private resetAndLoadEvents(): void {
+        this.pageIndex = 1;
+        this.events = [];
+        this.filteredevents = [];
+        this.hasMoreData = true;
+        this.loadMoreEvents();
+    }
+
+    private loadMoreEvents(): void {
+        if (this.isLoading || !this.hasMoreData) {
+            return;
+        }
+
+        this.isLoading = true;
+        const typeSlug = this.filters.typeSlug$.value;
+        const status = this.filters.status$.value;
+        const query = this.filters.query$.value;
+        const startDate = this.filters.startDate$.value;
+        const endDate = this.filters.endDate$.value;
+        const attended = this.filters.attended$.value;
+        const registrationStatus = this.filters.registrationStatus$.value;
+
+        this._eventsService.listEvents(this.pageIndex, this.pageSize, {
+            type: typeSlug,
+            status: status,
+            query: query,
+            startDate: startDate ?? undefined,
+            endDate: endDate ?? undefined,
+            attended: attended === 'all' ? undefined : attended,
+            registrationStatus: registrationStatus,
+        }).subscribe({
+            next: (events: EventResponse[]) => {
+                if (events.length < this.pageSize) {
+                    this.hasMoreData = false;
+                }
+
+                this.events = [...this.events, ...events];
+                
                 // Aplicar filtros apenas locais (não suportados pela API)
                 this.filteredevents = this.events;
                 if (this.filters.hideCompleted$.value) {
                     this.filteredevents = this.filteredevents.filter((e) => e.status !== Status.d);
                 }
+                
+                this.pageIndex++;
+                this.isLoading = false;
                 this._changeDetectorRef.markForCheck();
-            });
+            },
+            error: () => {
+                this.isLoading = false;
+                this.hasMoreData = false;
+                this._changeDetectorRef.markForCheck();
+            }
+        });
     }
 
     ngOnDestroy(): void {
@@ -175,6 +247,12 @@ export class EventListComponent {
 
     toggleCompleted(change: MatSlideToggleChange): void {
         this.filters.hideCompleted$.next(change.checked);
+        // Reapply local filter
+        this.filteredevents = this.events;
+        if (change.checked) {
+            this.filteredevents = this.filteredevents.filter((e) => e.status !== Status.d);
+        }
+        this._changeDetectorRef.markForCheck();
     }
 
     trackByFn(index: number, item: any): any {
