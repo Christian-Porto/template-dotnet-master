@@ -75,6 +75,17 @@ export class EventRegistrationListComponent implements OnDestroy {
     }
 
     ngOnDestroy(): void {
+        
+    }
+
+    get remainingSlots(): number {
+        if (!this.event || !this.registrations?.items) {
+            return 0;
+        }
+        const selectedCount = this.registrations.items.filter(
+            reg => reg.status === RegistrationStatusEnum.Selected
+        ).length;
+        return Math.max(0, this.event.slots - selectedCount);
     }
 
     onStatusChange(registration: RegistrationResponse, status: RegistrationStatusEnum): void {
