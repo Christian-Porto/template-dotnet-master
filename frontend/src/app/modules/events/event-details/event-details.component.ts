@@ -17,6 +17,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'app-event-details',
@@ -49,6 +50,7 @@ export class EventDetailsComponent implements OnInit {
         private readonly route: ActivatedRoute,
         private readonly router: Router,
         private readonly fuseConfirmationService: FuseConfirmationService,
+        private readonly toastr: ToastrService,
     ) { }
 
     ngOnInit(): void {
@@ -101,6 +103,11 @@ export class EventDetailsComponent implements OnInit {
                         next: () => {
                             console.log('Cadastro realizado com sucesso');
                             this.router.navigate(['/events']);
+                        },
+                        error: (error) => {
+                            console.error('Erro ao cadastrar no evento:', error);
+
+                            this.toastr.error('Ocorreu um erro ao tentar se inscrever no evento. Tente novamente mais tarde.');
                         }
                     });
             }
