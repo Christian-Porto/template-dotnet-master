@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {
     ApplicationConfig,
     provideAppInitializer,
@@ -14,11 +14,14 @@ import { provideIcons } from 'app/core/icons/icons.provider';
 import { MockApiService } from 'app/mock-api';
 import { environment } from 'environments/environment';
 import { API_BASE_URL } from '../../api-client';
+import { HttpErrorInterceptor } from './shared/interceptors/http-error.interceptor';
+import { provideToastr } from 'ngx-toastr';
 
 export const appConfig: ApplicationConfig = {
     providers: [
         provideAnimations(),
-        provideHttpClient(),
+        provideToastr(),
+        provideHttpClient(withInterceptorsFromDi()),
         provideRouter(
             appRoutes,
             withInMemoryScrolling({ scrollPositionRestoration: 'enabled' })
@@ -47,6 +50,8 @@ export const appConfig: ApplicationConfig = {
             provide: API_BASE_URL,
             useValue: environment.apiBaseUrl
         },
+
+        { provide: HTTP_INTERCEPTORS, useClass: HttpErrorInterceptor, multi: true },
 
         provideAppInitializer(() => { }),
 
