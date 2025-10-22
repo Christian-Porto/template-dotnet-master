@@ -19,16 +19,10 @@
                     <div class="flex items-center">
                         <div class="mr-1 flex cursor-pointer items-center" (click)="openProfile()">
                             <div class="h-10 w-10">
-                                @if (profile.avatar) {
-                                <img class="h-full w-full rounded-full object-cover" [src]="profile.avatar"
-                                    alt="Profile avatar" />
-                                }
-                                @if (!profile.avatar) {
                                 <div
                                     class="flex h-full w-full items-center justify-center rounded-full bg-gray-200 text-lg uppercase text-gray-600 dark:bg-gray-700 dark:text-gray-200">
                                     {{ profile.name.charAt(0) }}
                                 </div>
-                                }
                             </div>
                             <div class="ml-4 truncate font-medium">
                                 {{ profile.name }}
@@ -107,25 +101,12 @@
                                             selectedChat.id === chat.id,
                                     }" [routerLink]="[chat.id]">
                         <div class="relative flex h-10 w-10 flex-0 items-center justify-center">
-                            @if (chat.unreadCount > 0) {
-                            <div class="ring-bg-card absolute bottom-0 right-0 -ml-0.5 h-2 w-2 flex-0 rounded-full bg-primary text-on-primary ring-2 dark:bg-primary-500 dark:ring-gray-900"
-                                [class.ring-primary-50]="
-                                                    selectedChat &&
-                                                    selectedChat.id === chat.id
-                                                "></div>
-                            }
-                            @if (chat.contact.avatar) {
-                            <img class="h-full w-full rounded-full object-cover" [src]="chat.contact.avatar"
-                                alt="Contact avatar" />
-                            }
-                            @if (!chat.contact.avatar) {
                             <div
                                 class="flex h-full w-full items-center justify-center rounded-full bg-gray-200 text-lg uppercase text-gray-600 dark:bg-gray-700 dark:text-gray-200">
                                 {{
                                 chat.contact.name.charAt(0)
                                 }}
                             </div>
-                            }
                         </div>
                         <div class="ml-4 min-w-0">
                             <div class="truncate font-medium leading-5">
