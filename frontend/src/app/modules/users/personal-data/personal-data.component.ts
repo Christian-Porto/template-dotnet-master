@@ -42,7 +42,6 @@ export enum PeriodoEnum {
         MatSelectModule,
         MatOptionModule,
         TextFieldModule,
-        RouterLink,
     ],
     templateUrl: './personal-data.component.html',
     styleUrl: './personal-data.component.scss'
