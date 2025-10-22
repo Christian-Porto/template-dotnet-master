@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { EventResponse, EventTypeEnum, RegistrationStatusEnum, Status, PaginatedListOfEventResponse } from 'app/modules/events/models/event.model';
 import { Observable, of, map } from 'rxjs';
-import { EventsClient, StatusEnum as ApiStatusEnum, EventTypeEnum as ApiEventTypeEnum, CreateEventCommand, RegistrationsClient, PaginatedListOfRegistrationResponse, UpdateEventCommand, RegistrationStatusEnum as ApiRegistrationStatusEnum } from '../../../../../../api-client';
+import { EventsClient, StatusEnum as ApiStatusEnum, EventTypeEnum as ApiEventTypeEnum, CreateEventCommand, RegistrationsClient, PaginatedListOfRegistrationResponse, UpdateEventCommand, RegistrationStatusEnum as ApiRegistrationStatusEnum, UpdateRegistrationStatusCommand, RegistrationResponse, UpdateAttendanceCommand } from '../../../../../../api-client';
 
 @Injectable({ providedIn: 'root' })
 export class EventsService {
@@ -154,6 +154,25 @@ export class EventsService {
     ): Observable<PaginatedListOfRegistrationResponse> {
         // Attendance list mirrors registrations list; includes attended/justification fields
         return this._registrationsClient.list(eventId, pageSize, pageIndex);
+    }
+
+    public updateAttendance(
+        registrationId: number,
+        options: { attended?: boolean; justification?: string }
+    ) {
+        const command = new UpdateAttendanceCommand({
+            attended: options.attended,
+            justification: options.justification,
+        });
+        return this._registrationsClient.updateAttendance(registrationId, command);
+    }
+
+    public updateRegistrationStatus(
+        registrationId: number,
+        status: ApiRegistrationStatusEnum
+    ): Observable<RegistrationResponse> {
+        const command = new UpdateRegistrationStatusCommand({ status });
+        return this._registrationsClient.updateStatus(registrationId, command);
     }
 
     public get types(): Observable<EventTypeEnum[]> {

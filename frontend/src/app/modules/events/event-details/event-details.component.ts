@@ -16,22 +16,24 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { FuseConfirmationService } from '@fuse/services/confirmation';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'app-event-details',
     imports: [EventTypeEnumPipe, StatusPipe, DatePipe, MatIcon, NgClass, MatProgressBarModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatButtonModule,
-    NgClass,
-    MatSlideToggleModule,
-    MatSelectModule,
-    MatOptionModule,
-    MatCheckboxModule,
-    MatRippleModule, RouterLink, FormatShiftsPipe],
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatButtonModule,
+        NgClass,
+        MatSlideToggleModule,
+        MatSelectModule,
+        MatOptionModule,
+        MatCheckboxModule,
+        MatRippleModule, RouterLink, FormatShiftsPipe],
     templateUrl: './event-details.component.html',
     styleUrl: './event-details.component.scss'
 })
@@ -46,7 +48,9 @@ export class EventDetailsComponent implements OnInit {
     constructor(
         private readonly eventsService: EventsService,
         private readonly route: ActivatedRoute,
-        private readonly router: Router
+        private readonly router: Router,
+        private readonly fuseConfirmationService: FuseConfirmationService,
+        private readonly toastr: ToastrService,
     ) { }
 
     ngOnInit(): void {
@@ -67,16 +71,41 @@ export class EventDetailsComponent implements OnInit {
     }
 
     onRegister(): void {
-        if (!this.eventId || this.loading) return;
-        this.loading = true;
-        this.eventsService
-            .registerToEvent(this.eventId)
-            .pipe(finalize(() => this.loading = false))
-            .subscribe({
-                next: () => {
-                    console.log('Cadastro realizado com sucesso');
-                    this.router.navigate(['/events']);
-                }
-            });
+
+        const dialogRef = this.fuseConfirmationService.open({
+            title: "Confirmação de Inscrição",
+            message: "Você tem certeza que deseja se inscrever neste evento?",
+            actions: {
+                confirm: {
+                    label: "Sim, Inscrever-me",
+                    color: 'primary',
+                },
+                cancel: {
+                    label: "Cancelar",
+                },
+            },
+            icon: {
+                show: true,
+                name: 'heroicons_outline:exclamation-triangle',
+                color: 'accent',
+            },
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result == 'confirmed') {
+                if (!this.eventId || this.loading) return;
+                this.loading = true;
+
+                this.eventsService
+                    .registerToEvent(this.eventId)
+                    .pipe(finalize(() => this.loading = false))
+                    .subscribe({
+                        next: () => {
+                            this.toastr.success('Cadastro realizado com sucesso');
+                            this.router.navigate(['/events']);
+                        }
+                    });
+            }
+        });
     }
 }

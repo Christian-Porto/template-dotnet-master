@@ -75,11 +75,38 @@ export class EventRegistrationListComponent implements OnDestroy {
     }
 
     ngOnDestroy(): void {
+
+    }
+
+    get remainingSlots(): number {
+        if (!this.event || !this.registrations?.items) {
+            return 0;
+        }
+        const selectedCount = this.registrations.items.filter(
+            reg => reg.status === RegistrationStatusEnum.Selected
+        ).length;
+        return Math.max(0, this.event.slots - selectedCount);
     }
 
     onStatusChange(registration: RegistrationResponse, status: RegistrationStatusEnum): void {
-        console.log('Alterar status:', registration.id, 'para', status);
-
+        if (!registration?.id) {
+            return;
+        }
+        const previous = registration.status;
+        registration.status = status;
+        this.loading = true;
+        this.eventsService.updateRegistrationStatus(registration.id, status).subscribe({
+            next: (updated) => {
+                // ensure local state reflects server response
+                registration.status = updated.status ?? status;
+                this.loading = false;
+            },
+            error: () => {
+                // rollback on error
+                registration.status = previous;
+                this.loading = false;
+            }
+        });
     }
 
     onPageChange(event: PageEvent): void {
@@ -96,6 +123,85 @@ export class EventRegistrationListComponent implements OnDestroy {
                     this.loading = false;
                 }
             });
+        }
+    }
+
+    exportToCSV(): void {
+        if (!this.event?.id || !this.registrations?.items) {
+            return;
+        }
+
+        // Fetch all registrations for export
+        this.loading = true;
+        this.eventsService.listRegistrations(this.event.id, 0, this.registrations.totalCount || 1000).subscribe({
+            next: allRegistrations => {
+                this.generateCSV(allRegistrations.items || []);
+                this.loading = false;
+            },
+            error: () => {
+                this.loading = false;
+            }
+        });
+    }
+
+    private generateCSV(data: RegistrationResponse[]): void {
+        if (!data || data.length === 0) {
+            return;
+        }
+
+        // Define CSV headers
+        const headers = ['Nome', 'Matrícula', 'CPF', 'Período', 'Atividades Realizadas', 'Status'];
+
+        // Convert data to CSV rows
+        const rows = data.map(item => [
+            this.escapeCSVValue(item.name || '-'),
+            this.escapeCSVValue(String(item.enrollment || '-')),
+            this.escapeCSVValue(item.cpf || '-'),
+            this.escapeCSVValue(String(item.period || '-')),
+            (item.participationsCount || 0).toString(),
+            this.getStatusLabel(item.status)
+        ]);
+
+        // Combine headers and rows
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.join(','))
+        ].join('\n');
+
+        // Create blob and download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+
+        const fileName = `inscricoes_${this.event?.name?.replace(/\s+/g, '_') || 'evento'}_${new Date().toISOString().split('T')[0]}.csv`;
+
+        link.setAttribute('href', url);
+        link.setAttribute('download', fileName);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    private escapeCSVValue(value: string): string {
+        if (!value) return '';
+        // Escape quotes and wrap in quotes if contains comma, quote, or newline
+        if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+            return `"${value.replace(/"/g, '""')}"`;
+        }
+        return value;
+    }
+
+    private getStatusLabel(status: RegistrationStatusEnum | undefined): string {
+        switch (status) {
+            case RegistrationStatusEnum.Selected:
+                return 'Selecionado';
+            case RegistrationStatusEnum.NotSelected:
+                return 'Não Selecionado';
+            case RegistrationStatusEnum.Registered:
+                return 'Inscrito';
+            default:
+                return '-';
         }
     }
 }

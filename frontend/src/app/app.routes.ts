@@ -63,6 +63,7 @@ export const appRoutes: Route[] = [
             {path: 'events', loadChildren: () => import('app/modules/events/events.routes')},
             {path: 'admin', loadChildren: () => import('app/modules/admin/admin.routes')},
             {path: 'chat', loadChildren: () => import('app/modules/chat/chat.routes')},
+            {path: 'personal-data', loadChildren: () => import('app/modules/users/personal-data/personal-data.routes')},
         ]
     }
 ];

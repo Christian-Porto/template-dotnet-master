@@ -57,10 +57,7 @@ export class EventAttendanceListComponent implements OnDestroy {
                 distinctUntilChanged((prev, curr) =>
                     prev.id === curr.id && prev.justification === curr.justification
                 )
-            )
-            .subscribe(({ id, justification }) => {
-                this.saveJustification(id, justification);
-            });
+            );
     }
 
     ngOnInit(): void {
@@ -90,37 +87,35 @@ export class EventAttendanceListComponent implements OnDestroy {
         this.justificationSubject.complete();
     }
 
-    onAttendanceChange(registration: RegistrationResponse, attended: boolean): void {
-        console.log('Alterar presença:', registration.id, 'para', attended);
-        // TODO: Implementar chamada à API
-        // this.registrationService.updateAttendance(registration.id!, { attended }).subscribe({
-        //   next: () => {
-        //     registration.attended = attended;
-        //     // Mostrar mensagem de sucesso
-        //   },
-        //   error: (error) => {
-        //     // Reverter checkbox em caso de erro
-        //     registration.attended = !attended;
-        //     // Mostrar mensagem de erro
-        //   }
-        // });
+    toggleAttendance(registration: RegistrationResponse, attended: boolean): void {
+        if (!registration?.id) return;
+        const prevAttended = registration.attended ?? false;
+        const prevJustification = registration.justification ?? '';
+
+        registration.attended = attended;
+        if (attended) {
+            registration.justification = '';
+        }
+        this.loading = true;
+        this.eventsService.updateAttendance(registration.id, {
+            attended,
+            justification: registration.justification ?? undefined,
+        }).subscribe({
+            next: (updated) => {
+                registration.attended = updated.attended ?? attended;
+                registration.justification = updated.justification ?? registration.justification;
+                this.loading = false;
+            },
+            error: () => {
+                registration.attended = prevAttended;
+                registration.justification = prevJustification;
+                this.loading = false;
+            }
+        });
     }
 
     onJustificationChange(registrationId: number, justification: string): void {
         this.justificationSubject.next({ id: registrationId, justification });
-    }
-
-    private saveJustification(registrationId: number, justification: string): void {
-        console.log('Salvar justificativa:', registrationId, justification);
-        // TODO: Implementar chamada à API
-        // this.registrationService.updateAttendance(registrationId, { justification }).subscribe({
-        //   next: () => {
-        //     // Mostrar mensagem de sucesso (opcional)
-        //   },
-        //   error: (error) => {
-        //     // Mostrar mensagem de erro
-        //   }
-        // });
     }
 
     onPageChange(event: PageEvent): void {
