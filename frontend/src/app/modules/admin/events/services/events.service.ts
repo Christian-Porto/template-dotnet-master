@@ -152,8 +152,8 @@ export class EventsService {
         pageIndex: number,
         pageSize: number
     ): Observable<PaginatedListOfRegistrationResponse> {
-        // Attendance list mirrors registrations list; includes attended/justification fields
-        return this._registrationsClient.list(eventId, pageSize, pageIndex);
+        // List only selected registrations for attendance marking
+        return this._registrationsClient.listSelected(eventId, pageSize, pageIndex);
     }
 
     public updateAttendance(

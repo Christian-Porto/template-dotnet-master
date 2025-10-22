@@ -21,6 +21,13 @@ namespace ExtensionEventsManager.Core.WebAPI.Controllers
             return await Mediator.Send(query);
         }
 
+        [HttpGet("selected")]
+        [AllowAnonymous]
+        public async Task<PaginatedList<RegistrationResponse>> ListSelected([FromQuery] ListSelectedRegistrationsQuery query)
+        {
+            return await Mediator.Send(query);
+        }
+
         [HttpPost]
         [AllowAnonymous]
         public async Task<RegistrationResponse> Create(CreateRegistrationCommand command)

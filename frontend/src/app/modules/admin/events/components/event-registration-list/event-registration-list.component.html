@@ -31,7 +31,7 @@
                     </th>
                     <td mat-cell *matCellDef="let element" class="bg-white dark:bg-gray-900">
                         <div class="py-2">
-                            {{element.name || '-'}}
+                            {{element.userName || '-'}}
                         </div>
                     </td>
                 </ng-container>
@@ -43,7 +43,7 @@
                     </th>
                     <td mat-cell *matCellDef="let element">
                         <div class="whitespace-nowrap">
-                            {{element.enrollment || '-'}}
+                            {{element.userEnrollment || '-'}}
                         </div>
                     </td>
                 </ng-container>
@@ -55,7 +55,7 @@
                     </th>
                     <td mat-cell *matCellDef="let element">
                         <div class="whitespace-nowrap">
-                            {{element.cpf || '-'}}
+                            {{element.userCpf || '-'}}
                         </div>
                     </td>
                 </ng-container>

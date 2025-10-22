@@ -110,7 +110,7 @@
       "enumNameGeneratorType": "Enum",
       "serviceHost": null,
       "serviceSchemes": null,
-      "output": "./wwwroot/api/api-client.ts"
+      "output": "../../../frontend/api-client.ts"
     }
   }
 }
