@@ -78,8 +78,24 @@ export class EventRegistrationListComponent implements OnDestroy {
     }
 
     onStatusChange(registration: RegistrationResponse, status: RegistrationStatusEnum): void {
-        console.log('Alterar status:', registration.id, 'para', status);
-
+        if (!registration?.id) {
+            return;
+        }
+        const previous = registration.status;
+        registration.status = status;
+        this.loading = true;
+        this.eventsService.updateRegistrationStatus(registration.id, status).subscribe({
+            next: (updated) => {
+                // ensure local state reflects server response
+                registration.status = updated.status ?? status;
+                this.loading = false;
+            },
+            error: () => {
+                // rollback on error
+                registration.status = previous;
+                this.loading = false;
+            }
+        });
     }
 
     onPageChange(event: PageEvent): void {
