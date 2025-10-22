@@ -5,10 +5,8 @@ import { forkJoin } from 'rxjs';
 
 export const initialDataResolver = () => {
     const messagesService = inject(MessagesService);
-    const navigationService = inject(NavigationService);
 
     return forkJoin([
-        navigationService.get(),
         messagesService.getAll(),
     ]);
 };
