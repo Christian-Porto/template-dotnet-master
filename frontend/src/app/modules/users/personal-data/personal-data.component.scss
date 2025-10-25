@@ -1,0 +1,5 @@
+/* Deixa o asterisco de obrigatório em vermelho e mais evidente */
+:host ::ng-deep .mat-mdc-form-field-required-marker {
+  color: #ef4444; /* tailwind red-500 */
+  font-weight: 700;
+}
