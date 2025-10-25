@@ -1,9 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { Status } from '../models/event.model';
 
-/**
- * Finds an object from given source using the given key - value pairs
- */
 @Pipe({
     name: 'Status',
     pure: false,
@@ -12,16 +9,15 @@ import { Status } from '../models/event.model';
 export class StatusPipe implements PipeTransform {
     transform(value: Status): any {
         if (value === Status.a) {
-            return 'Inscrições abertas';
+            return 'Inscrições não iniciadas';
         }
         if (value === Status.b) {
-            return 'Em andamento';
+            return 'Inscrições abertas';
         }
         if (value === Status.c) {
             return 'Inscrições encerradas';
         }
-        if (value === Status.d) {
-            return 'Finalizado';
-        }
+        return '';
     }
 }
+

@@ -4,8 +4,8 @@
         <div class="mx-auto flex w-full max-w-xs flex-auto flex-col sm:max-w-7xl">
             <div class="flex w-full max-w-xs flex-col items-center justify-between sm:max-w-none sm:flex-row">
                 <mat-form-field class="w-full sm:w-36" [subscriptSizing]="'dynamic'">
-                    <mat-select [value]="'all'" (selectionChange)="filterByType($event)" placeholder="Tipo">
-                        <mat-option [value]="'all'">Todos</mat-option>
+                    <mat-select [value]="'all'" (selectionChange)="filterByType($event)" [placeholder]="'Tipo do Evento'">
+                        <mat-option [value]="null">Todos</mat-option>
                         @for (
                         type of types;
                         track trackByFn($index, type)
@@ -15,8 +15,8 @@
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field class="mt-4 w-full sm:ml-4 sm:mt-0 sm:w-36" [subscriptSizing]="'dynamic'">
-                    <mat-select [value]="'all'" (selectionChange)="filterByStatus($event)" placeholder="Status do Evento">
-                        <mat-option [value]="'all'">Todos</mat-option>
+                    <mat-select [value]="'all'" (selectionChange)="filterByStatus($event)" [placeholder]="'Status do Evento'">
+                        <mat-option [value]="null">Todos</mat-option>
                         @for (
                         st of statuses;
                         track trackByFn($index, st)
@@ -38,8 +38,8 @@
                     <mat-date-range-picker #picker></mat-date-range-picker>
                 </mat-form-field>
                 <mat-form-field class="mt-4 w-full sm:ml-4 sm:mt-0 sm:w-52" [subscriptSizing]="'dynamic'">
-                    <mat-select [value]="'all'" (selectionChange)="filterByRegistrationStatus($event)" placeholder="Minhas Participações">
-                        <mat-option [value]="'all'">Todos</mat-option>
+                    <mat-select [value]="'all'" (selectionChange)="filterByRegistrationStatus($event)" [placeholder]="'Minhas Participações'">
+                        <mat-option [value]="null">Todos</mat-option>
                         @for (
                         st of registrationStatuses;
                         track trackByFn($index, st)
@@ -49,7 +49,8 @@
                     </mat-select>
                 </mat-form-field>
                 <mat-form-field class="mt-4 w-full sm:ml-4 sm:mt-0 sm:w-36" [subscriptSizing]="'dynamic'">
-                    <mat-select [value]="'all'" (selectionChange)="filterByAttended($event)" placeholder="Presença">
+                    <mat-select [value]="'all'" (selectionChange)="filterByAttended($event)" [placeholder]="'Presença'">
+                        <mat-option [value]="null">Todos</mat-option>
                         <mat-option [value]="false">Presente</mat-option>
                         <mat-option [value]="true">Ausente</mat-option>
                     </mat-select>

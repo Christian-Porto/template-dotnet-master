@@ -74,6 +74,11 @@ export class EventEditComponent implements OnInit {
     isEditMode = false;
     private eventId: number | null = null;
     private shiftCounter = 0;
+    // Minimum selectable date (today at 00:00)
+    minDate: Date = (() => {
+        const now = new Date();
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    })();
 
     constructor(
         private readonly route: ActivatedRoute,

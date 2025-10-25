@@ -25,13 +25,11 @@ export class EventsService {
             if (status === undefined || status === 'all') return undefined;
             switch (status) {
                 case Status.a:
-                    return ApiStatusEnum.OpenForRegistration;
+                    return ApiStatusEnum.RegistrationNotStarted;
                 case Status.b:
-                    return ApiStatusEnum.InProgress;
+                    return ApiStatusEnum.OpenForRegistration;
                 case Status.c:
                     return ApiStatusEnum.RegistrationClosed;
-                case Status.d:
-                    return ApiStatusEnum.Completed;
                 default:
                     return undefined;
             }
@@ -84,14 +82,12 @@ export class EventsService {
 
                     const mapStatus = (status?: ApiStatusEnum): Status => {
                         switch (status) {
-                            case ApiStatusEnum.OpenForRegistration:
+                            case ApiStatusEnum.RegistrationNotStarted:
                                 return Status.a;
-                            case ApiStatusEnum.InProgress:
+                            case ApiStatusEnum.OpenForRegistration:
                                 return Status.b;
                             case ApiStatusEnum.RegistrationClosed:
                                 return Status.c;
-                            case ApiStatusEnum.Completed:
-                                return Status.d;
                             default:
                                 return Status.a;
                         }
@@ -120,14 +116,12 @@ export class EventsService {
                 map((e) => {
                     const mapStatus = (status?: ApiStatusEnum): Status => {
                         switch (status) {
-                            case ApiStatusEnum.OpenForRegistration:
+                            case ApiStatusEnum.RegistrationNotStarted:
                                 return Status.a;
-                            case ApiStatusEnum.InProgress:
+                            case ApiStatusEnum.OpenForRegistration:
                                 return Status.b;
                             case ApiStatusEnum.RegistrationClosed:
                                 return Status.c;
-                            case ApiStatusEnum.Completed:
-                                return Status.d;
                             default:
                                 return Status.a;
                         }
@@ -170,7 +164,6 @@ export class EventsService {
             Status.a,
             Status.b,
             Status.c,
-            Status.d,
         ]);
     }
 

@@ -1,0 +1,146 @@
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+export interface IRegistrationsClient {
+    list(eventId: number | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfRegistrationResponse>;
+    create(command: CreateRegistrationCommand): Observable<RegistrationResponse>;
+    listSelected(eventId: number | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfRegistrationResponse>;
+    updateAttendance(id: number, command: UpdateAttendanceCommand): Observable<RegistrationResponse>;
+    updateStatus(id: number, command: UpdateRegistrationStatusCommand): Observable<RegistrationResponse>;
+}
+
+@Injectable({
+    providedIn: 'root'
+})
+export class RegistrationsClient implements IRegistrationsClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    list(eventId: number | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfRegistrationResponse> {
+        let url_ = this.baseUrl + "/registrations?";
+        if (eventId === null)
+            throw new Error("The parameter 'eventId' cannot be null.");
+        else if (eventId !== undefined)
+            url_ += "EventId=" + encodeURIComponent("" + eventId) + "&";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (pageIndex === null)
+            throw new Error("The parameter 'pageIndex' cannot be null.");
+        else if (pageIndex !== undefined)
+            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processList(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processList(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PaginatedListOfRegistrationResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PaginatedListOfRegistrationResponse>;
+        }));
+    }
+
+    protected processList(response: HttpResponseBase): Observable<PaginatedListOfRegistrationResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfRegistrationResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    create(command: CreateRegistrationCommand): Observable<RegistrationResponse> {
+        let url_ = this.baseUrl + "/registrations";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RegistrationResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RegistrationResponse>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<RegistrationResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RegistrationResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    listSelected(eventId: number | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfRegistrationResponse> {
+        let url_ = this.baseUrl + "/registrations/selected?";
+        if (eventId === null)
+            throw new Error("The parameter 'eventId' cannot be null.");
+        else if (eventId !== undefined)
+            url_ += "EventId=" + encodeURIComponent("" + eventId) + "&";
+        if (pageSize === null)

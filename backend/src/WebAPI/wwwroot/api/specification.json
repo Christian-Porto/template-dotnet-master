@@ -579,6 +579,55 @@
         }
       }
     },
+    "/registrations/selected": {
+      "get": {
+        "tags": [
+          "Registrations"
+        ],
+        "operationId": "Registrations_ListSelected",
+        "parameters": [
+          {
+            "name": "EventId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedListOfRegistrationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/registrations/{id}/attendance": {
       "put": {
         "tags": [
@@ -914,16 +963,14 @@
         "type": "integer",
         "description": "",
         "x-enumNames": [
+          "RegistrationNotStarted",
           "OpenForRegistration",
-          "RegistrationClosed",
-          "Completed",
-          "InProgress"
+          "RegistrationClosed"
         ],
         "enum": [
           1,
           2,
-          3,
-          4
+          3
         ]
       },
       "ShiftEnum": {

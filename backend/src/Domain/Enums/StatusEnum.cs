@@ -4,16 +4,13 @@ namespace ExtensionEventsManager.Core.Domain.Enums
 {
     public enum StatusEnum
     {
+        [Description("Inscrições não Iniciadas")]
+            RegistrationNotStarted = 1,
+
         [Description("Inscrições Abertas")]
-            OpenForRegistration = 1,
+            OpenForRegistration = 2,
     
-        [Description("Insrições Encerradas")]
-            RegistrationClosed = 2,
-
-        [Description("Concluído")]
-            Completed = 3,
-
-        [Description("Em Andamento")]
-            InProgress = 4
+        [Description("Inscrições Encerradas")]
+            RegistrationClosed = 3
     }
 }

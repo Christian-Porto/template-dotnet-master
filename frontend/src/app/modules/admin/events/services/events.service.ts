@@ -65,14 +65,12 @@ export class EventsService {
 
                     const mapStatus = (status?: ApiStatusEnum): Status => {
                         switch (status) {
-                            case ApiStatusEnum.OpenForRegistration:
+                            case ApiStatusEnum.RegistrationNotStarted:
                                 return Status.a;
-                            case ApiStatusEnum.InProgress:
+                            case ApiStatusEnum.OpenForRegistration:
                                 return Status.b;
                             case ApiStatusEnum.RegistrationClosed:
                                 return Status.c;
-                            case ApiStatusEnum.Completed:
-                                return Status.d;
                             default:
                                 return Status.a;
                         }
@@ -110,14 +108,12 @@ export class EventsService {
                 map((e) => {
                     const mapStatus = (status?: ApiStatusEnum): Status => {
                         switch (status) {
-                            case ApiStatusEnum.OpenForRegistration:
+                            case ApiStatusEnum.RegistrationNotStarted:
                                 return Status.a;
-                            case ApiStatusEnum.InProgress:
+                            case ApiStatusEnum.OpenForRegistration:
                                 return Status.b;
                             case ApiStatusEnum.RegistrationClosed:
                                 return Status.c;
-                            case ApiStatusEnum.Completed:
-                                return Status.d;
                             default:
                                 return Status.a;
                         }
@@ -152,8 +148,8 @@ export class EventsService {
         pageIndex: number,
         pageSize: number
     ): Observable<PaginatedListOfRegistrationResponse> {
-        // Attendance list mirrors registrations list; includes attended/justification fields
-        return this._registrationsClient.list(eventId, pageSize, pageIndex);
+        // List only selected registrations for attendance marking
+        return this._registrationsClient.listSelected(eventId, pageSize, pageIndex);
     }
 
     public updateAttendance(
@@ -195,7 +191,6 @@ export class EventsService {
             Status.a,
             Status.b,
             Status.c,
-            Status.d,
         ]);
     }
 
@@ -206,14 +201,12 @@ export class EventsService {
                 map((e) => {
                     const mapStatus = (status?: ApiStatusEnum): Status => {
                         switch (status) {
-                            case ApiStatusEnum.OpenForRegistration:
+                            case ApiStatusEnum.RegistrationNotStarted:
                                 return Status.a;
-                            case ApiStatusEnum.InProgress:
+                            case ApiStatusEnum.OpenForRegistration:
                                 return Status.b;
                             case ApiStatusEnum.RegistrationClosed:
                                 return Status.c;
-                            case ApiStatusEnum.Completed:
-                                return Status.d;
                             default:
                                 return Status.a;
                         }
@@ -242,14 +235,12 @@ export class EventsService {
                 map((e) => {
                     const mapStatus = (status?: ApiStatusEnum): Status => {
                         switch (status) {
-                            case ApiStatusEnum.OpenForRegistration:
+                            case ApiStatusEnum.RegistrationNotStarted:
                                 return Status.a;
-                            case ApiStatusEnum.InProgress:
+                            case ApiStatusEnum.OpenForRegistration:
                                 return Status.b;
                             case ApiStatusEnum.RegistrationClosed:
                                 return Status.c;
-                            case ApiStatusEnum.Completed:
-                                return Status.d;
                             default:
                                 return Status.a;
                         }
