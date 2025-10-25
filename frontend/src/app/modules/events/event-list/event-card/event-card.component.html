@@ -19,8 +19,8 @@
         <div class="my-6 h-1 w-full border-t-2"></div>
 
         <div class="text-secondary flex items-center text-md leading-5 mt-2">
-            <mat-icon class="text-hint icon-size-5" [svgIcon]="'heroicons_solid:academic-cap'"></mat-icon>
-            <div class="ml-1.5">
+            <mat-icon class="text-hint icon-size-5" [svgIcon]="'heroicons_solid:academic-cap' "></mat-icon>
+            <div class="ml-1.5" matTooltip="Tipo do evento" matTooltipPosition="above">
                 {{ event?.type | EventTypeEnum }}
             </div>
         </div>
@@ -28,15 +28,22 @@
 
         <div class="text-secondary flex items-center text-md leading-5 mt-2">
             <mat-icon class="text-hint icon-size-5" [svgIcon]="'heroicons_solid:calendar-days'"></mat-icon>
-            <div class="ml-1.5">
+            <div class="ml-1.5" matTooltip="Data do evento" matTooltipPosition="above" matTooltipClass="tooltip-gray">
                 {{ event?.eventDate | date:'dd/MM/yyyy' }}
             </div>
         </div>
 
         <div class="text-secondary flex items-center text-md leading-5 mt-2">
             <mat-icon class="text-hint icon-size-5" [svgIcon]="'heroicons_solid:clock'"></mat-icon>
-            <div class="ml-1.5">
+            <div class="ml-1.5" matTooltip="Turnos" matTooltipPosition="above">
                 {{ event?.shifts | formatShifts }}
+            </div>
+        </div>
+
+        <div class="text-secondary flex items-center text-md leading-5 mt-2">
+         <mat-icon class="text-hint icon-size-5" [svgIcon]="'heroicons_solid:users'"></mat-icon>
+            <div class="ml-1.5" matTooltip="Período de inscrição" matTooltipPosition="above">
+                {{ event?.startDate | date:'dd/MM/yyyy' }} – {{ event?.endDate | date:'dd/MM/yyyy' }}
             </div>
         </div>
     </div>

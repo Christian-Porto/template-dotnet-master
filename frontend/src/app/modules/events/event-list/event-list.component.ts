@@ -18,6 +18,7 @@ import { EventsService } from '../services/events.service';
 import { EventCardComponent } from './event-card/event-card.component';
 import { RegistrationStatusEnumPipe } from '../pipes/RegistrationStatusEnum.pipe';
 
+
 @Component({
     selector: 'app-event-list',
     imports: [
