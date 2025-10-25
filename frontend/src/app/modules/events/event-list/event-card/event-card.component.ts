@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { EventResponse, Status, FormatShiftsPipe } from '../../models/event.model';
-import { CdkScrollable } from '@angular/cdk/scrolling';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -43,7 +42,6 @@ import { RouterLink } from '@angular/router';
 })
 export class EventCardComponent {
     @Input() event: EventResponse;
-
 
     Status = Status;
 }

@@ -963,16 +963,14 @@
         "type": "integer",
         "description": "",
         "x-enumNames": [
+          "RegistrationNotStarted",
           "OpenForRegistration",
-          "RegistrationClosed",
-          "Completed",
-          "InProgress"
+          "RegistrationClosed"
         ],
         "enum": [
           1,
           2,
-          3,
-          4
+          3
         ]
       },
       "ShiftEnum": {

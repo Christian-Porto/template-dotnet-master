@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+﻿import { Component, OnDestroy } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -149,24 +149,40 @@ export class EventRegistrationListComponent implements OnDestroy {
             return;
         }
 
+        // CSV settings for pt-BR Excel compatibility
+        const delimiter = ';';
+        const EOL = '\r\n';
+        const BOM = '\uFEFF';
         // Define CSV headers
         const headers = ['Nome', 'Matrícula', 'CPF', 'Período', 'Atividades Realizadas', 'Status'];
 
         // Convert data to CSV rows
+        const mapStatus = (s?: RegistrationStatusEnum) => {
+            switch (s) {
+                case RegistrationStatusEnum.Selected:
+                    return 'Selecionado';
+                case RegistrationStatusEnum.NotSelected:
+                    return 'Não Selecionado';
+                case RegistrationStatusEnum.Registered:
+                    return 'Inscrito';
+                default:
+                    return '-';
+            }
+        };
         const rows = data.map(item => [
             this.escapeCSVValue(item.name || '-'),
             this.escapeCSVValue(String(item.enrollment || '-')),
             this.escapeCSVValue(item.cpf || '-'),
             this.escapeCSVValue(String(item.period || '-')),
             (item.participationsCount || 0).toString(),
-            this.getStatusLabel(item.status)
+            mapStatus(item.status)
         ]);
 
         // Combine headers and rows
-        const csvContent = [
-            headers.join(','),
-            ...rows.map(row => row.join(','))
-        ].join('\n');
+        const csvContent = BOM + [
+            headers.join(delimiter),
+            ...rows.map(row => row.join(delimiter))
+        ].join(EOL) + EOL;
 
         // Create blob and download
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -197,7 +213,7 @@ export class EventRegistrationListComponent implements OnDestroy {
             case RegistrationStatusEnum.Selected:
                 return 'Selecionado';
             case RegistrationStatusEnum.NotSelected:
-                return 'Não Selecionado';
+                return 'NÃ£o Selecionado';
             case RegistrationStatusEnum.Registered:
                 return 'Inscrito';
             default:

@@ -65,7 +65,7 @@ namespace ExtensionEventsManager.Core.Application.Requests.Registrations.Command
 
             if (alreadyRegistered)
             {
-                throw new BadRequestException("Usuario ja esta inscrito neste evento.");
+                throw new BadRequestException("Usuário já está inscrito neste evento.");
             }
 
             var registration = _mapper.Map<Registration>(request);

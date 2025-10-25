@@ -16,8 +16,7 @@
 
                 <mat-select formControlName="status" [placeholder]="'Status'">
                     <mat-option [value]="null">Todos</mat-option>
-                    <mat-option [value]="StatusEnum.Completed"> {{StatusEnum.Completed | StatusEnum}} </mat-option>
-                    <mat-option [value]="StatusEnum.InProgress"> {{StatusEnum.InProgress | StatusEnum}} </mat-option>
+                    <mat-option [value]="StatusEnum.RegistrationNotStarted"> {{StatusEnum.RegistrationNotStarted | StatusEnum}} </mat-option>
                     <mat-option [value]="StatusEnum.OpenForRegistration"> {{StatusEnum.OpenForRegistration |
                         StatusEnum}} </mat-option>
                     <mat-option [value]="StatusEnum.RegistrationClosed"> {{StatusEnum.RegistrationClosed | StatusEnum}}

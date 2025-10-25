@@ -13,8 +13,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { PaginatedListOfRegistrationResponse, RegistrationResponse } from '../../../../../../../api-client';
 import { EventResponse } from 'app/modules/events/models/event.model';
 import { EventsService } from '../../services/events.service';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Subject, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, tap, catchError } from 'rxjs/operators';
 import { MatButtonModule } from '@angular/material/button';
 
 // Using RegistrationResponse fields directly (name, enrollment)
@@ -54,10 +54,24 @@ export class EventAttendanceListComponent implements OnDestroy {
         this.justificationSubject
             .pipe(
                 debounceTime(600),
-                distinctUntilChanged((prev, curr) =>
-                    prev.id === curr.id && prev.justification === curr.justification
-                )
-            );
+                distinctUntilChanged((prev, curr) => prev.id === curr.id && prev.justification === curr.justification),
+                switchMap(({ id, justification }) => {
+                    const payload = { justification: justification?.trim() ? justification.trim() : undefined } as {
+                        justification?: string;
+                    };
+                    return this.eventsService.updateAttendance(id, payload).pipe(
+                        tap((updated) => {
+                            const items = this.registrations?.items ?? [];
+                            const idx = items.findIndex(r => r.id === id);
+                            if (idx >= 0) {
+                                items[idx].justification = updated.justification ?? payload.justification ?? '';
+                            }
+                        }),
+                        catchError(() => of(null))
+                    );
+                })
+            )
+            .subscribe();
     }
 
     ngOnInit(): void {

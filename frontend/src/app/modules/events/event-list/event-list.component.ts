@@ -130,7 +130,8 @@ export class EventListComponent {
                 // Aplicar filtros apenas locais (não suportados pela API)
                 this.filteredevents = this.events;
                 if (this.filters.hideCompleted$.value) {
-                    this.filteredevents = this.filteredevents.filter((e) => e.status !== Status.d);
+                    // With new statuses, treat 'RegistrationClosed' as completed
+                    this.filteredevents = this.filteredevents.filter((e) => e.status !== Status.c);
                 }
                 this._changeDetectorRef.markForCheck();
             });

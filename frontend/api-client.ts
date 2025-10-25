@@ -1492,10 +1492,9 @@ export enum EventTypeEnum {
 }
 
 export enum StatusEnum {
-    OpenForRegistration = 1,
-    RegistrationClosed = 2,
-    Completed = 3,
-    InProgress = 4,
+    RegistrationNotStarted = 1,
+    OpenForRegistration = 2,
+    RegistrationClosed = 3,
 }
 
 export enum ShiftEnum {

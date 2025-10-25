@@ -1,160 +1,28 @@
-            throw new Error("The parameter 'pageSize' cannot be null.");
-        else if (pageSize !== undefined)
-            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
-        if (pageIndex === null)
-            throw new Error("The parameter 'pageIndex' cannot be null.");
-        else if (pageIndex !== undefined)
-            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
-        url_ = url_.replace(/[?&]$/, "");
+﻿import { Pipe, PipeTransform } from '@angular/core';
+import { StatusEnum } from '../../../../../../api-client';
 
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processListSelected(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processListSelected(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<PaginatedListOfRegistrationResponse>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<PaginatedListOfRegistrationResponse>;
-        }));
-    }
-
-    protected processListSelected(response: HttpResponseBase): Observable<PaginatedListOfRegistrationResponse> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PaginatedListOfRegistrationResponse.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
+/**
+ * Finds an object from given source using the given key - value pairs
+ */
+@Pipe({
+    name: 'StatusEnum',
+    pure: false,
+    standalone: true,
+})
+export class StatusEnumPipe implements PipeTransform {
+    transform(value: StatusEnum): any {
+        if (value === StatusEnum.OpenForRegistration) {
+            return 'InscriÃ§Ãµes abertas';
         }
-        return _observableOf(null as any);
-    }
-
-    updateAttendance(id: number, command: UpdateAttendanceCommand): Observable<RegistrationResponse> {
-        let url_ = this.baseUrl + "/registrations/{id}/attendance";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUpdateAttendance(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processUpdateAttendance(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<RegistrationResponse>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<RegistrationResponse>;
-        }));
-    }
-
-    protected processUpdateAttendance(response: HttpResponseBase): Observable<RegistrationResponse> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = RegistrationResponse.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
+        if (value === StatusEnum.InProgress) {
+            return 'Em andamento';
         }
-        return _observableOf(null as any);
-    }
-
-    updateStatus(id: number, command: UpdateRegistrationStatusCommand): Observable<RegistrationResponse> {
-        let url_ = this.baseUrl + "/registrations/{id}/status";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUpdateStatus(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processUpdateStatus(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<RegistrationResponse>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<RegistrationResponse>;
-        }));
-    }
-
-    protected processUpdateStatus(response: HttpResponseBase): Observable<RegistrationResponse> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = RegistrationResponse.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
+        if (value === StatusEnum.RegistrationClosed) {
+            return 'InscriÃ§Ãµes encerradas';
         }
+        if (value === StatusEnum.Completed) {
+            return 'Finalizado';
+        }
+    }
+}
+

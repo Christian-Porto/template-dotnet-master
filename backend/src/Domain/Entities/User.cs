@@ -89,6 +89,11 @@ public class User : BaseEntity
         Period = period;
     }
 
+    public void SetProfile(ProfileEnum profile)
+    {
+        Profile = profile;
+    }
+
     public void SetCpf(string cpf)
     {
         var digits = Regex.Replace(cpf, @"\D", "");
