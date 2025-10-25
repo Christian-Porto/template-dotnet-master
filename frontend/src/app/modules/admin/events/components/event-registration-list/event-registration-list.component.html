@@ -7,47 +7,42 @@
         </button>
     </div>
     <div class="relative flex flex-col md:flex-row md:items-center md:justify-between gap-y-4 p-6 border-b bg-card">
-  <div class="text-4xl font-extrabold tracking-tight">
-    Inscrições: <span class="font-normal">{{ event?.name }}</span>
-  </div>
+        <div class="text-4xl font-extrabold tracking-tight">
+            Inscrições: <span class="font-normal">{{ event?.name }}</span>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-center md:gap-6 w-full md:w-auto">
+            <div class="flex w-full gap-4">
 
-  <!-- Linha de métricas + botão (empilhado no mobile) -->
-  <div class="flex flex-col md:flex-row md:items-center md:gap-6 w-full md:w-auto">
-    
-    <div class="flex w-full gap-4">
-      <!-- Total de Vagas -->
-      <div class="flex flex-col items-center md:items-end
+                <!-- Total de Vagas -->
+                <div class="flex flex-col items-center md:items-end
              bg-gray-50 dark:bg-white/5 rounded-xl px-4 py-2
              basis-1/2 md:basis-auto grow-0 shrink-0 w-auto">
-        <span class="whitespace-nowrap text-sm text-black-500 dark:text-gray-400">Total de Vagas</span>
-        <span class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-          {{ event?.slots || 0 }}
-        </span>
-      </div>
+                    <span class="whitespace-nowrap text-sm text-black-500 dark:text-gray-400">Total de Vagas</span>
+                    <span class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        {{ event?.slots || 0 }}
+                    </span>
+                </div>
 
-      <!-- Vagas Restantes -->
-      <div class="flex flex-col items-center md:items-end
+                <!-- Vagas Restantes -->
+                <div class="flex flex-col items-center md:items-end
              bg-gray-50 dark:bg-white/5 rounded-xl px-4 py-2
              basis-1/2 md:basis-auto grow-0 shrink-0 w-auto">
-        <span class="whitespace-nowrap text-sm text-black-500 dark:text-gray-400">Vagas Restantes</span>
-        <span class="text-2xl font-bold"
-              [class.text-black-600]="remainingSlots > 0"
-              [class.text-red-600]="remainingSlots === 0">
-          {{ remainingSlots }}
-        </span>
-      </div>
+                    <span class="whitespace-nowrap text-sm text-black-500 dark:text-gray-400">Vagas Restantes</span>
+                    <span class="text-2xl font-bold" [class.text-black-600]="remainingSlots > 0"
+                        [class.text-red-600]="remainingSlots === 0">
+                        {{ remainingSlots }}
+                    </span>
+                </div>
+                
+            </div>
+            <button mat-flat-button color="primary" class="w-full md:w-auto md:ml-1 shrink-0 mt-4 md:mt-0"
+                (click)="exportToCSV()"
+                [disabled]="loading || !registrations?.items || registrations.items.length === 0">
+                <mat-icon class="icon-size-5" [svgIcon]="'heroicons_outline:arrow-down-tray'"></mat-icon>
+                <span class="ml-2">Exportar CSV</span>
+            </button>
+        </div>
     </div>
-
-    <!-- Botão: embaixo no mobile, à direita no desktop -->
-    <button mat-flat-button color="primary"
-            class="w-full md:w-auto md:ml-1 shrink-0 mt-4 md:mt-0"
-            (click)="exportToCSV()"
-            [disabled]="loading || !registrations?.items || registrations.items.length === 0">
-      <mat-icon class="icon-size-5" [svgIcon]="'heroicons_outline:arrow-down-tray'"></mat-icon>
-      <span class="ml-2">Exportar CSV</span>
-    </button>
-  </div>
-</div>
 
     <div class="w-full">
         @if(loading){
