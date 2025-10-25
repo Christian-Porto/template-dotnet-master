@@ -21,82 +21,53 @@
 
             <div class="p-6 sm:p-8">
                 <!-- Informações Pessoais -->
-                <div class="mb-8">
-                    <div class="mb-4 text-xl font-semibold">Informações Pessoais</div>
+       <div class="mb-8">
+            <div class="mb-4 text-xl font-semibold">Informações Pessoais</div>
 
-                    <div class="grid grid-cols-1 gap-6">
-                        <!-- Nome -->
-                        <mat-form-field class="w-full" appearance="fill">
-                            <mat-label>Nome completo</mat-label>
-                            <input matInput formControlName="nome" required />
-                            <mat-error *ngIf="fc.nome.touched && fc.nome.hasError('required')">
-                                Nome é obrigatório.
-                            </mat-error>
-                            <mat-error *ngIf="fc.nome.touched && fc.nome.hasError('minlength')">
-                                Nome deve ter pelo menos 3 caracteres.
-                            </mat-error>
-                        </mat-form-field>
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-6">
+                <mat-form-field class="w-full sm:col-span-6" appearance="fill">
+                <mat-label>Nome completo</mat-label>
+                <input matInput formControlName="nome" required />
+                <mat-error *ngIf="fc.nome.touched && fc.nome.hasError('required')">Nome é obrigatório.</mat-error>
+                <mat-error *ngIf="fc.nome.touched && fc.nome.hasError('minlength')">Nome deve ter pelo menos 3 caracteres.</mat-error>
+                </mat-form-field>
 
-                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-6">
-                            <mat-form-field class="w-full col-span-4" appearance="fill">
-                                <mat-label>Email</mat-label>
-                                <input matInput formControlName="email" required />
-                                <mat-error *ngIf="fc.email.touched && fc.email.hasError('required')">
-                                    Email é obrigatório.
-                                </mat-error>
-                                <mat-error *ngIf="fc.email.touched && fc.email.hasError('email')">
-                                    Email inválido.
-                                </mat-error>
-                            </mat-form-field>
+                <mat-form-field class="w-full sm:col-span-6" appearance="fill">
+                <mat-label>Email</mat-label>
+                <input matInput formControlName="email" required />
+                <mat-error *ngIf="fc.email.touched && fc.email.hasError('required')">Email é obrigatório.</mat-error>
+                <mat-error *ngIf="fc.email.touched && fc.email.hasError('email')">Email inválido.</mat-error>
+                </mat-form-field>
 
-                            <mat-form-field class="w-full col-span-2" appearance="fill">
-                                <mat-label>Período</mat-label>
-                                <mat-select formControlName="periodo" required>
-                                    <mat-option *ngFor="let p of periodos" [value]="p.value">
-                                        {{ p.label }}
-                                    </mat-option>
-                                </mat-select>
-                                <mat-error *ngIf="fc.periodo.touched && fc.periodo.hasError('required')">
-                                    Período é obrigatório.
-                                </mat-error>
-                            </mat-form-field>
-                        </div>
+                <!-- Linha 2: Período (4/12) + CPF (4/12) + Matrícula (4/12) -->
+                <mat-form-field class="w-full sm:col-span-4" appearance="fill">
+                <mat-label>Período</mat-label>
+                <mat-select formControlName="periodo" required>
+                    <mat-option *ngFor="let p of periodos" [value]="p.value">{{ p.label }}</mat-option>
+                </mat-select>
+                <mat-error *ngIf="fc.periodo.touched && fc.periodo.hasError('required')">Período é obrigatório.</mat-error>
+                </mat-form-field>
 
-                        <!-- Grid responsivo para Período e CPF -->
-                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                            <!-- Período -->
+                <mat-form-field class="w-full sm:col-span-4" appearance="fill">
+                <mat-label>CPF</mat-label>
+                <input matInput formControlName="cpf" required placeholder="000.000.000-00"
+                        (input)="formatCPF($event)" maxlength="14" />
+                <mat-error *ngIf="fc.cpf.touched && fc.cpf.hasError('required')">CPF é obrigatório.</mat-error>
+                <mat-error *ngIf="fc.cpf.touched && fc.cpf.hasError('pattern')">CPF inválido. Use o formato: 000.000.000-00</mat-error>
+                </mat-form-field>
 
-                            <!-- CPF -->
-                            <mat-form-field class="w-full" appearance="fill">
-                                <mat-label>CPF</mat-label>
-                                <input matInput formControlName="cpf" required placeholder="000.000.000-00"
-                                    (input)="formatCPF($event)" maxlength="14" />
-                                <mat-error *ngIf="fc.cpf.touched && fc.cpf.hasError('required')">
-                                    CPF é obrigatório.
-                                </mat-error>
-                                <mat-error *ngIf="fc.cpf.touched && fc.cpf.hasError('pattern')">
-                                    CPF inválido. Use o formato: 000.000.000-00
-                                </mat-error>
-                            </mat-form-field>
+                <mat-form-field class="w-full sm:col-span-4" appearance="fill">
+                <mat-label>Matrícula</mat-label>
+                <input matInput formControlName="matricula" required />
+                <mat-error *ngIf="fc.matricula.touched && fc.matricula.hasError('required')">Matrícula é obrigatória.</mat-error>
+                <mat-error *ngIf="fc.matricula.touched && fc.matricula.hasError('minlength')">
+                    Matrícula deve ter pelo menos 5 caracteres.
+                </mat-error>
+                </mat-form-field>
 
-                            <!-- Matrícula -->
-                            <mat-form-field class="w-full" appearance="fill">
-                                <mat-label>Matrícula</mat-label>
-                                <input matInput formControlName="matricula" required />
-                                <mat-error *ngIf="fc.matricula.touched && fc.matricula.hasError('required')">
-                                    Matrícula é obrigatória.
-                                </mat-error>
-                                <mat-error *ngIf="fc.matricula.touched && fc.matricula.hasError('minlength')">
-                                    Matrícula deve ter pelo menos 5 caracteres.
-                                </mat-error>
-                            </mat-form-field>
-                        </div>
-
-
-                    </div>
-                </div>
-            </div>
-
+               </div>
+              </div>
+             </div>
             <div class="bg-gray-50 dark:bg-gray-800 flex items-center justify-end gap-3 px-6 py-4 sm:px-8">
                 <button mat-button type="button" (click)="onCancel()">Cancelar</button>
                 <button mat-flat-button color="primary" type="submit" [disabled]="personalDataForm.invalid">
