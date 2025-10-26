@@ -3,7 +3,6 @@ using ExtensionEventsManager.Core.Application.Common.Auth;
 using ExtensionEventsManager.Core.Application.Common.Interfaces;
 using ExtensionEventsManager.Core.Application.Exceptions;
 using ExtensionEventsManager.Core.Application.Requests.Events.Models;
-using ExtensionEventsManager.Core.Domain.Common.Enums;
 using ExtensionEventsManager.Core.Domain.Enums;
 using FluentValidation;
 using MediatR;
@@ -22,7 +21,6 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Commands
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int Slots { get; set; }
-        public StatusEnum Status { get; set; }
         public IList<ShiftEnum> Shifts { get; set; } = new List<ShiftEnum>();
 
         public int GetId() => Id;
@@ -48,10 +46,6 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Commands
             RuleFor(c => c.StartDate).NotEmpty().WithMessage("A data de início das inscrições é obrigatória.");
             RuleFor(c => c.EndDate).NotEmpty().WithMessage("A data de fim das inscrições é obrigatória.");
             RuleFor(c => c.EventDate).NotEmpty().WithMessage("A data do evento é obrigatória.");
-
-            //RuleFor(c => c.Status)
-            //    .NotEmpty().WithMessage("O status é obrigatório.")
-            //    .Must(v => Enum.IsDefined(typeof(StatusEnum), v)).WithMessage("Status inválido.");
 
             RuleFor(c => c.Slots)
                 .NotEmpty().WithMessage("O número de vagas é obrigatório.")

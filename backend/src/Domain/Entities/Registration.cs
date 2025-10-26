@@ -13,8 +13,6 @@ public class Registration : BaseEntity
     public RegistrationStatusEnum? Status { get; set; } 
     public bool? Attended { get; set; }    // presente (0/1 no banco)
     public string? Justification { get; set; } = string.Empty; // justificativa (<=255)
-    public string? Report { get; set; } = string.Empty;        // relatorio (<=255)
-    public DateTime? ReportIncludedAt { get; set; }           // datainclusaorelatorio
     
     private Registration() { }
 }

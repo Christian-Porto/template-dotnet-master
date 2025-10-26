@@ -46,8 +46,7 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                     EventDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Slots = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false)
+                    Slots = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -159,10 +158,7 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                     Status = table.Column<int>(type: "int", nullable: true),
                     Attended = table.Column<bool>(type: "tinyint(1)", nullable: true),
                     Justification = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Report = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ReportIncludedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {

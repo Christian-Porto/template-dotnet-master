@@ -1,5 +1,4 @@
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using ExtensionEventsManager.Core.Application.Common.Interfaces;
 using ExtensionEventsManager.Core.Application.Common.Models;
 using ExtensionEventsManager.Core.Application.Requests.Events.Models;
@@ -46,9 +45,27 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Queries
                 query = query.Where(e => e.Type == request.Type.Value);
             }
 
+            // Dynamic status filtering based on current date
             if (request.Status.HasValue)
             {
-                query = query.Where(e => e.Status == request.Status.Value);
+                var today = DateTime.Today;
+                var tomorrow = today.AddDays(1);
+
+                switch (request.Status.Value)
+                {
+                    case StatusEnum.RegistrationNotStarted:
+                        // Start date strictly after today (i.e., on or after tomorrow)
+                        query = query.Where(e => e.StartDate >= tomorrow);
+                        break;
+                    case StatusEnum.OpenForRegistration:
+                        // Start date before tomorrow AND end date on/after today
+                        query = query.Where(e => e.StartDate < tomorrow && e.EndDate >= today);
+                        break;
+                    case StatusEnum.RegistrationClosed:
+                        // End date strictly before today
+                        query = query.Where(e => e.EndDate < today);
+                        break;
+                }
             }
 
             if (!string.IsNullOrWhiteSpace(request.Name))
@@ -122,7 +139,26 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Queries
                 }
             }
 
-            var projected = query.ProjectTo<EventResponse>(_mapper.ConfigurationProvider);
+            var tdy = DateTime.Today;
+            var tmr = tdy.AddDays(1);
+            var projected = query.Select(e => new EventResponse
+            {
+                Id = e.Id,
+                Name = e.Name,
+                Type = e.Type,
+                Description = e.Description,
+                EventDate = e.EventDate,
+                StartDate = e.StartDate,
+                EndDate = e.EndDate,
+                Slots = e.Slots,
+                // Compute dynamic status without relying on persisted field
+                Status = e.StartDate >= tmr
+                    ? StatusEnum.RegistrationNotStarted
+                    : (e.EndDate < tdy
+                        ? StatusEnum.RegistrationClosed
+                        : StatusEnum.OpenForRegistration),
+                Shifts = e.Shifts.Select(x => x.Name).ToList()
+            });
 
             return await PaginatedList<EventResponse>.CreateAsync(projected, request.PageIndex, request.PageSize);
         }

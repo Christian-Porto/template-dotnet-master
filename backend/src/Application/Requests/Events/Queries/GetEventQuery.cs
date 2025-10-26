@@ -1,8 +1,9 @@
-using AutoMapper;
+﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using ExtensionEventsManager.Core.Application.Common.Interfaces;
 using ExtensionEventsManager.Core.Application.Exceptions;
 using ExtensionEventsManager.Core.Application.Requests.Events.Models;
+using ExtensionEventsManager.Core.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,8 +36,17 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Queries
 
             if (result is null)
             {
-                throw new NotFoundException($"Evento com id {request.Id} n�o foi encontrado.");
+                throw new NotFoundException($"Evento com id {request.Id} não foi encontrado.");
             }
+
+            // Ajuste para calcular o Status da mesma forma do ListEventsQuery
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(1);
+            result.Status = result.StartDate >= tomorrow
+                ? StatusEnum.RegistrationNotStarted
+                : (result.EndDate < today
+                    ? StatusEnum.RegistrationClosed
+                    : StatusEnum.OpenForRegistration);
 
             return result;
         }

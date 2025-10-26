@@ -55,6 +55,10 @@ export class EventDetailsComponent implements OnInit {
         private readonly toastr: ToastrService,
     ) { }
 
+    get canRegister(): boolean {
+        return !this.loading && this.event?.status === Status.b;
+    }
+
     ngOnInit(): void {
         this.eventId = +this.route.snapshot.paramMap.get('id');
 
@@ -73,6 +77,9 @@ export class EventDetailsComponent implements OnInit {
     }
 
     onRegister(): void {
+        if (!this.canRegister) {
+            return;
+        }
 
         const dialogRef = this.fuseConfirmationService.open({
             title: "Confirmação de Inscrição",

@@ -59,6 +59,31 @@ namespace ExtensionEventsManager.Core.Application.Requests.Registrations.Command
                 throw new BadRequestException("O usuário deve ter CPF preenchido.");
             }
 
+            // Validate event exists and is open for registration
+            var evt = await _context.Events
+                .AsNoTracking()
+                .Where(e => e.Id == request.EventId)
+                .Select(e => new { e.Id, e.StartDate, e.EndDate })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (evt is null)
+            {
+                throw new NotFoundException($"Evento com id {request.EventId} não foi encontrado.");
+            }
+
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(1);
+            var notStarted = evt.StartDate >= tomorrow;
+            var closed = evt.EndDate < today;
+
+            if (notStarted || closed)
+            {
+                var message = notStarted
+                    ? "Inscrições não iniciadas para este evento."
+                    : "Inscrições encerradas para este evento.";
+                throw new BadRequestException(message);
+            }
+
             // Prevent duplicate registration for the same event by the same user
             var alreadyRegistered = await _context.Registrations
                 .AnyAsync(r => r.UserId == user.Id && r.EventId == request.EventId, cancellationToken);

@@ -1581,7 +1581,6 @@ export class CreateEventCommand implements ICreateEventCommand {
     startDate?: Date;
     endDate?: Date;
     slots?: number;
-    status?: StatusEnum;
     shifts?: ShiftEnum[];
 
     constructor(data?: ICreateEventCommand) {
@@ -1602,7 +1601,6 @@ export class CreateEventCommand implements ICreateEventCommand {
             this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
             this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : <any>undefined;
             this.slots = _data["slots"];
-            this.status = _data["status"];
             if (Array.isArray(_data["shifts"])) {
                 this.shifts = [] as any;
                 for (let item of _data["shifts"])
@@ -1627,7 +1625,6 @@ export class CreateEventCommand implements ICreateEventCommand {
         data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
         data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
         data["slots"] = this.slots;
-        data["status"] = this.status;
         if (Array.isArray(this.shifts)) {
             data["shifts"] = [];
             for (let item of this.shifts)
@@ -1645,7 +1642,6 @@ export interface ICreateEventCommand {
     startDate?: Date;
     endDate?: Date;
     slots?: number;
-    status?: StatusEnum;
     shifts?: ShiftEnum[];
 }
 
@@ -1657,7 +1653,6 @@ export class UpdateEventCommand implements IUpdateEventCommand {
     startDate?: Date;
     endDate?: Date;
     slots?: number;
-    status?: StatusEnum;
     shifts?: ShiftEnum[];
 
     constructor(data?: IUpdateEventCommand) {
@@ -1678,7 +1673,6 @@ export class UpdateEventCommand implements IUpdateEventCommand {
             this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
             this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : <any>undefined;
             this.slots = _data["slots"];
-            this.status = _data["status"];
             if (Array.isArray(_data["shifts"])) {
                 this.shifts = [] as any;
                 for (let item of _data["shifts"])
@@ -1703,7 +1697,6 @@ export class UpdateEventCommand implements IUpdateEventCommand {
         data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
         data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
         data["slots"] = this.slots;
-        data["status"] = this.status;
         if (Array.isArray(this.shifts)) {
             data["shifts"] = [];
             for (let item of this.shifts)
@@ -1721,7 +1714,6 @@ export interface IUpdateEventCommand {
     startDate?: Date;
     endDate?: Date;
     slots?: number;
-    status?: StatusEnum;
     shifts?: ShiftEnum[];
 }
 

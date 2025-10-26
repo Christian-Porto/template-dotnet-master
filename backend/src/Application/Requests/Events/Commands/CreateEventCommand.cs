@@ -3,10 +3,10 @@ using FluentValidation;
 using ExtensionEventsManager.Core.Application.Common.Interfaces;
 using ExtensionEventsManager.Core.Application.Requests.Events.Models;
 using ExtensionEventsManager.Core.Domain.Entities;
-using ExtensionEventsManager.Core.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ExtensionEventsManager.Core.Application.Common.Auth;
+using ExtensionEventsManager.Core.Domain.Enums;
 
 namespace ExtensionEventsManager.Core.Application.Requests.Events.Commands
 {
@@ -20,7 +20,6 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Commands
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int Slots { get; set; }
-        public StatusEnum Status { get; set; }
         public IList<ShiftEnum> Shifts { get; set; } = new List<ShiftEnum>();
     }
 

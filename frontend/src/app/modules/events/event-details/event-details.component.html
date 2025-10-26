@@ -114,7 +114,7 @@
                         <span class="ml-2">Voltar</span>
                     </a>
                     <button mat-flat-button [color]="'primary'" class="w-full sm:w-auto order-1 sm:order-2"
-                        (click)="onRegister()" [disabled]="loading">
+                        (click)="onRegister()" [disabled]="!canRegister">
                         <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
                         <span class="ml-2">Inscrever-se</span>
                     </button>
