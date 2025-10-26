@@ -13,8 +13,7 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Queries
         public EventTypeEnum? Type { get; set; }
         public StatusEnum? Status { get; set; }
         public string? Name { get; set; }
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
+        public DateTime[]? EventDate { get; set; }
         public RegistrationStatusEnum? RegistrationStatus { get; set; }
 
         // Presença do usuário atual no evento (true/false)
@@ -45,7 +44,6 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Queries
                 query = query.Where(e => e.Type == request.Type.Value);
             }
 
-            // Dynamic status filtering based on current date
             if (request.Status.HasValue)
             {
                 var today = DateTime.Today;
@@ -74,14 +72,21 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Queries
                 query = query.Where(e => EF.Functions.Like(e.Name, $"%{name}%"));
             }
 
-            if (request.StartDate.HasValue)
+            // Filter by event occurrence date (EventDate)
+            if (request.EventDate != null && request.EventDate.Length > 0)
             {
-                query = query.Where(e => e.StartDate >= request.StartDate.Value);
-            }
-
-            if (request.EndDate.HasValue)
-            {
-                query = query.Where(e => e.EndDate <= request.EndDate.Value);
+                if (request.EventDate.Length == 1)
+                {
+                    var d = request.EventDate[0].Date;
+                    var next = d.AddDays(1);
+                    query = query.Where(e => e.EventDate >= d && e.EventDate < next);
+                }
+                else
+                {
+                    var start = request.EventDate.Min().Date;
+                    var end = request.EventDate.Max().Date.AddDays(1); // exclusive upper bound
+                    query = query.Where(e => e.EventDate >= start && e.EventDate < end);
+                }
             }
 
             var me = _currentUser.Id;

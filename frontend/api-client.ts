@@ -433,7 +433,7 @@ export class ChatsClient implements IChatsClient {
 export interface IEventsClient {
     get(id: number): Observable<EventResponse>;
     update(id: number, command: UpdateEventCommand): Observable<EventResponse>;
-    list(type: EventTypeEnum | null | undefined, status: StatusEnum | null | undefined, name: string | null | undefined, startDate: Date | null | undefined, endDate: Date | null | undefined, registrationStatus: RegistrationStatusEnum | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse>;
+    list(type: EventTypeEnum | null | undefined, status: StatusEnum | null | undefined, name: string | null | undefined, eventDate: Date[] | null | undefined, registrationStatus: RegistrationStatusEnum | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse>;
     create(command: CreateEventCommand): Observable<EventResponse>;
 }
 
@@ -556,7 +556,7 @@ export class EventsClient implements IEventsClient {
         return _observableOf(null as any);
     }
 
-    list(type: EventTypeEnum | null | undefined, status: StatusEnum | null | undefined, name: string | null | undefined, startDate: Date | null | undefined, endDate: Date | null | undefined, registrationStatus: RegistrationStatusEnum | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse> {
+    list(type: EventTypeEnum | null | undefined, status: StatusEnum | null | undefined, name: string | null | undefined, eventDate: Date[] | null | undefined, registrationStatus: RegistrationStatusEnum | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse> {
         let url_ = this.baseUrl + "/events?";
         if (type !== undefined && type !== null)
             url_ += "Type=" + encodeURIComponent("" + type) + "&";
@@ -564,10 +564,8 @@ export class EventsClient implements IEventsClient {
             url_ += "Status=" + encodeURIComponent("" + status) + "&";
         if (name !== undefined && name !== null)
             url_ += "Name=" + encodeURIComponent("" + name) + "&";
-        if (startDate !== undefined && startDate !== null)
-            url_ += "StartDate=" + encodeURIComponent(startDate ? "" + startDate.toISOString() : "") + "&";
-        if (endDate !== undefined && endDate !== null)
-            url_ += "EndDate=" + encodeURIComponent(endDate ? "" + endDate.toISOString() : "") + "&";
+        if (eventDate !== undefined && eventDate !== null)
+            eventDate && eventDate.forEach(item_ => { url_ += "EventDate=" + encodeURIComponent(item_ ? "" + item_.toISOString() : "null") + "&"; });
         if (registrationStatus !== undefined && registrationStatus !== null)
             url_ += "RegistrationStatus=" + encodeURIComponent("" + registrationStatus) + "&";
         if (attended !== undefined && attended !== null)

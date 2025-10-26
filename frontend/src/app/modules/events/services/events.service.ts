@@ -58,6 +58,10 @@ export class EventsService {
 
         const startDateParam = coerceToDate(filter?.startDate);
         const endDateParam = coerceToDate(filter?.endDate);
+        const eventDateParam: Date[] | undefined =
+            (startDateParam || endDateParam)
+                ? [startDateParam, endDateParam].filter((d): d is Date => !!d)
+                : undefined;
         const registrationStatusParam: ApiRegistrationStatusEnum | undefined =
             (filter?.registrationStatus !== undefined && filter.registrationStatus !== 'all')
                 ? (filter.registrationStatus as unknown as ApiRegistrationStatusEnum)
@@ -69,8 +73,7 @@ export class EventsService {
                 typeParam,
                 statusParam,
                 nameParam,
-                startDateParam,
-                endDateParam,
+                eventDateParam,
                 registrationStatusParam,
                 attendedParam ?? undefined,
                 pageSize,

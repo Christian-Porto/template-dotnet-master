@@ -39,7 +39,6 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Queries
                 throw new NotFoundException($"Evento com id {request.Id} não foi encontrado.");
             }
 
-            // Ajuste para calcular o Status da mesma forma do ListEventsQuery
             var today = DateTime.Today;
             var tomorrow = today.AddDays(1);
             result.Status = result.StartDate >= tomorrow
