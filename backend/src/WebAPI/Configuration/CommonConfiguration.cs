@@ -31,6 +31,7 @@ public static class CommonConfiguration
 
         // Real-time
         builder.Services.AddSignalR();
+        builder.Services.AddSingleton<Microsoft.AspNetCore.SignalR.IUserIdProvider, UserIdProvider>();
     }
 
     public static void ConfigureApp(WebApplication app)

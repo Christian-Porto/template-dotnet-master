@@ -9,6 +9,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDrawer } from '@angular/material/sidenav';
+import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { ChatService } from '../chat.service';
 import { Contact } from '../chat.types';
@@ -28,7 +29,10 @@ export class NewChatComponent implements OnInit, OnDestroy {
     /**
      * Constructor
      */
-    constructor(private _chatService: ChatService) {}
+    constructor(
+        private _chatService: ChatService,
+        private _router: Router
+    ) {}
 
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
@@ -58,6 +62,21 @@ export class NewChatComponent implements OnInit, OnDestroy {
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
+
+    /**
+     * Open chat with contact
+     */
+    async openChatWithContact(contact: Contact): Promise<void> {
+        try {
+            // Close the drawer
+            this.drawer.close();
+
+            // Navigate to the chat using 'contact' route
+            await this._router.navigate(['/chat', 'contact', contact.id]);
+        } catch (error) {
+            console.error('Error opening chat:', error);
+        }
+    }
 
     /**
      * Track by function for ngFor loops

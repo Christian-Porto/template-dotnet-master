@@ -1,13 +1,13 @@
 <div class="bg-card flex flex-auto flex-col overflow-y-auto dark:bg-default lg:overflow-hidden">
     @if (chat) {
     <mat-drawer-container class="h-full flex-auto" [hasBackdrop]="false">
-        <mat-drawer-content class="flex flex-col overflow-hidden">
+        <mat-drawer-content class="flex flex-col">
             <div class="flex h-18 flex-0 items-center border-b bg-gray-50 px-4 dark:bg-transparent md:px-6">
                 <a class="md:-ml-2 lg:hidden" mat-icon-button [routerLink]="['./']" (click)="resetChat()">
                     <mat-icon [svgIcon]="'heroicons_outline:arrow-long-left'"></mat-icon>
                 </a>
 
-                <div class="ml-2 mr-2 flex cursor-pointer items-center lg:ml-0">
+                <div class="ml-2 mr-2 flex  items-center lg:ml-0">
                     <div class="relative flex h-10 w-10 flex-0 items-center justify-center">
                         <div
                             class="flex h-full w-full items-center justify-center rounded-full bg-gray-200 text-lg uppercase text-gray-600 dark:bg-gray-700 dark:text-gray-200">
@@ -18,47 +18,11 @@
                         {{ chat.contact.name }}
                     </div>
                 </div>
-
-                <button class="ml-auto" mat-icon-button [matMenuTriggerFor]="conversationHeaderMenu">
-                    <mat-icon [svgIcon]="'heroicons_outline:ellipsis-vertical'"></mat-icon>
-                    <mat-menu #conversationHeaderMenu>
-                        <button mat-menu-item (click)="openContactInfo()">
-                            <mat-icon [svgIcon]="'heroicons_outline:user-circle'"></mat-icon>
-                            Contact info
-                        </button>
-                        <button mat-menu-item>
-                            <mat-icon [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
-                            Select messages
-                        </button>
-                        <button mat-menu-item (click)="toggleMuteNotifications()">
-                            @if (!chat.muted) {
-                            <mat-icon [svgIcon]="
-                                            'heroicons_outline:speaker-x-mark'
-                                        "></mat-icon>
-                            Mute notifications
-                            }
-                            @if (chat.muted) {
-                            <mat-icon [svgIcon]="
-                                            'heroicons_outline:speaker-wave'
-                                        "></mat-icon>
-                            Unmute notifications
-                            }
-                        </button>
-                        <button mat-menu-item>
-                            <mat-icon [svgIcon]="'heroicons_outline:backspace'"></mat-icon>
-                            Clear messages
-                        </button>
-                        <button mat-menu-item>
-                            <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
-                            Delete chat
-                        </button>
-                    </mat-menu>
-                </button>
             </div>
 
             <!-- Conversation -->
-            <div class="flex flex-col-reverse overflow-y-auto">
-                <div class="bg-card flex flex-auto shrink flex-col p-6 dark:bg-transparent">
+            <div class="flex flex-auto flex-col-reverse overflow-y-auto">
+                <div class="bg-card flex shrink flex-col p-6 dark:bg-transparent">
                     @for (
                     message of chat.messages;
                     track trackByFn(i, message);
@@ -69,49 +33,49 @@
                     <!-- Start of the day -->
                     @if (
                     first ||
-                    (chat.messages[i - 1].createdAt | date: 'd') !==
-                    (message.createdAt | date: 'd')
+                    (chat.messages[i - 1].createdAtUtc | date: 'd') !==
+                    (message.createdAtUtc | date: 'd')
                     ) {
                     <div class="-mx-6 my-3 flex items-center justify-center">
                         <div class="flex-auto border-b"></div>
                         <div class="text-secondary mx-4 flex-0 text-sm font-medium leading-5">
                             {{
-                            message.createdAt | date: 'longDate'
+                            message.createdAtUtc | date: 'longDate'
                             }}
                         </div>
                         <div class="flex-auto border-b"></div>
                     </div>
                     }
                     <div class="flex flex-col" [ngClass]="{
-                                    'items-end': message.isMine,
-                                    'items-start': !message.isMine,
+                                    'items-end': isMessageMine(message),
+                                    'items-start': !isMessageMine(message),
                                     'mt-0.5':
                                         i > 0 &&
-                                        chat.messages[i - 1].isMine ===
-                                            message.isMine,
+                                        isMessageMine(chat.messages[i - 1]) ===
+                                            isMessageMine(message),
                                     'mt-3':
                                         i > 0 &&
-                                        chat.messages[i - 1].isMine !==
-                                            message.isMine,
+                                        isMessageMine(chat.messages[i - 1]) !==
+                                            isMessageMine(message),
                                 }">
                         <!-- Bubble -->
                         <div class="relative max-w-3/4 rounded-lg px-3 py-2" [ngClass]="{
                                         'bg-blue-500 text-blue-50':
-                                            message.isMine,
+                                            isMessageMine(message),
                                         'bg-gray-500 text-gray-50':
-                                            !message.isMine,
+                                            !isMessageMine(message),
                                     }">
                             <!-- Speech bubble tail -->
                             @if (
                             last ||
-                            chat.messages[i + 1].isMine !==
-                            message.isMine
+                            isMessageMine(chat.messages[i + 1]) !==
+                            isMessageMine(message)
                             ) {
                             <div class="absolute bottom-0 w-3" [ngClass]="{
                                                 '-right-1 -mr-px mb-px text-blue-500':
-                                                    message.isMine,
+                                                    isMessageMine(message),
                                                 '-left-1 -ml-px mb-px -scale-x-1 text-gray-500':
-                                                    !message.isMine,
+                                                    !isMessageMine(message),
                                             }">
                                 <ng-container *ngTemplateOutlet="
                                                     speechBubbleExtension
@@ -119,22 +83,22 @@
                             </div>
                             }
                             <!-- Message -->
-                            <div class="min-w-4 leading-5" [innerHTML]="message.value"></div>
+                            <div class="min-w-4 leading-5">{{ message.content }}</div>
                         </div>
                         <!-- Time -->
                         @if (
                         first ||
                         last ||
-                        chat.messages[i + 1].isMine !==
-                        message.isMine ||
-                        chat.messages[i + 1].createdAt !==
-                        message.createdAt
+                        isMessageMine(chat.messages[i + 1]) !==
+                        isMessageMine(message) ||
+                        chat.messages[i + 1].createdAtUtc !==
+                        message.createdAtUtc
                         ) {
                         <div class="text-secondary my-0.5 text-sm font-medium" [ngClass]="{
-                                            'mr-3': message.isMine,
-                                            'ml-3': !message.isMine,
+                                            'mr-3': isMessageMine(message),
+                                            'ml-3': !isMessageMine(message),
                                         }">
-                            {{ message.createdAt | date: 'HH:mm' }}
+                            {{ message.createdAtUtc | date: 'HH:mm' }}
                         </div>
                         }
                     </div>
@@ -143,21 +107,14 @@
             </div>
 
             <!-- Message field -->
-            <div class="flex items-end border-t bg-gray-50 p-4 dark:bg-transparent">
-                <div class="my-px flex h-11 items-center">
-                    <button mat-icon-button>
-                        <mat-icon [svgIcon]="'heroicons_outline:face-smile'"></mat-icon>
-                    </button>
-                    <button class="ml-0.5" mat-icon-button>
-                        <mat-icon [svgIcon]="'heroicons_outline:paper-clip'"></mat-icon>
-                    </button>
-                </div>
+            <div class="flex flex-0 items-end border-t bg-gray-50 p-4 dark:bg-transparent">
                 <mat-form-field class="fuse-mat-dense fuse-mat-rounded fuse-mat-bold ml-4 w-full"
                     subscriptSizing="dynamic">
-                    <textarea matInput cdkTextareaAutosize #messageInput></textarea>
+                    <textarea matInput cdkTextareaAutosize #messageInput
+                        (keydown.enter)="onEnterKey($event)"></textarea>
                 </mat-form-field>
                 <div class="my-px ml-4 flex h-11 items-center">
-                    <button mat-icon-button>
+                    <button mat-icon-button (click)="sendMessage()">
                         <mat-icon [svgIcon]="'heroicons_outline:paper-airplane'"></mat-icon>
                     </button>
                 </div>
@@ -168,7 +125,7 @@
     <div class="flex flex-auto flex-col items-center justify-center bg-gray-100 dark:bg-transparent">
         <mat-icon class="icon-size-24" [svgIcon]="'heroicons_outline:chat-bubble-oval-left-ellipsis'"></mat-icon>
         <div class="text-secondary mt-4 text-2xl font-semibold tracking-tight">
-            Select a conversation or start a new chat
+            Selecione uma conversa ou inicie um novo chat
         </div>
     </div>
     }

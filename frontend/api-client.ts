@@ -295,7 +295,10 @@ export class AuthClient implements IAuthClient {
 }
 
 export interface IChatsClient {
+    getMe(): Observable<ChatUserResponse>;
+    listChats(): Observable<ChatResponse[]>;
     listMessages(chatId: number | null | undefined, otherUserId: number | null | undefined, sort: string | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfChatMessageResponse>;
+    sendMessage(command: SendMessageCommand): Observable<ChatMessageResponse>;
     listUsers(): Observable<ChatUserResponse[]>;
 }
 
@@ -310,6 +313,109 @@ export class ChatsClient implements IChatsClient {
     constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
         this.http = http;
         this.baseUrl = baseUrl ?? "";
+    }
+
+    getMe(): Observable<ChatUserResponse> {
+        let url_ = this.baseUrl + "/chats/me";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetMe(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetMe(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ChatUserResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ChatUserResponse>;
+        }));
+    }
+
+    protected processGetMe(response: HttpResponseBase): Observable<ChatUserResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ChatUserResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    listChats(): Observable<ChatResponse[]> {
+        let url_ = this.baseUrl + "/chats";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processListChats(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processListChats(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ChatResponse[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ChatResponse[]>;
+        }));
+    }
+
+    protected processListChats(response: HttpResponseBase): Observable<ChatResponse[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ChatResponse.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
     }
 
     listMessages(chatId: number | null | undefined, otherUserId: number | null | undefined, sort: string | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfChatMessageResponse> {
@@ -364,6 +470,58 @@ export class ChatsClient implements IChatsClient {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = PaginatedListOfChatMessageResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    sendMessage(command: SendMessageCommand): Observable<ChatMessageResponse> {
+        let url_ = this.baseUrl + "/chats/messages";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSendMessage(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSendMessage(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ChatMessageResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ChatMessageResponse>;
+        }));
+    }
+
+    protected processSendMessage(response: HttpResponseBase): Observable<ChatMessageResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ChatMessageResponse.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -1237,6 +1395,164 @@ export interface IUpdateRegisterCommand {
     cpf?: string;
 }
 
+export class ChatUserResponse implements IChatUserResponse {
+    id?: number;
+    name?: string;
+    profile?: ProfileEnum;
+
+    constructor(data?: IChatUserResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.profile = _data["profile"];
+        }
+    }
+
+    static fromJS(data: any): ChatUserResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChatUserResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["profile"] = this.profile;
+        return data;
+    }
+}
+
+export interface IChatUserResponse {
+    id?: number;
+    name?: string;
+    profile?: ProfileEnum;
+}
+
+export enum ProfileEnum {
+    Administrator = 1,
+    Monitor = 2,
+    Student = 3,
+}
+
+export class ChatResponse implements IChatResponse {
+    id?: number;
+    userAId?: number;
+    userBId?: number;
+    messages?: ChatMessageResponse[];
+
+    constructor(data?: IChatResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.userAId = _data["userAId"];
+            this.userBId = _data["userBId"];
+            if (Array.isArray(_data["messages"])) {
+                this.messages = [] as any;
+                for (let item of _data["messages"])
+                    this.messages!.push(ChatMessageResponse.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ChatResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChatResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["userAId"] = this.userAId;
+        data["userBId"] = this.userBId;
+        if (Array.isArray(this.messages)) {
+            data["messages"] = [];
+            for (let item of this.messages)
+                data["messages"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IChatResponse {
+    id?: number;
+    userAId?: number;
+    userBId?: number;
+    messages?: ChatMessageResponse[];
+}
+
+export class ChatMessageResponse implements IChatMessageResponse {
+    id?: number;
+    chatId?: number;
+    senderId?: number;
+    content?: string;
+    createdAtUtc?: Date;
+
+    constructor(data?: IChatMessageResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.chatId = _data["chatId"];
+            this.senderId = _data["senderId"];
+            this.content = _data["content"];
+            this.createdAtUtc = _data["createdAtUtc"] ? new Date(_data["createdAtUtc"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): ChatMessageResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChatMessageResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["chatId"] = this.chatId;
+        data["senderId"] = this.senderId;
+        data["content"] = this.content;
+        data["createdAtUtc"] = this.createdAtUtc ? this.createdAtUtc.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IChatMessageResponse {
+    id?: number;
+    chatId?: number;
+    senderId?: number;
+    content?: string;
+    createdAtUtc?: Date;
+}
+
 export class PaginatedListOfChatMessageResponse implements IPaginatedListOfChatMessageResponse {
     items?: ChatMessageResponse[];
     pageIndex?: number;
@@ -1301,14 +1617,12 @@ export interface IPaginatedListOfChatMessageResponse {
     hasNextPage?: boolean;
 }
 
-export class ChatMessageResponse implements IChatMessageResponse {
-    id?: number;
-    chatId?: number;
-    senderId?: number;
+export class SendMessageCommand implements ISendMessageCommand {
+    chatId?: number | undefined;
+    otherUserId?: number | undefined;
     content?: string;
-    createdAtUtc?: Date;
 
-    constructor(data?: IChatMessageResponse) {
+    constructor(data?: ISendMessageCommand) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1319,88 +1633,32 @@ export class ChatMessageResponse implements IChatMessageResponse {
 
     init(_data?: any) {
         if (_data) {
-            this.id = _data["id"];
             this.chatId = _data["chatId"];
-            this.senderId = _data["senderId"];
+            this.otherUserId = _data["otherUserId"];
             this.content = _data["content"];
-            this.createdAtUtc = _data["createdAtUtc"] ? new Date(_data["createdAtUtc"].toString()) : <any>undefined;
         }
     }
 
-    static fromJS(data: any): ChatMessageResponse {
+    static fromJS(data: any): SendMessageCommand {
         data = typeof data === 'object' ? data : {};
-        let result = new ChatMessageResponse();
+        let result = new SendMessageCommand();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
         data["chatId"] = this.chatId;
-        data["senderId"] = this.senderId;
+        data["otherUserId"] = this.otherUserId;
         data["content"] = this.content;
-        data["createdAtUtc"] = this.createdAtUtc ? this.createdAtUtc.toISOString() : <any>undefined;
         return data;
     }
 }
 
-export interface IChatMessageResponse {
-    id?: number;
-    chatId?: number;
-    senderId?: number;
+export interface ISendMessageCommand {
+    chatId?: number | undefined;
+    otherUserId?: number | undefined;
     content?: string;
-    createdAtUtc?: Date;
-}
-
-export class ChatUserResponse implements IChatUserResponse {
-    id?: number;
-    name?: string;
-    profile?: ProfileEnum;
-
-    constructor(data?: IChatUserResponse) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.profile = _data["profile"];
-        }
-    }
-
-    static fromJS(data: any): ChatUserResponse {
-        data = typeof data === 'object' ? data : {};
-        let result = new ChatUserResponse();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["profile"] = this.profile;
-        return data;
-    }
-}
-
-export interface IChatUserResponse {
-    id?: number;
-    name?: string;
-    profile?: ProfileEnum;
-}
-
-export enum ProfileEnum {
-    Administrator = 1,
-    Monitor = 2,
-    Student = 3,
 }
 
 export class EventResponse implements IEventResponse {

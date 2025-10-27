@@ -38,11 +38,11 @@ import { NewChatComponent } from '../new-chat/new-chat.component';
     ],
 })
 export class ChatsComponent implements OnInit, OnDestroy {
-    chats: Chat[];
+    chats: Chat[] = [];
     drawerComponent: 'profile' | 'new-chat';
     drawerOpened: boolean = false;
-    filteredChats: Chat[];
-    profile: Profile;
+    filteredChats: Chat[] = [];
+    profile: Profile = { id: 0, name: 'Loading...', email: '' };
     selectedChat: Chat;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -52,7 +52,9 @@ export class ChatsComponent implements OnInit, OnDestroy {
     constructor(
         private _chatService: ChatService,
         private _changeDetectorRef: ChangeDetectorRef
-    ) {}
+    ) {
+        console.log('ChatsComponent constructed');
+    }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
@@ -62,11 +64,14 @@ export class ChatsComponent implements OnInit, OnDestroy {
      * On init
      */
     ngOnInit(): void {
+        console.log('ChatsComponent initialized');
+
         // Chats
         this._chatService.chats$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((chats: Chat[]) => {
-                this.chats = this.filteredChats = chats;
+                console.log('Chats received:', chats);
+                this.chats = this.filteredChats = chats || [];
 
                 // Mark for check
                 this._changeDetectorRef.markForCheck();
@@ -76,6 +81,7 @@ export class ChatsComponent implements OnInit, OnDestroy {
         this._chatService.profile$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((profile: Profile) => {
+                console.log('Profile received:', profile);
                 this.profile = profile;
 
                 // Mark for check
@@ -86,6 +92,7 @@ export class ChatsComponent implements OnInit, OnDestroy {
         this._chatService.chat$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((chat: Chat) => {
+                console.log('Selected chat:', chat);
                 this.selectedChat = chat;
 
                 // Mark for check
@@ -122,7 +129,7 @@ export class ChatsComponent implements OnInit, OnDestroy {
         }
 
         this.filteredChats = this.chats.filter((chat) =>
-            chat.contact.name.toLowerCase().includes(query.toLowerCase())
+            chat.contact?.name?.toLowerCase().includes(query.toLowerCase())
         );
     }
 

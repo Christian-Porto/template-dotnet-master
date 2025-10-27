@@ -10,7 +10,7 @@
                 [svgIcon]="'heroicons_outline:arrow-long-left'"
             ></mat-icon>
         </button>
-        <div class="ml-2 text-2xl font-semibold">New chat</div>
+        <div class="ml-2 text-2xl font-semibold">Nova Conversa</div>
     </div>
 
     <div class="relative overflow-y-auto">
@@ -34,6 +34,7 @@
                 <!-- Contact -->
                 <div
                     class="z-20 flex cursor-pointer items-center border-b px-6 py-4 dark:hover:bg-hover hover:bg-gray-100 md:px-8"
+                    (click)="openChatWithContact(contact)"
                 >
                     <div
                         class="flex h-10 w-10 flex-0 items-center justify-center overflow-hidden rounded-full"
@@ -56,9 +57,6 @@
                     <div class="ml-4 min-w-0">
                         <div class="truncate font-medium leading-5">
                             {{ contact.name }}
-                        </div>
-                        <div class="text-secondary truncate leading-5">
-                            {{ contact.about }}
                         </div>
                     </div>
                 </div>

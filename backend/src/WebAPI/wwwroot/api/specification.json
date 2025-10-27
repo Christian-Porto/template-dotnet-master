@@ -177,6 +177,59 @@
         ]
       }
     },
+    "/chats/me": {
+      "get": {
+        "tags": [
+          "Chats"
+        ],
+        "operationId": "Chats_GetMe",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatUserResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/chats": {
+      "get": {
+        "tags": [
+          "Chats"
+        ],
+        "operationId": "Chats_ListChats",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/chats/messages": {
       "get": {
         "tags": [
@@ -239,6 +292,41 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedListOfChatMessageResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Chats"
+        ],
+        "operationId": "Chats_SendMessage",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatMessageResponse"
                 }
               }
             }
@@ -811,6 +899,85 @@
           }
         }
       },
+      "ChatUserResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/ProfileEnum"
+          }
+        }
+      },
+      "ProfileEnum": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Administrator",
+          "Monitor",
+          "Student"
+        ],
+        "enum": [
+          1,
+          2,
+          3
+        ]
+      },
+      "ChatResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userAId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userBId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChatMessageResponse"
+            }
+          }
+        }
+      },
+      "ChatMessageResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "chatId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "senderId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "string"
+          },
+          "createdAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "PaginatedListOfChatMessageResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -841,60 +1008,24 @@
           }
         }
       },
-      "ChatMessageResponse": {
+      "SendMessageCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
           "chatId": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
-          "senderId": {
+          "otherUserId": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "content": {
             "type": "string"
-          },
-          "createdAtUtc": {
-            "type": "string",
-            "format": "date-time"
           }
         }
-      },
-      "ChatUserResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "name": {
-            "type": "string"
-          },
-          "profile": {
-            "$ref": "#/components/schemas/ProfileEnum"
-          }
-        }
-      },
-      "ProfileEnum": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Administrator",
-          "Monitor",
-          "Student"
-        ],
-        "enum": [
-          1,
-          2,
-          3
-        ]
       },
       "EventResponse": {
         "type": "object",

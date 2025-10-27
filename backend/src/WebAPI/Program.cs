@@ -34,6 +34,25 @@ builder.Services.AddAuthentication(opt =>
         ValidAudience = builder.Configuration["TokenSettings:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenSettings:SecurityKey"]!)),
     };
+
+    // Configure for SignalR
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+
+            // If the request is for our hub...
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) &&
+                (path.StartsWithSegments("/hubs")))
+            {
+                // Read the token out of the query string
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddOpenApiDocument(configure =>
@@ -51,6 +70,13 @@ builder.Services.AddOpenApiDocument(configure =>
 });
 
 var app = builder.Build();
+
+// CORS must be before Authentication
+app.UseCors(x => x
+    .WithOrigins("http://localhost:4200")
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .AllowCredentials());
 
 CommonConfiguration.ConfigureApp(app);
 
@@ -91,8 +117,6 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
         }
     }
 }
-
-app.UseCors(x => x.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader().AllowCredentials());
 
 app.Run();
 

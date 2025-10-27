@@ -1,5 +1,7 @@
+import { ProfileEnum } from '../../../../api-client';
+
 export interface Profile {
-    id?: string;
+    id?: number;
     name?: string;
     email?: string;
     avatar?: string;
@@ -7,46 +9,27 @@ export interface Profile {
 }
 
 export interface Contact {
-    id?: string;
-    avatar?: string;
+    id?: number;
     name?: string;
-    about?: string;
-    details?: {
-        emails?: {
-            email?: string;
-            label?: string;
-        }[];
-        phoneNumbers?: {
-            country?: string;
-            phoneNumber?: string;
-            label?: string;
-        }[];
-        title?: string;
-        company?: string;
-        birthday?: string;
-        address?: string;
-    };
-    attachments?: {
-        media?: any[];
-        docs?: any[];
-        links?: any[];
-    };
+    profile?: ProfileEnum;
+}
+
+export interface Message {
+    id?: number;
+    chatId?: number;
+    senderId?: number;
+    content?: string;
+    createdAtUtc?: string;
 }
 
 export interface Chat {
-    id?: string;
-    contactId?: string;
+    id?: number;
+    contactId?: number;
     contact?: Contact;
     unreadCount?: number;
     muted?: boolean;
     lastMessage?: string;
     lastMessageAt?: string;
-    messages?: {
-        id?: string;
-        chatId?: string;
-        contactId?: string;
-        isMine?: boolean;
-        value?: string;
-        createdAt?: string;
-    }[];
+    messages?: Message[];
 }
+

@@ -6,7 +6,6 @@ import { NotificationsMockApi } from 'app/mock-api/common/notifications/api';
 import { UserMockApi } from 'app/mock-api/common/user/api';
 import { ActivitiesMockApi } from 'app/mock-api/pages/activities/api';
 import { IconsMockApi } from 'app/mock-api/ui/icons/api';
-import { ChatMockApi } from './apps/chat/api';
 
 @Injectable({ providedIn: 'root' })
 export class MockApiService {
@@ -17,5 +16,4 @@ export class MockApiService {
     navigationMockApi = inject(NavigationMockApi);
     notificationsMockApi = inject(NotificationsMockApi);
     userMockApi = inject(UserMockApi);
-    chatMockApi = inject(ChatMockApi);
 }

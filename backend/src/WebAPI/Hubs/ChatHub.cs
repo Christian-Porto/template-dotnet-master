@@ -68,7 +68,11 @@ public class ChatHub : Hub
         await _db.SaveChangesAsync(CancellationToken.None);
 
         var dto = _mapper.Map<ChatMessageResponse>(message);
-        await Clients.Group(GroupName(chatId)).SendAsync("ReceiveMessage", dto);
+        
+        // Send to both users directly to ensure delivery
+        var otherUserId = chat.UserAId == me ? chat.UserBId : chat.UserAId;
+        await Clients.User(me.ToString()).SendAsync("ReceiveMessage", dto);
+        await Clients.User(otherUserId.ToString()).SendAsync("ReceiveMessage", dto);
     }
 }
 
