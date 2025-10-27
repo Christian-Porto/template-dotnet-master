@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { AuthMockApi } from 'app/mock-api/common/auth/api';
 import { MessagesMockApi } from 'app/mock-api/common/messages/api';
-import { NavigationMockApi } from 'app/mock-api/common/navigation/api';
 import { NotificationsMockApi } from 'app/mock-api/common/notifications/api';
 import { UserMockApi } from 'app/mock-api/common/user/api';
 import { ActivitiesMockApi } from 'app/mock-api/pages/activities/api';
@@ -13,7 +12,6 @@ export class MockApiService {
     authMockApi = inject(AuthMockApi);
     iconsMockApi = inject(IconsMockApi);
     messagesMockApi = inject(MessagesMockApi);
-    navigationMockApi = inject(NavigationMockApi);
     notificationsMockApi = inject(NotificationsMockApi);
     userMockApi = inject(UserMockApi);
 }

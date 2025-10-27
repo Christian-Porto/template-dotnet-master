@@ -44,6 +44,7 @@ export class EventDetailsComponent implements OnInit {
     event: EventResponse | null = null;
 
     loading: boolean = false;
+    isRegistered: boolean = false;
 
     Status = Status;
     EventTypeEnum = EventTypeEnum;
@@ -61,8 +62,10 @@ export class EventDetailsComponent implements OnInit {
 
     ngOnInit(): void {
         this.eventId = +this.route.snapshot.paramMap.get('id');
-
         this.getEvent();
+        if (this.eventId) {
+            this.eventsService.isRegistered(this.eventId).subscribe((v) => this.isRegistered = v);
+        }
     }
 
     getEvent() {
@@ -111,6 +114,50 @@ export class EventDetailsComponent implements OnInit {
                     .subscribe({
                         next: () => {
                             this.toastr.success('Cadastro realizado com sucesso');
+                            this.isRegistered = true;
+                            this.router.navigate(['/events']);
+                        }
+                    });
+            }
+        });
+    }
+
+    onCancel(): void {
+        if (!this.canRegister) {
+            return;
+        }
+
+        const dialogRef = this.fuseConfirmationService.open({
+            title: "Confirmação de Cancelamento",
+            message: "Você tem certeza que deseja cancelar sua inscrição neste evento?",
+            actions: {
+                confirm: {
+                    label: "Sim, cancelar inscrição",
+                    color: 'warn',
+                },
+                cancel: {
+                    label: "Manter inscrição",
+                },
+            },
+            icon: {
+                show: true,
+                name: 'heroicons_outline:exclamation-triangle',
+                color: 'accent',
+            },
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result == 'confirmed') {
+                if (!this.eventId || this.loading) return;
+                this.loading = true;
+
+                this.eventsService
+                    .cancelRegistration(this.eventId)
+                    .pipe(finalize(() => this.loading = false))
+                    .subscribe({
+                        next: () => {
+                            this.toastr.success('Inscrição cancelada com sucesso');
+                            this.isRegistered = false;
                             this.router.navigate(['/events']);
                         }
                     });

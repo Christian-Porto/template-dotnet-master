@@ -63,7 +63,13 @@
                 <app-event-card [event]="event"></app-event-card>
                 }
             </div>
+            @if (isLoading) {
+            <div class="mt-8 flex justify-center">
+                <mat-progress-spinner [diameter]="50" [mode]="'indeterminate'"></mat-progress-spinner>
+            </div>
+            }
             } @else {
+            @if (!isLoading) {
             <div class="flex flex-auto flex-col items-center justify-center bg-gray-100 dark:bg-transparent">
                 <mat-icon class="mx-auto icon-size-12 text-amber-500"
                     [svgIcon]="'heroicons_outline:exclamation-triangle'"></mat-icon>
@@ -71,6 +77,11 @@
                     Nenhum evento encontrado
                 </div>
             </div>
+            } @else {
+            <div class="mt-8 flex justify-center">
+                <mat-progress-spinner [diameter]="50" [mode]="'indeterminate'"></mat-progress-spinner>
+            </div>
+            }
             }
         </div>
     </div>
