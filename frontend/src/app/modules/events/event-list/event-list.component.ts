@@ -252,7 +252,7 @@ export class EventListComponent implements AfterViewInit {
         // Reapply local filter
         this.filteredevents = this.events;
         if (change.checked) {
-            this.filteredevents = this.filteredevents.filter((e) => e.status !== Status.d);
+            this.filteredevents = this.filteredevents.filter((e) => e.status !== Status.c);
         }
         this._changeDetectorRef.markForCheck();
     }

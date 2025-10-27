@@ -21,7 +21,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { RouterLink } from '@angular/router';
 import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { Subject, takeUntil } from 'rxjs';
-import { Chat } from '../chat.types';
+import { Chat, Message } from '../chat.types';
 import { ChatService } from '../chat.service';
 
 @Component({
@@ -48,6 +48,7 @@ export class ConversationComponent implements OnInit, OnDestroy {
     chat: Chat;
     drawerMode: 'over' | 'side' = 'side';
     private _unsubscribeAll: Subject<any> = new Subject<any>();
+    private _currentUserId: number;
 
     /**
      * Constructor
@@ -97,6 +98,15 @@ export class ConversationComponent implements OnInit, OnDestroy {
      * On init
      */
     ngOnInit(): void {
+        // Get current user profile
+        this._chatService.profile$
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe((profile) => {
+                if (profile) {
+                    this._currentUserId = profile.id;
+                }
+            });
+
         // Chat
         this._chatService.chat$
             .pipe(takeUntil(this._unsubscribeAll))
@@ -148,8 +158,54 @@ export class ConversationComponent implements OnInit, OnDestroy {
         // Toggle the muted
         this.chat.muted = !this.chat.muted;
 
-        // Update the chat on the server
-        this._chatService.updateChat(this.chat.id, this.chat).subscribe();
+        // Update the chat
+        this._chatService.updateChat(this.chat);
+    }
+
+    /**
+     * Send message
+     */
+    async sendMessage(): Promise<void> {
+        const content = this.messageInput.nativeElement.value;
+
+        if (!content || !content.trim()) {
+            return;
+        }
+
+        try {
+            // Send message via SignalR
+            await this._chatService.sendMessageViaSignalR(this.chat.id, content.trim());
+
+            // Clear the input
+            this.messageInput.nativeElement.value = '';
+        } catch (error) {
+            console.error('Failed to send message:', error);
+        }
+    }
+
+    /**
+     * Handle enter key in message input
+     */
+    onEnterKey(event: KeyboardEvent): void {
+        if (!event.shiftKey) {
+            event.preventDefault();
+            this.sendMessage();
+        }
+    }
+
+    /**
+     * Check if message is mine
+     */
+    isMessageMine(message: Message): boolean {
+        return message.senderId === this._currentUserId;
+    }
+
+    /**
+     * Open contact info
+     */
+    openContactInfo(): void {
+        // Implementation for opening contact info
+        console.log('Open contact info');
     }
 
     /**
