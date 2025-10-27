@@ -58,6 +58,10 @@ export class EventsService {
 
         const startDateParam = coerceToDate(filter?.startDate);
         const endDateParam = coerceToDate(filter?.endDate);
+        const eventDateParam: Date[] | undefined =
+            (startDateParam || endDateParam)
+                ? [startDateParam, endDateParam].filter((d): d is Date => !!d)
+                : undefined;
         const registrationStatusParam: ApiRegistrationStatusEnum | undefined =
             (filter?.registrationStatus !== undefined && filter.registrationStatus !== 'all')
                 ? (filter.registrationStatus as unknown as ApiRegistrationStatusEnum)
@@ -69,8 +73,7 @@ export class EventsService {
                 typeParam,
                 statusParam,
                 nameParam,
-                startDateParam,
-                endDateParam,
+                eventDateParam,
                 registrationStatusParam,
                 attendedParam ?? undefined,
                 pageSize,
@@ -107,7 +110,7 @@ export class EventsService {
                     }));
                 })
             );
-    }
+        }
 
     public getEventById(id: number): Observable<EventResponse> {
         return this._eventsClient
@@ -141,7 +144,7 @@ export class EventsService {
                     } as EventResponse;
                 })
             );
-    }
+        }
 
     public get types(): Observable<EventTypeEnum[]> {
         return of([
@@ -170,5 +173,26 @@ export class EventsService {
     public registerToEvent(eventId: number): Observable<RegistrationResponse> {
         const command = new CreateRegistrationCommand({ eventId });
         return this._registrationsClient.create(command);
+    }
+
+    public cancelRegistration(eventId: number): Observable<void> {
+        return this._registrationsClient
+            .cancel(eventId)
+            .pipe(map(() => void 0));
+    }
+
+    public isRegistered(eventId: number): Observable<boolean> {
+        return this._eventsClient
+            .list(
+                undefined as any,
+                undefined as any,
+                undefined as any,
+                undefined as any,
+                ApiRegistrationStatusEnum.Registered,
+                undefined as any,
+                1000,
+                0
+            )
+            .pipe(map(p => (p?.items ?? []).some(e => (e.id as number) === eventId)));
     }
 }

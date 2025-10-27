@@ -433,7 +433,7 @@ export class ChatsClient implements IChatsClient {
 export interface IEventsClient {
     get(id: number): Observable<EventResponse>;
     update(id: number, command: UpdateEventCommand): Observable<EventResponse>;
-    list(type: EventTypeEnum | null | undefined, status: StatusEnum | null | undefined, name: string | null | undefined, startDate: Date | null | undefined, endDate: Date | null | undefined, registrationStatus: RegistrationStatusEnum | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse>;
+    list(type: EventTypeEnum | null | undefined, status: StatusEnum | null | undefined, name: string | null | undefined, eventDate: Date[] | null | undefined, registrationStatus: RegistrationStatusEnum | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse>;
     create(command: CreateEventCommand): Observable<EventResponse>;
 }
 
@@ -556,7 +556,7 @@ export class EventsClient implements IEventsClient {
         return _observableOf(null as any);
     }
 
-    list(type: EventTypeEnum | null | undefined, status: StatusEnum | null | undefined, name: string | null | undefined, startDate: Date | null | undefined, endDate: Date | null | undefined, registrationStatus: RegistrationStatusEnum | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse> {
+    list(type: EventTypeEnum | null | undefined, status: StatusEnum | null | undefined, name: string | null | undefined, eventDate: Date[] | null | undefined, registrationStatus: RegistrationStatusEnum | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse> {
         let url_ = this.baseUrl + "/events?";
         if (type !== undefined && type !== null)
             url_ += "Type=" + encodeURIComponent("" + type) + "&";
@@ -564,10 +564,8 @@ export class EventsClient implements IEventsClient {
             url_ += "Status=" + encodeURIComponent("" + status) + "&";
         if (name !== undefined && name !== null)
             url_ += "Name=" + encodeURIComponent("" + name) + "&";
-        if (startDate !== undefined && startDate !== null)
-            url_ += "StartDate=" + encodeURIComponent(startDate ? "" + startDate.toISOString() : "") + "&";
-        if (endDate !== undefined && endDate !== null)
-            url_ += "EndDate=" + encodeURIComponent(endDate ? "" + endDate.toISOString() : "") + "&";
+        if (eventDate !== undefined && eventDate !== null)
+            eventDate && eventDate.forEach(item_ => { url_ += "EventDate=" + encodeURIComponent(item_ ? "" + item_.toISOString() : "null") + "&"; });
         if (registrationStatus !== undefined && registrationStatus !== null)
             url_ += "RegistrationStatus=" + encodeURIComponent("" + registrationStatus) + "&";
         if (attended !== undefined && attended !== null)
@@ -685,6 +683,7 @@ export interface IRegistrationsClient {
     listSelected(eventId: number | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfRegistrationResponse>;
     updateAttendance(id: number, command: UpdateAttendanceCommand): Observable<RegistrationResponse>;
     updateStatus(id: number, command: UpdateRegistrationStatusCommand): Observable<RegistrationResponse>;
+    cancel(eventId: number): Observable<FileResponse>;
 }
 
 @Injectable({
@@ -974,6 +973,61 @@ export class RegistrationsClient implements IRegistrationsClient {
             result200 = RegistrationResponse.fromJS(resultData200);
             return _observableOf(result200);
             }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    cancel(eventId: number): Observable<FileResponse> {
+        let url_ = this.baseUrl + "/registrations/{eventId}";
+        if (eventId === undefined || eventId === null)
+            throw new Error("The parameter 'eventId' must be defined.");
+        url_ = url_.replace("{eventId}", encodeURIComponent("" + eventId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/octet-stream"
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCancel(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCancel(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<FileResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<FileResponse>;
+        }));
+    }
+
+    protected processCancel(response: HttpResponseBase): Observable<FileResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -1581,7 +1635,6 @@ export class CreateEventCommand implements ICreateEventCommand {
     startDate?: Date;
     endDate?: Date;
     slots?: number;
-    status?: StatusEnum;
     shifts?: ShiftEnum[];
 
     constructor(data?: ICreateEventCommand) {
@@ -1602,7 +1655,6 @@ export class CreateEventCommand implements ICreateEventCommand {
             this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
             this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : <any>undefined;
             this.slots = _data["slots"];
-            this.status = _data["status"];
             if (Array.isArray(_data["shifts"])) {
                 this.shifts = [] as any;
                 for (let item of _data["shifts"])
@@ -1627,7 +1679,6 @@ export class CreateEventCommand implements ICreateEventCommand {
         data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
         data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
         data["slots"] = this.slots;
-        data["status"] = this.status;
         if (Array.isArray(this.shifts)) {
             data["shifts"] = [];
             for (let item of this.shifts)
@@ -1645,7 +1696,6 @@ export interface ICreateEventCommand {
     startDate?: Date;
     endDate?: Date;
     slots?: number;
-    status?: StatusEnum;
     shifts?: ShiftEnum[];
 }
 
@@ -1657,7 +1707,6 @@ export class UpdateEventCommand implements IUpdateEventCommand {
     startDate?: Date;
     endDate?: Date;
     slots?: number;
-    status?: StatusEnum;
     shifts?: ShiftEnum[];
 
     constructor(data?: IUpdateEventCommand) {
@@ -1678,7 +1727,6 @@ export class UpdateEventCommand implements IUpdateEventCommand {
             this.startDate = _data["startDate"] ? new Date(_data["startDate"].toString()) : <any>undefined;
             this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : <any>undefined;
             this.slots = _data["slots"];
-            this.status = _data["status"];
             if (Array.isArray(_data["shifts"])) {
                 this.shifts = [] as any;
                 for (let item of _data["shifts"])
@@ -1703,7 +1751,6 @@ export class UpdateEventCommand implements IUpdateEventCommand {
         data["startDate"] = this.startDate ? this.startDate.toISOString() : <any>undefined;
         data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
         data["slots"] = this.slots;
-        data["status"] = this.status;
         if (Array.isArray(this.shifts)) {
             data["shifts"] = [];
             for (let item of this.shifts)
@@ -1721,7 +1768,6 @@ export interface IUpdateEventCommand {
     startDate?: Date;
     endDate?: Date;
     slots?: number;
-    status?: StatusEnum;
     shifts?: ShiftEnum[];
 }
 
@@ -1971,6 +2017,13 @@ export class UpdateRegistrationStatusCommand implements IUpdateRegistrationStatu
 
 export interface IUpdateRegistrationStatusCommand {
     status?: RegistrationStatusEnum;
+}
+
+export interface FileResponse {
+    data: Blob;
+    status: number;
+    fileName?: string;
+    headers?: { [name: string]: any };
 }
 
 export class SwaggerException extends Error {

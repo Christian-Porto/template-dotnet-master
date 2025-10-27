@@ -48,5 +48,12 @@ namespace ExtensionEventsManager.Core.WebAPI.Controllers
             command.SetId(id);
             return await Mediator.Send(command);
         }
+
+        [HttpDelete("{eventId}")]
+        public async Task<IActionResult> Cancel([FromRoute] int eventId)
+        {
+            await Mediator.Send(new CancelRegistrationCommand { EventId = eventId });
+            return NoContent();
+        }
     }
 }

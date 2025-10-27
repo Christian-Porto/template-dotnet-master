@@ -113,10 +113,9 @@
                         <mat-icon [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
                         <span class="ml-2">Voltar</span>
                     </a>
-                    <button mat-flat-button [color]="'primary'" class="w-full sm:w-auto order-1 sm:order-2"
-                        (click)="onRegister()" [disabled]="loading">
-                        <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
-                        <span class="ml-2">Inscrever-se</span>
+                    <button mat-flat-button [color]="isRegistered ? 'warn' : 'primary'" class="w-full sm:w-auto order-1 sm:order-2"
+                        (click)="isRegistered ? onCancel() : onRegister()" [disabled]="!canRegister">
+                        <span class="ml-2">{{ isRegistered ? 'Cancelar inscrição' : 'Inscrever-se' }}</span>
                     </button>
                 </div>
             </div>

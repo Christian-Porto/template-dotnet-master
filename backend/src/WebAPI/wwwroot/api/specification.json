@@ -396,24 +396,19 @@
             "x-position": 3
           },
           {
-            "name": "StartDate",
+            "name": "EventDate",
             "in": "query",
+            "style": "form",
+            "explode": true,
             "schema": {
-              "type": "string",
-              "format": "date-time",
-              "nullable": true
+              "type": "array",
+              "nullable": true,
+              "items": {
+                "type": "string",
+                "format": "date-time"
+              }
             },
             "x-position": 4
-          },
-          {
-            "name": "EndDate",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "date-time",
-              "nullable": true
-            },
-            "x-position": 5
           },
           {
             "name": "RegistrationStatus",
@@ -426,7 +421,7 @@
                 }
               ]
             },
-            "x-position": 6
+            "x-position": 5
           },
           {
             "name": "Attended",
@@ -435,7 +430,7 @@
               "type": "boolean",
               "nullable": true
             },
-            "x-position": 7
+            "x-position": 6
           },
           {
             "name": "PageSize",
@@ -444,7 +439,7 @@
               "type": "integer",
               "format": "int32"
             },
-            "x-position": 8
+            "x-position": 7
           },
           {
             "name": "PageIndex",
@@ -453,7 +448,7 @@
               "type": "integer",
               "format": "int32"
             },
-            "x-position": 9
+            "x-position": 8
           }
         ],
         "responses": {
@@ -714,6 +709,44 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RegistrationResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/registrations/{eventId}": {
+      "delete": {
+        "tags": [
+          "Registrations"
+        ],
+        "operationId": "Registrations_Cancel",
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }
@@ -1060,9 +1093,6 @@
             "type": "integer",
             "format": "int32"
           },
-          "status": {
-            "$ref": "#/components/schemas/StatusEnum"
-          },
           "shifts": {
             "type": "array",
             "items": {
@@ -1099,9 +1129,6 @@
           "slots": {
             "type": "integer",
             "format": "int32"
-          },
-          "status": {
-            "$ref": "#/components/schemas/StatusEnum"
           },
           "shifts": {
             "type": "array",

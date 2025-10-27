@@ -19,9 +19,6 @@ public class RegistrationConfiguration : IEntityTypeConfiguration<Registration>
         builder.Property(x => x.Justification)
                .HasMaxLength(255);
 
-        builder.Property(x => x.Report)
-               .HasMaxLength(255);
-
         builder.HasOne(r => r.User)
                .WithMany()
                .HasForeignKey(r => r.UserId)

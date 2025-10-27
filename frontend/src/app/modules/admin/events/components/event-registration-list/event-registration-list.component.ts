@@ -1,4 +1,4 @@
-﻿import { Component, OnDestroy } from '@angular/core';
+﻿import { Component } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -14,8 +14,6 @@ import { PaginatedListOfRegistrationResponse, RegistrationResponse, Registration
 import { EventResponse } from 'app/modules/events/models/event.model';
 import { EventsService } from '../../services/events.service';
 import { MatButtonModule } from '@angular/material/button';
-
-// name, enrollment, cpf and period already come from RegistrationResponse
 
 @Component({
     selector: 'app-event-registration-list',
@@ -36,7 +34,7 @@ import { MatButtonModule } from '@angular/material/button';
     templateUrl: './event-registration-list.component.html',
     styleUrl: './event-registration-list.component.scss'
 })
-export class EventRegistrationListComponent implements OnDestroy {
+export class EventRegistrationListComponent {
     event: EventResponse | null = null;
     registrations: PaginatedListOfRegistrationResponse | null = null;
     loading: boolean = false;
@@ -74,8 +72,21 @@ export class EventRegistrationListComponent implements OnDestroy {
         });
     }
 
-    ngOnDestroy(): void {
+    // Returns true when the event date is in the past (strictly before today)
+    get canMarkAttendance(): boolean {
+        if (!this.event?.eventDate) {
+            return false;
+        }
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const eventDate = new Date(this.event.eventDate);
+        eventDate.setHours(0, 0, 0, 0);
+        // Allowed only if event date is before today
+        return eventDate.getTime() < today.getTime();
+    }
 
+    get attendanceBlockedReason(): string {
+        return 'A presença só pode ser marcada após a data do evento.';
     }
 
     get remainingSlots(): number {
@@ -89,6 +100,10 @@ export class EventRegistrationListComponent implements OnDestroy {
     }
 
     onStatusChange(registration: RegistrationResponse, status: RegistrationStatusEnum): void {
+        // Block changes when event date is today or in the future
+        if (!this.canMarkAttendance) {
+            return;
+        }
         if (!registration?.id) {
             return;
         }
@@ -206,18 +221,5 @@ export class EventRegistrationListComponent implements OnDestroy {
             return `"${value.replace(/"/g, '""')}"`;
         }
         return value;
-    }
-
-    private getStatusLabel(status: RegistrationStatusEnum | undefined): string {
-        switch (status) {
-            case RegistrationStatusEnum.Selected:
-                return 'Selecionado';
-            case RegistrationStatusEnum.NotSelected:
-                return 'NÃ£o Selecionado';
-            case RegistrationStatusEnum.Registered:
-                return 'Inscrito';
-            default:
-                return '-';
-        }
     }
 }
