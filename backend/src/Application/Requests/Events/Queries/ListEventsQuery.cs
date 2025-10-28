@@ -156,8 +156,8 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Queries
                 StartDate = e.StartDate,
                 EndDate = e.EndDate,
                 Slots = e.Slots,
-                // Compute dynamic status without relying on persisted field
-                Status = e.StartDate >= tmr
+                Status = e.Status,
+                RegistrationStatus = e.StartDate >= tmr
                     ? StatusEnum.RegistrationNotStarted
                     : (e.EndDate < tdy
                         ? StatusEnum.RegistrationClosed

@@ -105,7 +105,7 @@ export class EventsService {
                         startDate: e.startDate as Date,
                         endDate: e.endDate as Date,
                         slots: (e.slots ?? 0) as number,
-                        status: mapStatus(e.status),
+                        status: mapStatus(e.registrationStatus),
                         shifts: (e.shifts as unknown) as number[],
                     }));
                 })
@@ -139,7 +139,7 @@ export class EventsService {
                         startDate: e.startDate as Date,
                         endDate: e.endDate as Date,
                         slots: (e.slots ?? 0) as number,
-                        status: mapStatus(e.status),
+                        status: mapStatus(e.registrationStatus),
                         shifts: (e.shifts as unknown) as number[],
                     } as EventResponse;
                 })

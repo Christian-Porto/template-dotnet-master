@@ -593,6 +593,7 @@ export interface IEventsClient {
     update(id: number, command: UpdateEventCommand): Observable<EventResponse>;
     list(type: EventTypeEnum | null | undefined, status: StatusEnum | null | undefined, name: string | null | undefined, eventDate: Date[] | null | undefined, registrationStatus: RegistrationStatusEnum | null | undefined, attended: boolean | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfEventResponse>;
     create(command: CreateEventCommand): Observable<EventResponse>;
+    updateStatus(id: number, command: UpdateEventStatusCommand): Observable<EventResponse>;
 }
 
 @Injectable({
@@ -813,6 +814,61 @@ export class EventsClient implements IEventsClient {
     }
 
     protected processCreate(response: HttpResponseBase): Observable<EventResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = EventResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    updateStatus(id: number, command: UpdateEventStatusCommand): Observable<EventResponse> {
+        let url_ = this.baseUrl + "/events/{id}/status";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateStatus(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateStatus(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<EventResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<EventResponse>;
+        }));
+    }
+
+    protected processUpdateStatus(response: HttpResponseBase): Observable<EventResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1726,7 +1782,8 @@ export class EventResponse implements IEventResponse {
     startDate?: Date;
     endDate?: Date;
     slots?: number;
-    status?: StatusEnum;
+    status?: boolean;
+    registrationStatus?: StatusEnum;
     shifts?: ShiftEnum[];
 
     constructor(data?: IEventResponse) {
@@ -1749,6 +1806,7 @@ export class EventResponse implements IEventResponse {
             this.endDate = _data["endDate"] ? new Date(_data["endDate"].toString()) : <any>undefined;
             this.slots = _data["slots"];
             this.status = _data["status"];
+            this.registrationStatus = _data["registrationStatus"];
             if (Array.isArray(_data["shifts"])) {
                 this.shifts = [] as any;
                 for (let item of _data["shifts"])
@@ -1775,6 +1833,7 @@ export class EventResponse implements IEventResponse {
         data["endDate"] = this.endDate ? this.endDate.toISOString() : <any>undefined;
         data["slots"] = this.slots;
         data["status"] = this.status;
+        data["registrationStatus"] = this.registrationStatus;
         if (Array.isArray(this.shifts)) {
             data["shifts"] = [];
             for (let item of this.shifts)
@@ -1793,7 +1852,8 @@ export interface IEventResponse {
     startDate?: Date;
     endDate?: Date;
     slots?: number;
-    status?: StatusEnum;
+    status?: boolean;
+    registrationStatus?: StatusEnum;
     shifts?: ShiftEnum[];
 }
 
@@ -1880,9 +1940,9 @@ export interface IPaginatedListOfEventResponse {
 }
 
 export enum RegistrationStatusEnum {
-    Registered = 0,
-    NotSelected = 1,
-    Selected = 2,
+    Registered = 1,
+    NotSelected = 2,
+    Selected = 3,
 }
 
 export class CreateEventCommand implements ICreateEventCommand {
@@ -2027,6 +2087,46 @@ export interface IUpdateEventCommand {
     endDate?: Date;
     slots?: number;
     shifts?: ShiftEnum[];
+}
+
+export class UpdateEventStatusCommand implements IUpdateEventStatusCommand {
+    id?: number;
+    status?: boolean;
+
+    constructor(data?: IUpdateEventStatusCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): UpdateEventStatusCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateEventStatusCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IUpdateEventStatusCommand {
+    id?: number;
+    status?: boolean;
 }
 
 export class PaginatedListOfRegistrationResponse implements IPaginatedListOfRegistrationResponse {

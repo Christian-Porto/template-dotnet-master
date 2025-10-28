@@ -11,12 +11,18 @@ public class ChatConfiguration : IEntityTypeConfiguration<Chat>
         builder.ToTable("Chats");
 
         builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).HasComment("Chave primária do chat.");
 
         builder.HasIndex(x => new { x.UserAId, x.UserBId })
                .IsUnique();
 
-        builder.Property(x => x.UserAId).IsRequired();
-        builder.Property(x => x.UserBId).IsRequired();
+        builder.Property(x => x.UserAId)
+               .IsRequired()
+               .HasComment("ID do participante A (menor ID do par).");
+
+        builder.Property(x => x.UserBId)
+               .IsRequired()
+               .HasComment("ID do participante B (maior ID do par).");
 
         builder.HasMany(x => x.Messages)
                .WithOne()

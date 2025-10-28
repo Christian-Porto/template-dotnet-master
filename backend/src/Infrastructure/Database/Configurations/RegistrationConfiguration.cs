@@ -8,16 +8,30 @@ public class RegistrationConfiguration : IEntityTypeConfiguration<Registration>
 {
     public void Configure(EntityTypeBuilder<Registration> builder)
     {
-        builder.ToTable("Registrations");
+        builder.ToTable("Registrations", tb =>
+        {
+            tb.HasCheckConstraint(
+                "CK_Registrations_Status_Enum", "(`Status` IS NULL OR `Status` IN (1, 2, 3))"
+            );
+        });
 
         builder.Property(x => x.Id)
-               .UseMySqlIdentityColumn();
+               .UseMySqlIdentityColumn()
+               .HasComment("Chave primária da inscrição.");
 
         builder.Property(x => x.Date)
-                .IsRequired();
+               .IsRequired()
+               .HasComment("Data/hora da realização da inscrição.");
 
         builder.Property(x => x.Justification)
-               .HasMaxLength(255);
+               .HasMaxLength(255)
+               .HasComment("Justificativa de ausência (quando o participante não comparece).");
+
+        builder.Property(x => x.Attended)
+               .HasComment("Indica presença do participante no evento (true/false).");
+
+        builder.Property(x => x.Status)
+               .HasComment("Resultado da seleção do evento para o inscrito (Registered/Selected/NotSelected).");
 
         builder.HasOne(r => r.User)
                .WithMany()
@@ -30,4 +44,3 @@ public class RegistrationConfiguration : IEntityTypeConfiguration<Registration>
                .OnDelete(DeleteBehavior.Cascade);
     }
 }
-

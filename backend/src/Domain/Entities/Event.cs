@@ -12,6 +12,7 @@ public class Event : BaseEntity
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public int Slots { get; set; }
+    public bool Status { get; set; }
     public IList<Shift> Shifts { get; set; } = new List<Shift>();
 
     private Event() { }

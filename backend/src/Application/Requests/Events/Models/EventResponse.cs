@@ -1,5 +1,4 @@
-﻿using ExtensionEventsManager.Core.Domain.Common.Enums;
-using ExtensionEventsManager.Core.Domain.Enums;
+﻿using ExtensionEventsManager.Core.Domain.Enums;
 
 namespace ExtensionEventsManager.Core.Application.Requests.Events.Models
 {
@@ -13,7 +12,8 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Models
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int Slots { get; set; }
-        public StatusEnum Status { get; set; }
+        public bool Status { get; set; }
+        public StatusEnum RegistrationStatus { get; set; }
         public IList<ShiftEnum> Shifts { get; set; } = new List<ShiftEnum>();
     }
 }

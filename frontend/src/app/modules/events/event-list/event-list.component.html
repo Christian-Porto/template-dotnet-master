@@ -51,8 +51,8 @@
                 <mat-form-field class="mt-4 w-full sm:ml-4 sm:mt-0 sm:w-36" [subscriptSizing]="'dynamic'">
                     <mat-select [value]="'all'" (selectionChange)="filterByAttended($event)" [placeholder]="'Presença'">
                         <mat-option [value]="null">Todos</mat-option>
-                        <mat-option [value]="false">Presente</mat-option>
-                        <mat-option [value]="true">Ausente</mat-option>
+                        <mat-option [value]="true">Presente</mat-option>
+                        <mat-option [value]="false">Ausente</mat-option>
                     </mat-select>
                 </mat-form-field>
             </div>

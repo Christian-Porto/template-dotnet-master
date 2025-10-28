@@ -57,9 +57,9 @@ export enum EventTypeEnum {
 }
 
 export enum RegistrationStatusEnum {
-    Registered = 0,
-    NotSelected = 1,
-    Selected = 2,
+    Registered = 1,
+    NotSelected = 2,
+    Selected = 3,
 }
 
 export interface PaginatedListOfEventResponse {

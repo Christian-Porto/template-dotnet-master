@@ -42,5 +42,13 @@ public class EventsController : ApiControllerBase
         command.SetId(id);
         return await Mediator.Send(command);
     }
+
+    [HttpPut("{id}/status")]
+    [AllowAnonymous]
+    public async Task<EventResponse> UpdateStatus([FromRoute] int id, [FromBody] UpdateEventStatusCommand command)
+    {
+        command.SetId(id);
+        return await Mediator.Send(command);
+    }
 }
 
