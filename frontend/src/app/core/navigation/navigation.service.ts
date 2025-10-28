@@ -45,7 +45,7 @@ export class NavigationService {
 
     get navigation$(): Observable<Navigation> {
         return of(<Navigation>{
-            default: null,
+            default: horizontalNavigation,
             compact: null,
             futuristic: null,
             horizontal: horizontalNavigation
