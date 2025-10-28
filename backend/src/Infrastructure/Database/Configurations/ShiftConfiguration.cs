@@ -9,18 +9,21 @@ public class ShiftConfiguration : IEntityTypeConfiguration<Shift>
 {
     public void Configure(EntityTypeBuilder<Shift> builder)
     {
-        builder.ToTable("Shift");
+        builder.ToTable("Shift", tb =>
+        {
+            tb.HasCheckConstraint("CK_Shift_Name_Enum", "`Name` IN (1, 2, 3)");
+        });
 
         builder.Property(x => x.Id)
-               .UseMySqlIdentityColumn();
+               .UseMySqlIdentityColumn()
+               .HasComment("Chave primária do turno.");
 
-        builder.HasIndex(x => x.Name)
-               .IsUnique();
+        builder.HasIndex(x => x.Name).IsUnique();
 
         builder.Property(x => x.Name)
-               .IsRequired();
+               .IsRequired()
+               .HasComment("Enum do turno (Morning/Afternoon/Evening).");
 
-        // Seed the three fixed shifts
         builder.HasData(
             new Shift(ShiftEnum.Morning) { Id = 1 },
             new Shift(ShiftEnum.Afternoon) { Id = 2 },
@@ -28,4 +31,3 @@ public class ShiftConfiguration : IEntityTypeConfiguration<Shift>
         );
     }
 }
-

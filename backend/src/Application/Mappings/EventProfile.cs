@@ -13,7 +13,8 @@ namespace ExtensionEventsManager.Core.Application.Mappings
         {
             CreateMap<Event, EventResponse>()
                 .ForMember(d => d.Shifts, opt => opt.MapFrom(s => s.Shifts.Select(x => x.Name)))
-                .ForMember(d => d.Status, opt => opt.MapFrom(s =>
+                .ForMember(d => d.Status, opt => opt.MapFrom(s => s.Status))
+                .ForMember(d => d.RegistrationStatus, opt => opt.MapFrom(s =>
                     s.StartDate.Date > DateTime.Today
                         ? StatusEnum.RegistrationNotStarted
                         : (s.EndDate.Date < DateTime.Today

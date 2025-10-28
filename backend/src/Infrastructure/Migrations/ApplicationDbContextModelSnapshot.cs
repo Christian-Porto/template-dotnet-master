@@ -41,15 +41,18 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("Chave primária do chat.");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("UserAId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("ID do participante A (menor ID do par).");
 
                     b.Property<int>("UserBId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("ID do participante B (maior ID do par).");
 
                     b.HasKey("Id");
 
@@ -63,23 +66,28 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("Chave primária da mensagem de chat.");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ChatId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("Chave estrangeira para o chat ao qual a mensagem pertence.");
 
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)");
+                        .HasColumnType("varchar(4000)")
+                        .HasComment("Conteúdo textual da mensagem (até 4000 caracteres).");
 
                     b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime(6)")
+                        .HasComment("Data/hora (UTC) em que a mensagem foi criada.");
 
                     b.Property<int>("SenderId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("ID do usuário remetente da mensagem.");
 
                     b.HasKey("Id");
 
@@ -92,63 +100,85 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("Chave primária do evento.");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(2056)
-                        .HasColumnType("varchar(2056)");
+                        .HasColumnType("varchar(2056)")
+                        .HasComment("Descrição do evento.");
 
                     b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime(6)")
+                        .HasComment("Data de término das inscrições.");
 
                     b.Property<DateTime>("EventDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime(6)")
+                        .HasComment("Data de realização do evento.");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("varchar(255)")
+                        .HasComment("Nome do evento.");
 
                     b.Property<int>("Slots")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("Quantidade de vagas disponíveis para inscrição.");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime(6)")
+                        .HasComment("Data de início das inscrições.");
+
+                    b.Property<bool>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(true)
+                        .HasComment("Indica se o evento está ativo (true) ou cancelado (false).");
 
                     b.Property<int>("Type")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("Tipo do evento (Lecture/Dynamic/Practice).");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Events", (string)null);
+                    b.ToTable("Events", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Events_Type_Enum", "`Type` IN (1, 2, 3)");
+                        });
                 });
 
             modelBuilder.Entity("ExtensionEventsManager.Core.Domain.Entities.Registration", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("Chave primária da inscrição.");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<bool?>("Attended")
-                        .HasColumnType("tinyint(1)");
+                        .HasColumnType("tinyint(1)")
+                        .HasComment("Indica presença do participante no evento (true/false).");
 
                     b.Property<DateTime>("Date")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime(6)")
+                        .HasComment("Data/hora da realização da inscrição.");
 
                     b.Property<int>("EventId")
                         .HasColumnType("int");
 
                     b.Property<string>("Justification")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("varchar(255)")
+                        .HasComment("Justificativa de ausência (quando o participante não comparece).");
 
                     b.Property<int?>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("Resultado da seleção do evento para o inscrito (Registered/Selected/NotSelected).");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -159,26 +189,34 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Registrations", (string)null);
+                    b.ToTable("Registrations", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Registrations_Status_Enum", "(`Status` IS NULL OR `Status` IN (1, 2, 3))");
+                        });
                 });
 
             modelBuilder.Entity("ExtensionEventsManager.Core.Domain.Entities.Shift", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("Chave primária do turno.");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Name")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("Enum do turno (Morning/Afternoon/Evening).");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Shift", (string)null);
+                    b.ToTable("Shift", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Shift_Name_Enum", "`Name` IN (1, 2, 3)");
+                        });
 
                     b.HasData(
                         new
@@ -202,49 +240,59 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("Chave primária do usuário.");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Cpf")
                         .HasMaxLength(11)
-                        .HasColumnType("varchar(11)");
+                        .HasColumnType("varchar(11)")
+                        .HasComment("CPF do usuário.");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .HasColumnType("varchar(256)");
+                        .HasColumnType("varchar(256)")
+                        .HasComment("Email do usuário.");
 
                     b.Property<int>("Enrollment")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("Matrícula do aluno (número institucional).");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .HasColumnType("varchar(256)");
+                        .HasColumnType("varchar(256)")
+                        .HasComment("Nome do usuário.");
 
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .HasColumnType("varchar(256)");
+                        .HasColumnType("varchar(256)")
+                        .HasComment("Senha do usuário, armazenada de forma hash.");
 
                     b.Property<int>("Period")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("Período atual do aluno (1 a 10).");
 
                     b.Property<int>("Profile")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComment("Perfil do usuário (Administrator/Monitor/Student).");
 
                     b.Property<string>("ResetPasswordToken")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)")
+                        .HasComment("Token de redefinição de senha.");
 
                     b.Property<DateTime>("ResetPasswordTokenExpiration")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("datetime(6)")
+                        .HasComment("Expiração do token de redefinição de senha.");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("varchar(16)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int")
+                        .HasComment("Status de conta do usuário (Active/Inactive).");
 
                     b.HasKey("Id");
 
@@ -254,7 +302,12 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Users_Profile_Enum", "`Profile` IN (1, 2, 3)");
+
+                            t.HasCheckConstraint("CK_Users_Status_Enum", "`Status`  IN (1, 2)");
+                        });
                 });
 
             modelBuilder.Entity("EventShift", b =>

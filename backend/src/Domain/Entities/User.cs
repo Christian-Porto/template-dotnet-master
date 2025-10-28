@@ -3,7 +3,6 @@ using ExtensionEventsManager.Core.Domain.Common.Enums;
 using ExtensionEventsManager.Core.Domain.Enums;
 using ExtensionEventsManager.Core.Domain.Exceptions;
 using Microsoft.AspNetCore.Identity;
-using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace ExtensionEventsManager.Core.Domain.Entities;

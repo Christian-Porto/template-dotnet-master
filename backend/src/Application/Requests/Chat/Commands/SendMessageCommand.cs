@@ -5,6 +5,7 @@ using ExtensionEventsManager.Core.Application.Common.Interfaces;
 using ExtensionEventsManager.Core.Application.Exceptions;
 using ExtensionEventsManager.Core.Application.Requests.Chat.Models;
 using ExtensionEventsManager.Core.Domain.Entities;
+using FluentValidation;
 
 namespace ExtensionEventsManager.Core.Application.Requests.Chat.Commands;
 
@@ -13,6 +14,20 @@ public class SendMessageCommand : IRequest<ChatMessageResponse>
     public int? ChatId { get; set; }
     public int? OtherUserId { get; set; }
     public string Content { get; set; } = string.Empty;
+}
+
+public class SendMessageCommandValidator : AbstractValidator<SendMessageCommand>
+{
+    public SendMessageCommandValidator()
+    {
+        RuleFor(c => c.Content)
+            .NotEmpty().WithMessage("Message content cannot be empty")
+            .MaximumLength(4000).WithMessage("Message content exceeds 4000 characters");
+
+        RuleFor(c => c)
+            .Must(c => c.ChatId.HasValue || c.OtherUserId.HasValue)
+            .WithMessage("Either ChatId or OtherUserId must be provided");
+    }
 }
 
 public class SendMessageCommandHandler : IRequestHandler<SendMessageCommand, ChatMessageResponse>

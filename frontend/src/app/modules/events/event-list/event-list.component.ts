@@ -1,5 +1,5 @@
 import { CdkScrollable } from '@angular/cdk/scrolling';
-import { ChangeDetectorRef, Component, Type, ViewChild, AfterViewInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild, AfterViewInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,7 +9,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { BehaviorSubject, Subject, takeUntil, combineLatest, switchMap, debounceTime, filter } from 'rxjs';
+import { BehaviorSubject, Subject, takeUntil, combineLatest, debounceTime, filter } from 'rxjs';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { EventTypeEnum, Status, EventResponse, RegistrationStatusEnum } from '../models/event.model';
 import { EventTypeEnumPipe } from '../pipes/EventTypeEnum.pipe';

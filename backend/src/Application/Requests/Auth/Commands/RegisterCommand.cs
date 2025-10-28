@@ -4,6 +4,7 @@ using ExtensionEventsManager.Core.Application.Common.Interfaces;
 using ExtensionEventsManager.Core.Application.Exceptions;
 using ExtensionEventsManager.Core.Application.Requests.Auth.Models;
 using ExtensionEventsManager.Core.Domain.Entities;
+using FluentValidation;
 
 namespace ExtensionEventsManager.Core.Application.Requests.Auth.Commands;
 public class RegisterCommand : IRequest<AuthResponse>
@@ -11,6 +12,24 @@ public class RegisterCommand : IRequest<AuthResponse>
     public string Name { get; set; }
     public string Email { get; set; }
     public string Password { get; set; }
+}
+
+public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
+{
+    public RegisterCommandValidator()
+    {
+        RuleFor(c => c.Name)
+            .NotEmpty().WithMessage("O nome é obrigatório.")
+            .MaximumLength(256).WithMessage("O nome não pode exceder 256 caracteres.");
+
+        RuleFor(c => c.Email)
+            .NotEmpty().WithMessage("O email é obrigatório.")
+            .MaximumLength(256).WithMessage("O email não pode exceder 256 caracteres.");
+
+        RuleFor(c => c.Password)
+            .NotEmpty().WithMessage("A senha é obrigatória.")
+            .MaximumLength(256).WithMessage("A senha não pode exceder 256 caracteres.");
+    }
 }
 
 public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthResponse>
