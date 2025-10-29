@@ -81,7 +81,8 @@ export class EventsService {
             )
             .pipe(
                 map((paginated) => {
-                    const items = paginated?.items ?? [];
+                    // Filter out disabled events (status === false) for public listing
+                    const items = (paginated?.items ?? []).filter(e => e.status !== false);
 
                     const mapStatus = (status?: ApiStatusEnum): Status => {
                         switch (status) {

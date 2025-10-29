@@ -26,13 +26,15 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
 import { StatusEnum, EventTypeEnum } from '../../../../../../api-client';
-import { PaginatedListOfEventResponse } from 'app/modules/events/models/event.model';
+import { PaginatedListOfEventResponse, EventResponse } from 'app/modules/events/models/event.model';
 import { EventsService } from '../services/events.service';
 import { finalize, debounceTime } from 'rxjs';
 import { StatusPipe } from 'app/modules/events/pipes/Status.pipe';
 import { StatusEnumPipe } from '../pipes/Status.pipe';
 import { EventTypeEnumPipe } from '../pipes/EventTypeEnum.pipe';
 import { RouterLink } from '@angular/router';
+import { FuseConfirmationService } from '@fuse/services/confirmation';
+import { ToastrService } from 'ngx-toastr';
 @Component({
     selector: 'app-event-list',
     imports: [
@@ -99,7 +101,11 @@ export class EventListComponent {
     StatusEnum = StatusEnum;
     EventTypeEnum = EventTypeEnum;
 
-    constructor(private readonly eventsService: EventsService) { }
+    constructor(
+        private readonly eventsService: EventsService,
+        private readonly fuseConfirmationService: FuseConfirmationService,
+        private readonly toastr: ToastrService,
+    ) { }
 
     ngOnInit(): void {
         this.loadEvents();
@@ -130,5 +136,52 @@ export class EventListComponent {
         window.scrollTo(0, 0);
 
         this.loadEvents();
+    }
+
+    toggleEventStatus(eventItem: EventResponse): void {
+        if (!eventItem?.id) return;
+        const willDisable = (eventItem.isActive ?? true);
+        const dialogRef = this.fuseConfirmationService.open({
+            title: willDisable ? 'Confirmação de Cancelamento' : 'Confirmação de Restauração',
+            message: willDisable
+                ? 'Você tem certeza que deseja cancelar este evento? Ele deixará de aparecer nas listagens.'
+                : 'Você tem certeza que deseja restaurar este evento? Ele voltará a aparecer nas listagens.',
+            actions: {
+                confirm: {
+                    label: willDisable ? 'Sim, cancelar evento' : 'Sim, restaurar evento',
+                    color: willDisable ? 'warn' : 'primary',
+                },
+                cancel: {
+                    label: 'Voltar',
+                },
+            },
+            icon: {
+                show: true,
+                name: 'heroicons_outline:exclamation-triangle',
+                color: 'accent',
+            },
+        });
+
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result === 'confirmed') {
+                const desired = !(eventItem.isActive ?? true);
+                const prev = eventItem.isActive ?? true;
+                // Optimistic update
+                eventItem.isActive = desired;
+                this.eventsService.updateEventStatus(eventItem.id!, desired).subscribe({
+                    next: (updated) => {
+                        eventItem.isActive = updated.isActive ?? desired;
+                        if (desired === false) {
+                            this.toastr.success('Evento cancelado com sucesso');
+                        } else {
+                            this.toastr.success('Evento restaurado com sucesso');
+                        }
+                    },
+                    error: () => {
+                        eventItem.isActive = prev;
+                    }
+                });
+            }
+        });
     }
 }

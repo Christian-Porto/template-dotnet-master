@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { EventResponse, EventTypeEnum, RegistrationStatusEnum, Status, PaginatedListOfEventResponse } from 'app/modules/events/models/event.model';
 import { Observable, of, map } from 'rxjs';
-import { EventsClient, StatusEnum as ApiStatusEnum, EventTypeEnum as ApiEventTypeEnum, CreateEventCommand, RegistrationsClient, PaginatedListOfRegistrationResponse, UpdateEventCommand, RegistrationStatusEnum as ApiRegistrationStatusEnum, UpdateRegistrationStatusCommand, RegistrationResponse, UpdateAttendanceCommand } from '../../../../../../api-client';
+import { EventsClient, StatusEnum as ApiStatusEnum, EventTypeEnum as ApiEventTypeEnum, CreateEventCommand, RegistrationsClient, PaginatedListOfRegistrationResponse, UpdateEventCommand, RegistrationStatusEnum as ApiRegistrationStatusEnum, UpdateRegistrationStatusCommand, RegistrationResponse, UpdateAttendanceCommand, UpdateEventStatusCommand } from '../../../../../../api-client';
 
 @Injectable({ providedIn: 'root' })
 export class EventsService {
@@ -89,6 +89,7 @@ export class EventsService {
                         endDate: e.endDate as Date,
                         slots: (e.slots ?? 0) as number,
                         status: mapStatus(e.registrationStatus),
+                        isActive: (e.status ?? true) as boolean,
                         shifts: (e.shifts as unknown) as number[],
                     }));
 
@@ -225,6 +226,7 @@ export class EventsService {
                         endDate: e.endDate as Date,
                         slots: (e.slots ?? 0) as number,
                         status: mapStatus(e.registrationStatus),
+                        isActive: (e.status ?? true) as boolean,
                         shifts: (e.shifts as unknown) as number[],
                     } as EventResponse;
                 })
@@ -259,6 +261,43 @@ export class EventsService {
                         endDate: e.endDate as Date,
                         slots: (e.slots ?? 0) as number,
                         status: mapStatus(e.registrationStatus),
+                        isActive: (e.status ?? true) as boolean,
+                        shifts: (e.shifts as unknown) as number[],
+                    } as EventResponse;
+                })
+            );
+    }
+
+    public updateEventStatus(id: number, status: boolean): Observable<EventResponse> {
+        const command = new UpdateEventStatusCommand({ status });
+        return this._eventsClient
+            .updateStatus(id, command)
+            .pipe(
+                map((e) => {
+                    const mapStatus = (s?: ApiStatusEnum): Status => {
+                        switch (s) {
+                            case ApiStatusEnum.RegistrationNotStarted:
+                                return Status.a;
+                            case ApiStatusEnum.OpenForRegistration:
+                                return Status.b;
+                            case ApiStatusEnum.RegistrationClosed:
+                                return Status.c;
+                            default:
+                                return Status.a;
+                        }
+                    };
+
+                    return {
+                        id: e.id as number,
+                        name: e.name ?? '',
+                        type: (e.type as unknown) as EventTypeEnum,
+                        description: e.description ?? '',
+                        eventDate: e.eventDate as Date,
+                        startDate: e.startDate as Date,
+                        endDate: e.endDate as Date,
+                        slots: (e.slots ?? 0) as number,
+                        status: mapStatus(e.registrationStatus),
+                        isActive: (e.status ?? true) as boolean,
                         shifts: (e.shifts as unknown) as number[],
                     } as EventResponse;
                 })

@@ -10,6 +10,8 @@ export interface EventResponse {
     endDate: Date;
     slots: number;
     status: Status;
+    // Indicates if the event is active (not cancelled). Optional to avoid breaking old uses.
+    isActive?: boolean;
     shifts: ShiftEnum[];
 }
 
