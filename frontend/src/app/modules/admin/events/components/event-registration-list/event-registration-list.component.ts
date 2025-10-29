@@ -72,22 +72,6 @@ export class EventRegistrationListComponent {
         });
     }
 
-    // Returns true when the event date is in the past (strictly before today)
-    get canMarkAttendance(): boolean {
-        if (!this.event?.eventDate) {
-            return false;
-        }
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const eventDate = new Date(this.event.eventDate);
-        eventDate.setHours(0, 0, 0, 0);
-        // Allowed only if event date is before today
-        return eventDate.getTime() < today.getTime();
-    }
-
-    get attendanceBlockedReason(): string {
-        return 'A presença só pode ser marcada após a data do evento.';
-    }
 
     get remainingSlots(): number {
         if (!this.event || !this.registrations?.items) {
@@ -100,10 +84,6 @@ export class EventRegistrationListComponent {
     }
 
     onStatusChange(registration: RegistrationResponse, status: RegistrationStatusEnum): void {
-        // Block changes when event date is today or in the future
-        if (!this.canMarkAttendance) {
-            return;
-        }
         if (!registration?.id) {
             return;
         }

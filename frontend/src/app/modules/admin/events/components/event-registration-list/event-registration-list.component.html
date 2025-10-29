@@ -122,8 +122,8 @@
                         <span class="font-semibold">Status</span>
                     </th>
                     <td mat-cell *matCellDef="let element" class="py-2">
-                        <mat-form-field class="w-full max-w-xs" subscriptSizing="dynamic" [matTooltip]="attendanceBlockedReason" [matTooltipDisabled]="canMarkAttendance">
-                            <mat-select [value]="element.status" [disabled]="loading || !canMarkAttendance"
+                        <mat-form-field class="w-full max-w-xs" subscriptSizing="dynamic">
+                            <mat-select [value]="element.status" [disabled]="loading"
                                 (selectionChange)="onStatusChange(element, $event.value)">
                                 <mat-option [value]="RegistrationStatusEnum.Registered" disabled>
                                     <span class="flex items-center gap-2">

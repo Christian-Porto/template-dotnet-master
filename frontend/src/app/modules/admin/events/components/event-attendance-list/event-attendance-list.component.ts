@@ -101,8 +101,24 @@ export class EventAttendanceListComponent implements OnDestroy {
         this.justificationSubject.complete();
     }
 
+    get canMarkAttendance(): boolean {
+        if (!this.event?.eventDate) {
+            return false;
+        }
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const eventDate = new Date(this.event.eventDate);
+        eventDate.setHours(0, 0, 0, 0);
+        return eventDate.getTime() < today.getTime();
+    }
+
+    get attendanceBlockedReason(): string {
+        return 'A presença só pode ser marcada após a data do evento.';
+    }
+
     toggleAttendance(registration: RegistrationResponse, attended: boolean): void {
         if (!registration?.id) return;
+        if (!this.canMarkAttendance) return;
         const prevAttended = registration.attended ?? false;
         const prevJustification = registration.justification ?? '';
 
@@ -129,6 +145,7 @@ export class EventAttendanceListComponent implements OnDestroy {
     }
 
     onJustificationChange(registrationId: number, justification: string): void {
+        if (!this.canMarkAttendance) return;
         this.justificationSubject.next({ id: registrationId, justification });
     }
 
