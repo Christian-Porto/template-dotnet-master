@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
 import {
     FormBuilder,
     FormControl,
@@ -15,6 +14,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { TextFieldModule } from '@angular/cdk/text-field';
+import { AuthClient, UpdateRegisterCommand } from '../../../../../api-client';
+import { ToastrService } from 'ngx-toastr';
+import { finalize } from 'rxjs';
 
 export enum PeriodoEnum {
     Primeiro = 1,
@@ -49,6 +51,8 @@ export enum PeriodoEnum {
 export class PersonalDataComponent implements OnInit {
     PeriodoEnum = PeriodoEnum;
     personalDataForm!: FormGroup;
+    loading = false;
+    userId: number | null = null;
 
     periodos = [
         { value: PeriodoEnum.Primeiro, label: '1º Período' },
@@ -65,18 +69,33 @@ export class PersonalDataComponent implements OnInit {
 
     constructor(
         private readonly fb: FormBuilder,
-        private readonly router: Router
+        private readonly authClient: AuthClient,
+        private readonly toastr: ToastrService
     ) {}
 
     ngOnInit(): void {
         this.personalDataForm = this.fb.group({
             nome: ['', [Validators.required, Validators.minLength(3)]],
-            email: ['', [Validators.required, Validators.email]],
+            email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
             periodo: [null, Validators.required],
-            cpf: ['', [Validators.required, Validators.pattern(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/)]],
-            matricula: ['', [Validators.required, Validators.minLength(5)]],
+            cpf: ['', [Validators.required, Validators.pattern(/^[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}$/)]],
+            matricula: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
         });
-
+        this.loading = true;
+        this.authClient.getRegister()
+            .pipe(finalize(() => this.loading = false))
+            .subscribe({
+                next: (res) => {
+                    this.userId = res.id ?? null;
+                    this.personalDataForm.patchValue({
+                        nome: res.name ?? '',
+                        email: res.email ?? '',
+                        periodo: res.period ?? null,
+                        cpf: this.maskCPF(res.cpf ?? ''),
+                        matricula: res.enrollment != null ? String(res.enrollment) : '',
+                    });
+                }
+            });
     }
 
     get fc() {
@@ -108,17 +127,46 @@ export class PersonalDataComponent implements OnInit {
     }
 
     onSubmit(): void {
-        if (this.personalDataForm.invalid) {
+        if (this.personalDataForm.invalid || this.userId == null) {
             this.personalDataForm.markAllAsTouched();
             return;
         }
 
         const formData = this.personalDataForm.getRawValue();
-        console.log('Dados pessoais:', formData);
+        const command = new UpdateRegisterCommand({
+            name: formData.nome ?? '',
+            period: Number(formData.periodo),
+            cpf: String(formData.cpf ?? '').replace(/\D/g, ''),
+            enrollment: formData.matricula ? Number(formData.matricula) : undefined,
+        });
 
+        this.loading = true;
+        this.authClient.updateRegister(this.userId!, command)
+            .pipe(finalize(() => this.loading = false))
+            .subscribe({
+                next: (res) => {
+                    this.toastr.success('Dados atualizados com sucesso');
+                    this.personalDataForm.patchValue({
+                        nome: res.name ?? formData.nome,
+                        email: res.email ?? formData.email,
+                        periodo: res.period ?? formData.periodo,
+                        cpf: this.maskCPF(res.cpf ?? String(formData.cpf).replace(/\D/g, '')),
+                        matricula: res.enrollment != null ? String(res.enrollment) : formData.matricula,
+                    });
+                }
+            });
     }
 
     onCancel(): void {
         window.history.back();
+    }
+
+    private maskCPF(value: string): string {
+        const digits = (value || '').replace(/\D/g, '').slice(0, 11);
+        if (!digits) return '';
+        return digits
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d)/, '$1.$2')
+            .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
     }
 }

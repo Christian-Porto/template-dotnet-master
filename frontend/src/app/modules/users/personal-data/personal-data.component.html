@@ -35,7 +35,7 @@
 
                         <mat-form-field class="w-full sm:col-span-6" appearance="fill">
                             <mat-label>Email</mat-label>
-                            <input matInput formControlName="email" required />
+                            <input matInput formControlName="email" required [disabled]="true" />
                             <mat-error *ngIf="fc.email.touched && fc.email.hasError('required')">Email é
                                 obrigatório.</mat-error>
                             <mat-error *ngIf="fc.email.touched && fc.email.hasError('email')">Email
@@ -66,8 +66,8 @@
                             <input matInput formControlName="matricula" required />
                             <mat-error *ngIf="fc.matricula.touched && fc.matricula.hasError('required')">Matrícula é
                                 obrigatória.</mat-error>
-                            <mat-error *ngIf="fc.matricula.touched && fc.matricula.hasError('minlength')">
-                                Matrícula deve ter pelo menos 5 caracteres.
+                            <mat-error *ngIf="fc.matricula.touched && fc.matricula.hasError('pattern')">
+                                Matrícula deve conter apenas números.
                             </mat-error>
                         </mat-form-field>
 
@@ -76,7 +76,7 @@
             </div>
             <div class="bg-gray-50 dark:bg-gray-800 flex items-center justify-end gap-3 px-6 py-4 sm:px-8">
                 <button mat-button type="button" (click)="onCancel()">Cancelar</button>
-                <button mat-flat-button color="primary" type="submit" [disabled]="personalDataForm.invalid">
+                <button mat-flat-button color="primary" type="submit" [disabled]="personalDataForm.invalid || loading">
                     <span class="ml-2">Salvar Dados</span>
                 </button>
             </div>

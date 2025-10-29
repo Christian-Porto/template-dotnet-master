@@ -113,6 +113,34 @@ export class HttpErrorInterceptor implements HttpInterceptor {
 
     private async Handle500(response: any): Promise<any> {
         return new Promise(async (resolve, reject) => {
+            // Try to extract ProblemDetails detail message if available
+            if (
+                response instanceof HttpErrorResponse &&
+                response.error instanceof Blob &&
+                (response.error.type === 'application/problem+json' || response.error.type === 'application/json')
+            ) {
+                try {
+                    const errorResponse: any = await new Promise((resolve, reject) => {
+                        let reader = new FileReader();
+                        reader.onload = (e: Event) => {
+                            try {
+                                resolve(JSON.parse((<any>e.target).result));
+                            } catch {
+                                resolve(null);
+                            }
+                        };
+                        reader.onerror = reject;
+                        reader.readAsText(response.error);
+                    });
+
+                    const detail: string | undefined = errorResponse?.detail || errorResponse?.title;
+                    if (detail) {
+                        this.toastr.error(detail);
+                        reject(response);
+                        return;
+                    }
+                } catch { /* ignore and fallback */ }
+            }
             this.toastr.error('Ocorreu um erro inesperado.')
             reject(response);
         });

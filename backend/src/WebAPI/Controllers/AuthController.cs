@@ -53,4 +53,11 @@ public class AuthController : ApiControllerBase
         command.SetId(id);
         return await Mediator.Send(command);
     }
+
+    [HttpGet]
+    [Route("register")]
+    public async Task<UpdateRegisterResponse> GetRegister()
+    {
+        return await Mediator.Send(new GetRegisterQuery());
+    }
 }
