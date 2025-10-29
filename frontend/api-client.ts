@@ -21,6 +21,7 @@ export interface IAuthClient {
     resetPasswordGET(login: string): Observable<void>;
     resetPasswordPOST(login: string, command: ResetPasswordCommand): Observable<void>;
     updateRegister(id: number, command: UpdateRegisterCommand): Observable<UpdateRegisterResponse>;
+    getRegister(): Observable<UpdateRegisterResponse>;
 }
 
 @Injectable({
@@ -272,6 +273,54 @@ export class AuthClient implements IAuthClient {
     }
 
     protected processUpdateRegister(response: HttpResponseBase): Observable<UpdateRegisterResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UpdateRegisterResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getRegister(): Observable<UpdateRegisterResponse> {
+        let url_ = this.baseUrl + "/auth/register";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetRegister(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetRegister(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<UpdateRegisterResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<UpdateRegisterResponse>;
+        }));
+    }
+
+    protected processGetRegister(response: HttpResponseBase): Observable<UpdateRegisterResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1417,6 +1466,7 @@ export class UpdateRegisterResponse implements IUpdateRegisterResponse {
     period?: number;
     email?: string;
     cpf?: string;
+    enrollment?: number;
 
     constructor(data?: IUpdateRegisterResponse) {
         if (data) {
@@ -1434,6 +1484,7 @@ export class UpdateRegisterResponse implements IUpdateRegisterResponse {
             this.period = _data["period"];
             this.email = _data["email"];
             this.cpf = _data["cpf"];
+            this.enrollment = _data["enrollment"];
         }
     }
 
@@ -1451,6 +1502,7 @@ export class UpdateRegisterResponse implements IUpdateRegisterResponse {
         data["period"] = this.period;
         data["email"] = this.email;
         data["cpf"] = this.cpf;
+        data["enrollment"] = this.enrollment;
         return data;
     }
 }
@@ -1461,12 +1513,14 @@ export interface IUpdateRegisterResponse {
     period?: number;
     email?: string;
     cpf?: string;
+    enrollment?: number;
 }
 
 export class UpdateRegisterCommand implements IUpdateRegisterCommand {
     name?: string;
     period?: number;
     cpf?: string;
+    enrollment?: number;
 
     constructor(data?: IUpdateRegisterCommand) {
         if (data) {
@@ -1482,6 +1536,7 @@ export class UpdateRegisterCommand implements IUpdateRegisterCommand {
             this.name = _data["name"];
             this.period = _data["period"];
             this.cpf = _data["cpf"];
+            this.enrollment = _data["enrollment"];
         }
     }
 
@@ -1497,6 +1552,7 @@ export class UpdateRegisterCommand implements IUpdateRegisterCommand {
         data["name"] = this.name;
         data["period"] = this.period;
         data["cpf"] = this.cpf;
+        data["enrollment"] = this.enrollment;
         return data;
     }
 }
@@ -1505,6 +1561,7 @@ export interface IUpdateRegisterCommand {
     name?: string;
     period?: number;
     cpf?: string;
+    enrollment?: number;
 }
 
 export class ChatUserResponse implements IChatUserResponse {

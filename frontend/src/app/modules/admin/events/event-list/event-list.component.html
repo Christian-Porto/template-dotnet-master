@@ -99,25 +99,32 @@
                         </button>
                         <mat-menu #postCardMenu09="matMenu">
                             <ng-container>
-                                <button mat-menu-item [routerLink]="['/admin/events/', element.id]">
+                                <button mat-menu-item [routerLink]="['/admin/events/', element.id]" [disabled]="!(element.isActive ?? true)">
                                     <span class="flex items-center">
                                         <mat-icon class="icon-size-5 mr-3"
                                             [svgIcon]="'heroicons_outline:clipboard-document-list'"></mat-icon>
                                         <span>Editar</span>
                                     </span>
                                 </button>
-                                <button mat-menu-item [routerLink]="['/admin/events/', element.id, 'registrations']">
+                                <button mat-menu-item [routerLink]="['/admin/events/', element.id, 'registrations']" [disabled]="!(element.isActive ?? true)">
                                     <span class="flex items-center">
                                         <mat-icon class="icon-size-5 mr-3"
                                             [svgIcon]="'heroicons_outline:clipboard-document-check'"></mat-icon>
                                         <span>Inscrições</span>
                                     </span>
                                 </button>
-                                <button mat-menu-item [routerLink]="['/admin/events/', element.id, 'attendances']">
+                                <button mat-menu-item [routerLink]="['/admin/events/', element.id, 'attendances']" [disabled]="!(element.isActive ?? true)">
                                     <span class="flex items-center">
                                         <mat-icon class="icon-size-5 mr-3"
                                             [svgIcon]="'heroicons_outline:users'"></mat-icon>
                                         <span>Presenças</span>
+                                    </span>
+                                </button>
+                                <button mat-menu-item (click)="toggleEventStatus(element)">
+                                    <span class="flex items-center">
+                                        <mat-icon class="icon-size-5 mr-3"
+                                            [svgIcon]="(element.isActive ?? true) ? 'heroicons_outline:x-circle' : 'heroicons_outline:arrow-path'"></mat-icon>
+                                        <span>{{ (element.isActive ?? true) ? 'Cancelar' : 'Restaurar' }}</span>
                                     </span>
                                 </button>
                             </ng-container>

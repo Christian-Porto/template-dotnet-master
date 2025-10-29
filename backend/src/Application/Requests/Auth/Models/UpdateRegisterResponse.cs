@@ -7,5 +7,6 @@ public class UpdateRegisterResponse
     public int Period { get; set; }
     public string Email { get; set; }
     public string Cpf { get; set; }
+    public int Enrollment { get; set; }
 }
 

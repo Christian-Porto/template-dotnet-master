@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using ExtensionEventsManager.Core.Application.Exceptions;
+using ExtensionEventsManager.Core.Domain.Exceptions;
 
 namespace ExtensionEventsManager.Core.WebAPI.Filters;
 
@@ -17,6 +18,7 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
             { typeof(NotFoundException), HandleNotFoundException },
             { typeof(BadRequestException), HandleBadRequestException },
             { typeof(TooManyRequestsException), HandleToManyRequestsException },
+            { typeof(DomainValidationException), HandleDomainValidationException },
         };
 
         _logger = logger;
@@ -90,6 +92,21 @@ public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
 
         context.Result = new ObjectResult(details);
 
+        context.ExceptionHandled = true;
+    }
+
+    private void HandleDomainValidationException(ExceptionContext context)
+    {
+        var exception = context.Exception as DomainValidationException;
+
+        var details = new ProblemDetails()
+        {
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+            Title = "Bad request",
+            Detail = exception?.Message
+        };
+
+        context.Result = new BadRequestObjectResult(details);
         context.ExceptionHandled = true;
     }
     private void HandleNotFoundException(ExceptionContext context)

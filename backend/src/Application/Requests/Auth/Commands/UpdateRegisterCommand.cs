@@ -12,6 +12,7 @@ public class UpdateRegisterCommand : IRequest<UpdateRegisterResponse>
     public string Name { get; set; }
     public int Period { get; set; }
     public string Cpf { get; set; }
+    public int Enrollment { get; set; }
 
     private int _id;
 
@@ -37,6 +38,9 @@ public class UpdateRegisterCommandValidator : AbstractValidator<UpdateRegisterCo
         RuleFor(c => c.Cpf)
             .NotEmpty().WithMessage("O CPF é obrigatório.")
             .MaximumLength(11).WithMessage("O CPF deve conter 11 dígitos.");
+
+        RuleFor(c => c.Enrollment)
+            .NotEmpty().WithMessage("A matrícula é obrigatória.");
     }
 }
 
@@ -56,12 +60,13 @@ public class UpdateRegisterCommandHandler : IRequestHandler<UpdateRegisterComman
 
         if (user == null)
         {
-            throw new NotFoundException("Usuário não encontrado");
+            throw new NotFoundException("Usuario nao encontrado");
         }
 
         user.SetName(request.Name);
         user.SetPeriod(request.Period);
         user.SetCpf(request.Cpf);
+        user.SetEnrollment(request.Enrollment);
 
         await _context.SaveChangesAsync(cancellationToken);
 
@@ -71,7 +76,8 @@ public class UpdateRegisterCommandHandler : IRequestHandler<UpdateRegisterComman
             Name = user.Name,
             Period = user.Period,
             Email = user.Email,
-            Cpf = user.Cpf
+            Cpf = user.Cpf,
+            Enrollment = user.Enrollment
         };
     }
 }

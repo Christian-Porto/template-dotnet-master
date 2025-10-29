@@ -177,6 +177,31 @@
         ]
       }
     },
+    "/auth/register": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "Auth_GetRegister",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateRegisterResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/chats/me": {
       "get": {
         "tags": [
@@ -962,6 +987,10 @@
           },
           "cpf": {
             "type": "string"
+          },
+          "enrollment": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -978,6 +1007,10 @@
           },
           "cpf": {
             "type": "string"
+          },
+          "enrollment": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

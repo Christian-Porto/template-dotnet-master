@@ -56,15 +56,29 @@ export class EventAttendanceListComponent implements OnDestroy {
                 debounceTime(600),
                 distinctUntilChanged((prev, curr) => prev.id === curr.id && prev.justification === curr.justification),
                 switchMap(({ id, justification }) => {
-                    const payload = { justification: justification?.trim() ? justification.trim() : undefined } as {
+                    const items = this.registrations?.items ?? [];
+                    const idx = items.findIndex(r => r.id === id);
+                    const reg = idx >= 0 ? items[idx] : undefined;
+
+                    const trimmed = justification?.trim() ?? '';
+                    const payload = {
+                        // If user types a justification while not present, force attended=false
+                        attended: (trimmed && (!reg || !reg.attended)) ? false : undefined,
+                        justification: trimmed ? trimmed : undefined,
+                    } as {
+                        attended?: boolean;
                         justification?: string;
                     };
+
                     return this.eventsService.updateAttendance(id, payload).pipe(
                         tap((updated) => {
-                            const items = this.registrations?.items ?? [];
-                            const idx = items.findIndex(r => r.id === id);
-                            if (idx >= 0) {
-                                items[idx].justification = updated.justification ?? payload.justification ?? '';
+                            const list = this.registrations?.items ?? [];
+                            const i = list.findIndex(r => r.id === id);
+                            if (i >= 0) {
+                                list[i].justification = (updated?.justification ?? payload.justification ?? '') as string;
+                                if (payload.attended !== undefined || updated?.attended !== undefined) {
+                                    list[i].attended = updated?.attended ?? payload.attended ?? list[i].attended;
+                                }
                             }
                         }),
                         catchError(() => of(null))
@@ -124,12 +138,14 @@ export class EventAttendanceListComponent implements OnDestroy {
 
         registration.attended = attended;
         if (attended) {
+            // Clear local justification when marking present
             registration.justification = '';
         }
         this.loading = true;
         this.eventsService.updateAttendance(registration.id, {
             attended,
-            justification: registration.justification ?? undefined,
+            // When marking as present, send justification as null per requirement
+            justification: attended ? null : (registration.justification?.trim() || undefined),
         }).subscribe({
             next: (updated) => {
                 registration.attended = updated.attended ?? attended;
