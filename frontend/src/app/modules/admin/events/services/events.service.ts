@@ -157,7 +157,7 @@ export class EventsService {
 
     public updateAttendance(
         registrationId: number,
-        options: { attended?: boolean; justification?: string }
+        options: { attended?: boolean; justification?: string | null }
     ) {
         const command = new UpdateAttendanceCommand({
             attended: options.attended,
