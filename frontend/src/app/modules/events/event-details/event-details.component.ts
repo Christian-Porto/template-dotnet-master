@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EventsService } from '../services/events.service';
-import { EventResponse, EventTypeEnum, Status, FormatShiftsPipe } from '../models/event.model';
+import { EventResponse, EventTypeEnum, Status, FormatShiftsPipe, RegistrationStatusEnum } from '../models/event.model';
 import { finalize } from 'rxjs';
 import { EventTypeEnumPipe } from "../pipes/EventTypeEnum.pipe";
 import { DatePipe, NgClass } from '@angular/common';
@@ -20,7 +20,6 @@ import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { ToastrService } from 'ngx-toastr';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-
 @Component({
     selector: 'app-event-details',
     imports: [EventTypeEnumPipe, StatusPipe, DatePipe, MatIcon, NgClass, MatProgressBarModule,
@@ -35,7 +34,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
         MatSelectModule,
         MatOptionModule,
         MatCheckboxModule,
-        MatRippleModule, RouterLink, FormatShiftsPipe],
+        MatRippleModule, RouterLink, FormatShiftsPipe, MatTooltipModule],
     templateUrl: './event-details.component.html',
     styleUrl: './event-details.component.scss'
 })
@@ -44,7 +43,7 @@ export class EventDetailsComponent implements OnInit {
     event: EventResponse | null = null;
 
     loading: boolean = false;
-    isRegistered: boolean = false;
+    myRegistrationStatus: RegistrationStatusEnum | null = null;
 
     Status = Status;
     EventTypeEnum = EventTypeEnum;
@@ -56,15 +55,31 @@ export class EventDetailsComponent implements OnInit {
         private readonly toastr: ToastrService,
     ) { }
 
-    get canRegister(): boolean {
-        return !this.loading && this.event?.status === Status.b;
+    get canInscrever(): boolean {
+        // Pode inscrever-se apenas se evento está aberto e ainda não possui inscrição
+        return !this.loading && this.event?.status === Status.b && this.myRegistrationStatus === null;
+    }
+
+    get canCancelar(): boolean {
+        // Pode cancelar apenas quando ainda está como "Inscrito" (sem seleção)
+        return !this.loading && this.myRegistrationStatus === RegistrationStatusEnum.Registered;
+    }
+
+    get cancelarDisabledReason(): string | null {
+        if (this.myRegistrationStatus === RegistrationStatusEnum.Selected) {
+            return 'Sua inscrição foi aprovada, o cancelamento não está disponível.';
+        }
+        if (this.myRegistrationStatus === RegistrationStatusEnum.NotSelected) {
+            return 'Sua inscrição não foi aprovada, não há cancelamento a realizar.';
+        }
+        return null;
     }
 
     ngOnInit(): void {
         this.eventId = +this.route.snapshot.paramMap.get('id');
         this.getEvent();
         if (this.eventId) {
-            this.eventsService.isRegistered(this.eventId).subscribe((v) => this.isRegistered = v);
+            this.eventsService.getMyRegistrationStatus(this.eventId).subscribe((v) => this.myRegistrationStatus = v);
         }
     }
 
@@ -80,7 +95,7 @@ export class EventDetailsComponent implements OnInit {
     }
 
     onRegister(): void {
-        if (!this.canRegister) {
+        if (!this.canInscrever) {
             return;
         }
 
@@ -113,8 +128,8 @@ export class EventDetailsComponent implements OnInit {
                     .pipe(finalize(() => this.loading = false))
                     .subscribe({
                         next: () => {
-                            this.toastr.success('Cadastro realizado com sucesso');
-                            this.isRegistered = true;
+                            this.toastr.success('Inscrição realizada com sucesso');
+                            this.myRegistrationStatus = RegistrationStatusEnum.Registered;
                             this.router.navigate(['/events']);
                         }
                     });
@@ -123,7 +138,7 @@ export class EventDetailsComponent implements OnInit {
     }
 
     onCancel(): void {
-        if (!this.canRegister) {
+        if (!this.canCancelar) {
             return;
         }
 
@@ -157,7 +172,7 @@ export class EventDetailsComponent implements OnInit {
                     .subscribe({
                         next: () => {
                             this.toastr.success('Inscrição cancelada com sucesso');
-                            this.isRegistered = false;
+                            this.myRegistrationStatus = null;
                             this.router.navigate(['/events']);
                         }
                     });

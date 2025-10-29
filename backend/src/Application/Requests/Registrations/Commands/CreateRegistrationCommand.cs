@@ -3,6 +3,7 @@ using ExtensionEventsManager.Core.Application.Common.Interfaces;
 using ExtensionEventsManager.Core.Application.Exceptions;
 using ExtensionEventsManager.Core.Application.Requests.Registrations.Models;
 using ExtensionEventsManager.Core.Domain.Entities;
+using ExtensionEventsManager.Core.Domain.Enums;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -96,6 +97,7 @@ namespace ExtensionEventsManager.Core.Application.Requests.Registrations.Command
             var registration = _mapper.Map<Registration>(request);
             // Set FK to current user to satisfy Users->Registrations constraint
             registration.UserId = user.Id;
+            registration.Status = RegistrationStatusEnum.Registered;
 
             await _context.Registrations.AddAsync(registration);
             await _context.SaveChangesAsync(cancellationToken);

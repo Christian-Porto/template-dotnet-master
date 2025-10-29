@@ -45,9 +45,9 @@ export class FormatShiftsPipe implements PipeTransform {
 }
 
 export enum Status {
-    a = 0, // Inscrições não iniciadas
-    b = 1, // Inscrições abertas
-    c = 2, // Inscrições encerradas
+    a = 1, // Inscrições não iniciadas
+    b = 2, // Inscrições abertas
+    c = 3, // Inscrições encerradas
 }
 
 export enum EventTypeEnum {

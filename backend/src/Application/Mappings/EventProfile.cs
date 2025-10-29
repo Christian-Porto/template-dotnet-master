@@ -3,7 +3,6 @@ using ExtensionEventsManager.Core.Application.Requests.Events.Commands;
 using ExtensionEventsManager.Core.Application.Requests.Events.Models;
 using ExtensionEventsManager.Core.Domain.Entities;
 using ExtensionEventsManager.Core.Domain.Enums;
-using System.Linq;
 
 namespace ExtensionEventsManager.Core.Application.Mappings
 {

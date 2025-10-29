@@ -9,10 +9,10 @@ public class Registration : BaseEntity
     public User User { get; set; }
     public int EventId { get; set; }
     public Event Event { get; set; }
-    public DateTime Date { get; set; }    // data
+    public DateTime Date { get; set; }
     public RegistrationStatusEnum? Status { get; set; } 
-    public bool? Attended { get; set; }    // presente (0/1 no banco)
-    public string? Justification { get; set; } = string.Empty; // justificativa (<=255)
+    public bool? Attended { get; set; }
+    public string? Justification { get; set; } = string.Empty;
     
     private Registration() { }
 }

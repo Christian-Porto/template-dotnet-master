@@ -113,10 +113,19 @@
                         <mat-icon [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
                         <span class="ml-2">Voltar</span>
                     </a>
-                    <button mat-flat-button [color]="isRegistered ? 'warn' : 'primary'" class="w-full sm:w-auto order-1 sm:order-2"
-                        (click)="isRegistered ? onCancel() : onRegister()" [disabled]="!canRegister">
-                        <span class="ml-2">{{ isRegistered ? 'Cancelar inscrição' : 'Inscrever-se' }}</span>
-                    </button>
+                    <span
+                        class="order-1 sm:order-2"
+                        [matTooltip]="cancelarDisabledReason || ''"
+                        [matTooltipDisabled]="(canInscrever || canCancelar) || !cancelarDisabledReason"
+                        [matTooltipPosition]="'above'">
+                        <button mat-flat-button
+                            [color]="canInscrever ? 'primary' : 'warn'"
+                            class="w-full sm:w-auto"
+                            (click)="canInscrever ? onRegister() : onCancel()"
+                            [disabled]="!(canInscrever || canCancelar)">
+                            <span class="ml-2">{{ canInscrever ? 'Inscrever-se' : 'Cancelar inscrição' }}</span>
+                        </button>
+                    </span>
                 </div>
             </div>
         </div>

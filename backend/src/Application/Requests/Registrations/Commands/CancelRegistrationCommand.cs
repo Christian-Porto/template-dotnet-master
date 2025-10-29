@@ -1,5 +1,6 @@
-using ExtensionEventsManager.Core.Application.Common.Interfaces;
+﻿using ExtensionEventsManager.Core.Application.Common.Interfaces;
 using ExtensionEventsManager.Core.Application.Exceptions;
+using ExtensionEventsManager.Core.Domain.Enums;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -70,6 +71,16 @@ namespace ExtensionEventsManager.Core.Application.Requests.Registrations.Command
             if (registration is null)
             {
                 throw new NotFoundException("Inscrição não encontrada para o usuário no evento informado.");
+            }
+
+            if (registration.Status == RegistrationStatusEnum.Selected)
+            {
+                throw new BadRequestException("Sua inscrição foi aprovada, o cancelamento não está disponível.");
+            }
+
+            if (registration.Status == RegistrationStatusEnum.NotSelected)
+            {
+                throw new BadRequestException("Sua inscrição não foi aprovada, não há cancelamento a realizar.");
             }
 
             _context.Registrations.Remove(registration);

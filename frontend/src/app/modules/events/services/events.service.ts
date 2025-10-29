@@ -1,6 +1,6 @@
 ﻿import { inject, Injectable } from '@angular/core';
 import { EventResponse, EventTypeEnum, RegistrationStatusEnum, Status } from '../models/event.model';
-import { Observable, of, map } from 'rxjs';
+import { Observable, of, map, switchMap } from 'rxjs';
 import { EventsClient, StatusEnum as ApiStatusEnum, EventTypeEnum as ApiEventTypeEnum, IRegistrationsClient, RegistrationsClient, CreateRegistrationCommand, RegistrationResponse, RegistrationStatusEnum as ApiRegistrationStatusEnum } from '../../../../../api-client';
 
 @Injectable({ providedIn: 'root' })
@@ -63,7 +63,7 @@ export class EventsService {
                 ? [startDateParam, endDateParam].filter((d): d is Date => !!d)
                 : undefined;
         const registrationStatusParam: ApiRegistrationStatusEnum | undefined =
-            (filter?.registrationStatus !== undefined && filter.registrationStatus !== 'all')
+            (filter?.registrationStatus !== undefined && filter.registrationStatus !== null && filter.registrationStatus !== 'all')
                 ? (filter.registrationStatus as unknown as ApiRegistrationStatusEnum)
                 : undefined;
         const attendedParam = filter?.attended;
@@ -194,5 +194,36 @@ export class EventsService {
                 0
             )
             .pipe(map(p => (p?.items ?? []).some(e => (e.id as number) === eventId)));
+    }
+
+    public getMyRegistrationStatus(eventId: number): Observable<RegistrationStatusEnum | null> {
+        // Check Selected → NotSelected → Registered
+        const containsEvent = (status: ApiRegistrationStatusEnum) =>
+            this._eventsClient
+                .list(
+                    undefined as any,
+                    undefined as any,
+                    undefined as any,
+                    undefined as any,
+                    status,
+                    undefined as any,
+                    1000,
+                    0
+                )
+                .pipe(map(p => (p?.items ?? []).some(e => (e.id as number) === eventId)));
+
+        return containsEvent(ApiRegistrationStatusEnum.Selected).pipe(
+            switchMap(isSel => {
+                if (isSel) return of(RegistrationStatusEnum.Selected);
+                return containsEvent(ApiRegistrationStatusEnum.NotSelected).pipe(
+                    switchMap(isNotSel => {
+                        if (isNotSel) return of(RegistrationStatusEnum.NotSelected);
+                        return containsEvent(ApiRegistrationStatusEnum.Registered).pipe(
+                            map(isReg => (isReg ? RegistrationStatusEnum.Registered : null))
+                        );
+                    })
+                );
+            })
+        );
     }
 }

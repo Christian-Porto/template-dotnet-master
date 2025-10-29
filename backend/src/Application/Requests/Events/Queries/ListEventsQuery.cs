@@ -104,11 +104,12 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Queries
                     switch (request.RegistrationStatus.Value)
                     {
                         case RegistrationStatusEnum.Registered:
-                            // Any registration by the current user, regardless of selection outcome
+                            // Only registrations still in 'Registered' state for current user
                             query = query.Where(e =>
                                 _context.Registrations.Any(r =>
                                     r.EventId == e.Id &&
-                                    r.UserId == uid));
+                                    r.UserId == uid &&
+                                    r.Status == RegistrationStatusEnum.Registered));
                             break;
 
                         case RegistrationStatusEnum.NotSelected:

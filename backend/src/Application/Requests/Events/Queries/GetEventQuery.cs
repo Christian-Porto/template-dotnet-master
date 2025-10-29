@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using ExtensionEventsManager.Core.Application.Common.Interfaces;
 using ExtensionEventsManager.Core.Application.Exceptions;
 using ExtensionEventsManager.Core.Application.Requests.Events.Models;
+using ExtensionEventsManager.Core.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,6 +38,14 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Queries
             {
                 throw new NotFoundException($"Evento com id {request.Id} não foi encontrado.");
             }
+
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(1);
+            result.RegistrationStatus = result.StartDate >= tomorrow
+                ? StatusEnum.RegistrationNotStarted
+                : (result.EndDate < today
+                    ? StatusEnum.RegistrationClosed
+                    : StatusEnum.OpenForRegistration);
 
             return result;
         }
