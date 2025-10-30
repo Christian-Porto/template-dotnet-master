@@ -154,6 +154,9 @@ export class ChatService {
             tap((contacts: Contact[]) => {
                 console.log('Contacts mapped:', contacts);
                 this._contacts.next(contacts);
+
+                // Update existing chats with contact information
+                this._updateChatsWithContacts(contacts);
             }),
             catchError((error) => {
                 console.error('Error loading contacts:', error);
@@ -290,6 +293,32 @@ export class ChatService {
     }
 
     /**
+     * Update existing chats with contact information
+     */
+    private _updateChatsWithContacts(contacts: Contact[]): void {
+        const chats = this._chats.value;
+        if (chats.length === 0) {
+            return;
+        }
+
+        let updated = false;
+        const updatedChats = chats.map((chat) => {
+            if (!chat.contact && chat.contactId) {
+                const contact = contacts.find((c) => c.id === chat.contactId);
+                if (contact) {
+                    updated = true;
+                    return { ...chat, contact };
+                }
+            }
+            return chat;
+        });
+
+        if (updated) {
+            this._chats.next(updatedChats);
+        }
+    }
+
+    /**
      * Handle incoming message from SignalR
      */
     private _handleIncomingMessage(message: ChatMessageResponse): void {
@@ -316,6 +345,11 @@ export class ChatService {
             chat.messages.push(newMessage);
             chat.lastMessage = message.content;
             chat.lastMessageAt = createdAtUtc;
+
+            // Ensure contact information is loaded
+            if (!chat.contact && chat.contactId) {
+                chat.contact = this._contacts.value.find((c) => c.id === chat.contactId);
+            }
 
             chats[chatIndex] = { ...chat };
             this._chats.next([...chats]);
