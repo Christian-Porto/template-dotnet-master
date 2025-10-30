@@ -62,6 +62,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasComment("Expiração do token de redefinição de senha.");
 
         builder.HasIndex(x => x.Email).IsUnique();
+        builder.HasIndex(x => x.Enrollment).IsUnique();
         builder.HasIndex(x => x.Cpf).IsUnique();
     }
 }

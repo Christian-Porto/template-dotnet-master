@@ -54,7 +54,7 @@
                         <mat-form-field class="w-full sm:col-span-4" appearance="fill">
                             <mat-label>CPF</mat-label>
                             <input matInput formControlName="cpf" required placeholder="000.000.000-00"
-                                (input)="formatCPF($event)" maxlength="14" />
+                                (input)="formatCPF($event)" (blur)="onCpfBlur()" inputmode="numeric" maxlength="14" />
                             <mat-error *ngIf="fc.cpf.touched && fc.cpf.hasError('required')">CPF é
                                 obrigatório.</mat-error>
                             <mat-error *ngIf="fc.cpf.touched && fc.cpf.hasError('pattern')">CPF inválido. Use o formato:
@@ -63,11 +63,17 @@
 
                         <mat-form-field class="w-full sm:col-span-4" appearance="fill">
                             <mat-label>Matrícula</mat-label>
-                            <input matInput formControlName="matricula" required />
+                            <input matInput formControlName="matricula" required maxlength="10" inputmode="numeric" pattern="\d*" (input)="formatMatricula($event)" />
                             <mat-error *ngIf="fc.matricula.touched && fc.matricula.hasError('required')">Matrícula é
                                 obrigatória.</mat-error>
                             <mat-error *ngIf="fc.matricula.touched && fc.matricula.hasError('pattern')">
-                                Matrícula deve conter apenas números.
+                                Matrícula deve conter até 10 dígitos numéricos.
+                            </mat-error>
+                            <mat-error *ngIf="fc.matricula.touched && fc.matricula.hasError('maxlength')">
+                                Máximo de 10 dígitos.
+                            </mat-error>
+                            <mat-error *ngIf="fc.matricula.touched && fc.matricula.hasError('maxInt')">
+                                Valor máximo permitido: 2.147.483.647.
                             </mat-error>
                         </mat-form-field>
 

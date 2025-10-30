@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExtensionEventsManager.Core.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251028054854_AddAll")]
+    [Migration("20251030040338_AddAll")]
     partial class AddAll
     {
         /// <inheritdoc />
@@ -303,6 +303,9 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                         .IsUnique();
 
                     b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Enrollment")
                         .IsUnique();
 
                     b.ToTable("Users", null, t =>

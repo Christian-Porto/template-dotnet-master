@@ -113,35 +113,63 @@ export class HttpErrorInterceptor implements HttpInterceptor {
 
     private async Handle500(response: any): Promise<any> {
         return new Promise(async (resolve, reject) => {
-            // Try to extract ProblemDetails detail message if available
-            if (
-                response instanceof HttpErrorResponse &&
-                response.error instanceof Blob &&
-                (response.error.type === 'application/problem+json' || response.error.type === 'application/json')
-            ) {
-                try {
-                    const errorResponse: any = await new Promise((resolve, reject) => {
-                        let reader = new FileReader();
-                        reader.onload = (e: Event) => {
-                            try {
-                                resolve(JSON.parse((<any>e.target).result));
-                            } catch {
-                                resolve(null);
-                            }
-                        };
-                        reader.onerror = reject;
-                        reader.readAsText(response.error);
-                    });
+            let messageToShow: string | undefined;
 
-                    const detail: string | undefined = errorResponse?.detail || errorResponse?.title;
-                    if (detail) {
-                        this.toastr.error(detail);
-                        reject(response);
-                        return;
+            if (response instanceof HttpErrorResponse) {
+                // Case 1: Blob containing problem+json
+                if (
+                    response.error instanceof Blob &&
+                    (response.error.type === 'application/problem+json' || response.error.type === 'application/json')
+                ) {
+                    try {
+                        const errorResponse: any = await new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = (e: Event) => {
+                                try {
+                                    resolve(JSON.parse((e as any).target.result));
+                                } catch {
+                                    resolve(null);
+                                }
+                            };
+                            reader.onerror = reject;
+                            reader.readAsText(response.error);
+                        });
+                        messageToShow = errorResponse?.detail || errorResponse?.title;
+                    } catch { /* ignore */ }
+                }
+
+                // Case 2: Already parsed object (Angular parsed JSON)
+                if (!messageToShow && response.error && typeof response.error === 'object') {
+                    messageToShow = response.error.detail || response.error.title || undefined;
+                }
+
+                // Case 3: Raw string error
+                if (!messageToShow && typeof response.error === 'string') {
+                    try {
+                        const parsed = JSON.parse(response.error);
+                        messageToShow = parsed?.detail || parsed?.title || undefined;
+                    } catch {
+                        messageToShow = response.error;
                     }
-                } catch { /* ignore and fallback */ }
+                }
+
+                // Friendly mapping for duplicate CPF unique constraint
+                if (messageToShow && /Duplicate entry/i.test(messageToShow) && /IX_Users_Cpf/i.test(messageToShow)) {
+                    messageToShow = 'CPF já cadastrado para outro usuário.';
+                }
             }
-            this.toastr.error('Ocorreu um erro inesperado.')
+
+            // Friendly mapping for duplicate Enrollment (Matrícula) unique constraint
+            if (messageToShow && /Duplicate entry/i.test(messageToShow) && /IX_Users_Enrollment/i.test(messageToShow)) {
+                messageToShow = 'Matrícula já cadastrada para outro usuário.';
+            }
+
+            // Normalize CPF duplicate message accents if needed
+            if (messageToShow && /CPF j. cadastrado para outro usu.rio\./i.test(messageToShow)) {
+                messageToShow = 'CPF já cadastrado para outro usuário.';
+            }
+
+            this.toastr.error(messageToShow || 'Ocorreu um erro inesperado.')
             reject(response);
         });
     }
