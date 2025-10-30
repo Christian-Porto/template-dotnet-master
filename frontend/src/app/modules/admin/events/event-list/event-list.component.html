@@ -99,7 +99,7 @@
                         </button>
                         <mat-menu #postCardMenu09="matMenu">
                             <ng-container>
-                                <button mat-menu-item [routerLink]="['/admin/events/', element.id]" [disabled]="!(element.isActive ?? true)">
+                                <button mat-menu-item [routerLink]="['/admin/events/', element.id]" [disabled]="!(element.isActive ?? true) || isEventDatePastOrToday(element)">
                                     <span class="flex items-center">
                                         <mat-icon class="icon-size-5 mr-3"
                                             [svgIcon]="'heroicons_outline:clipboard-document-list'"></mat-icon>

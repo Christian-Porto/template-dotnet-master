@@ -302,6 +302,9 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
+                    b.HasIndex("Enrollment")
+                        .IsUnique();
+
                     b.ToTable("Users", null, t =>
                         {
                             t.HasCheckConstraint("CK_Users_Profile_Enum", "`Profile` IN (1, 2, 3)");

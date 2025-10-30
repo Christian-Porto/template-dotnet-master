@@ -138,6 +138,16 @@ export class EventListComponent {
         this.loadEvents();
     }
 
+    isEventDatePastOrToday(eventItem?: EventResponse | null): boolean {
+        const eventDateValue = eventItem?.eventDate ? new Date(eventItem.eventDate) : null;
+        if (!eventDateValue) return false;
+        const today = new Date();
+        // Compare only dates (ignore time)
+        today.setHours(0, 0, 0, 0);
+        eventDateValue.setHours(0, 0, 0, 0);
+        return eventDateValue.getTime() <= today.getTime();
+    }
+
     toggleEventStatus(eventItem: EventResponse): void {
         if (!eventItem?.id) return;
         const willDisable = (eventItem.isActive ?? true);

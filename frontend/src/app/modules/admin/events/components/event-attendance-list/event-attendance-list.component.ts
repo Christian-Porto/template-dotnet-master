@@ -123,11 +123,12 @@ export class EventAttendanceListComponent implements OnDestroy {
         today.setHours(0, 0, 0, 0);
         const eventDate = new Date(this.event.eventDate);
         eventDate.setHours(0, 0, 0, 0);
-        return eventDate.getTime() < today.getTime();
+        // Allow marking attendance on the event date or after
+        return eventDate.getTime() <= today.getTime();
     }
 
     get attendanceBlockedReason(): string {
-        return 'A presença só pode ser marcada após a data do evento.';
+        return 'A presença só pode ser marcada na data do evento em diante.';
     }
 
     toggleAttendance(registration: RegistrationResponse, attended: boolean): void {

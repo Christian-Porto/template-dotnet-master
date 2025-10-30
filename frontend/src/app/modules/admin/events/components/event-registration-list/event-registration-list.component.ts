@@ -83,7 +83,21 @@ export class EventRegistrationListComponent {
         return Math.max(0, this.event.slots - selectedCount);
     }
 
+    isEventDatePastOrToday(): boolean {
+        const eventDate = this.event?.eventDate ? new Date(this.event.eventDate) : null;
+        if (!eventDate) return false;
+        const today = new Date();
+        // Compare only the date (ignore time)
+        today.setHours(0, 0, 0, 0);
+        eventDate.setHours(0, 0, 0, 0);
+        return today.getTime() >= eventDate.getTime();
+    }
+
     onStatusChange(registration: RegistrationResponse, status: RegistrationStatusEnum): void {
+        // Block status changes on or after the event date
+        if (this.isEventDatePastOrToday()) {
+            return;
+        }
         if (!registration?.id) {
             return;
         }

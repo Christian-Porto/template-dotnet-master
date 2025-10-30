@@ -79,7 +79,7 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Commands
         public async Task<EventResponse> Handle(CreateEventCommand request, CancellationToken cancellationToken)
         {
             var @event = _mapper.Map<Event>(request);
-            // Reuse existing Shift rows based on enum values
+            @event.Status = true;
             var existingShifts = await _context.Shifts
                 .Where(s => request.Shifts.Contains(s.Name))
                 .ToListAsync(cancellationToken);

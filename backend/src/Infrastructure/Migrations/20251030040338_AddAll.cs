@@ -236,6 +236,12 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                 table: "Users",
                 column: "Email",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Enrollment",
+                table: "Users",
+                column: "Enrollment",
+                unique: true);
         }
 
         /// <inheritdoc />

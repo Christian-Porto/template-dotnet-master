@@ -6,6 +6,8 @@ import {
     FormGroup,
     ReactiveFormsModule,
     Validators,
+    AbstractControl,
+    ValidationErrors,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -78,8 +80,14 @@ export class PersonalDataComponent implements OnInit {
             nome: ['', [Validators.required, Validators.minLength(3)]],
             email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
             periodo: [null, Validators.required],
-            cpf: ['', [Validators.required, Validators.pattern(/^[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}$/)]],
-            matricula: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
+            // Accept masked (000.000.000-00) or plain 11 digits while typing
+            cpf: ['', [Validators.required, Validators.pattern(/^(?:\d{3}\.\d{3}\.\d{3}-\d{2}|\d{11})$/)]],
+            matricula: ['', [
+                Validators.required,
+                Validators.pattern(/^\d{1,10}$/),
+                Validators.maxLength(10),
+                this.enrollmentInt32Validator,
+            ]],
         });
         this.loading = true;
         this.authClient.getRegister()
@@ -92,10 +100,22 @@ export class PersonalDataComponent implements OnInit {
                         email: res.email ?? '',
                         periodo: res.period ?? null,
                         cpf: this.maskCPF(res.cpf ?? ''),
-                        matricula: res.enrollment != null ? String(res.enrollment) : '',
+                        matricula: res.enrollment != null ? String(res.enrollment).replace(/\D/g, '').slice(0, 10) : '',
                     });
                 }
             });
+    }
+
+    private enrollmentInt32Validator(control: AbstractControl): ValidationErrors | null {
+        const raw = String(control?.value ?? '');
+        const digits = raw.replace(/\D/g, '');
+        if (!digits) return null; // required handled separately
+        // Max for signed 32-bit integer
+        const INT32_MAX = 2147483647;
+        // Avoid parseInt overflow on extremely long strings
+        const num = Number(digits);
+        if (!Number.isFinite(num)) return { maxInt: { max: INT32_MAX } };
+        return num > INT32_MAX ? { maxInt: { max: INT32_MAX } } : null;
     }
 
     get fc() {
@@ -109,21 +129,19 @@ export class PersonalDataComponent implements OnInit {
     }
 
     formatCPF(event: any): void {
-        let value = event.target.value.replace(/\D/g, '');
+        const raw = String(event?.target?.value ?? '');
+        const inputType = String((event as any)?.inputType ?? '').toLowerCase();
+        let digits = raw.replace(/\D/g, '').slice(0, 11);
 
-        if (value.length > 11) {
-            value = value.substring(0, 11);
+        // When deleting, do not re-apply mask so backspace can clear smoothly
+        if (inputType.startsWith('delete')) {
+            this.fc.cpf.setValue(digits, { emitEvent: false });
+            return;
         }
 
-        if (value.length >= 9) {
-            value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4');
-        } else if (value.length >= 6) {
-            value = value.replace(/(\d{3})(\d{3})(\d{0,3})/, '$1.$2.$3');
-        } else if (value.length >= 3) {
-            value = value.replace(/(\d{3})(\d{0,3})/, '$1.$2');
-        }
-
-        this.fc.cpf.setValue(value, { emitEvent: false });
+        // While typing, apply a non-intrusive progressive mask
+        const masked = this.maskCPFPartial(digits);
+        this.fc.cpf.setValue(masked, { emitEvent: false });
     }
 
     onSubmit(): void {
@@ -133,11 +151,12 @@ export class PersonalDataComponent implements OnInit {
         }
 
         const formData = this.personalDataForm.getRawValue();
+        const matriculaDigits = String(formData.matricula ?? '').replace(/\D/g, '').slice(0, 10);
         const command = new UpdateRegisterCommand({
             name: formData.nome ?? '',
             period: Number(formData.periodo),
             cpf: String(formData.cpf ?? '').replace(/\D/g, ''),
-            enrollment: formData.matricula ? Number(formData.matricula) : undefined,
+            enrollment: matriculaDigits ? Number(matriculaDigits) : undefined,
         });
 
         this.loading = true;
@@ -151,7 +170,10 @@ export class PersonalDataComponent implements OnInit {
                         email: res.email ?? formData.email,
                         periodo: res.period ?? formData.periodo,
                         cpf: this.maskCPF(res.cpf ?? String(formData.cpf).replace(/\D/g, '')),
-                        matricula: res.enrollment != null ? String(res.enrollment) : formData.matricula,
+                        // Ensure matricula stays digits-only even if backend/localization adds separators
+                        matricula: res.enrollment != null
+                            ? String(res.enrollment).replace(/\D/g, '').slice(0, 10)
+                            : formData.matricula,
                     });
                 }
             });
@@ -164,9 +186,32 @@ export class PersonalDataComponent implements OnInit {
     private maskCPF(value: string): string {
         const digits = (value || '').replace(/\D/g, '').slice(0, 11);
         if (!digits) return '';
-        return digits
-            .replace(/(\d{3})(\d)/, '$1.$2')
-            .replace(/(\d{3})(\d)/, '$1.$2')
-            .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        return this.maskCPFPartial(digits, false);
+    }
+
+    // Builds a progressive CPF mask; avoids dangling separators
+    private maskCPFPartial(digits: string, forceFull: boolean = false): string {
+        let out = '';
+        const n = Math.min(digits.length, 11);
+        for (let i = 0; i < n; i++) {
+            out += digits[i];
+            if (i === 2 && (forceFull ? true : n > 3)) out += '.';
+            else if (i === 5 && (forceFull ? true : n > 6)) out += '.';
+            else if (i === 8 && (forceFull ? true : n > 9)) out += '-';
+        }
+        return out;
+    }
+
+    onCpfBlur(): void {
+        // On blur, enforce full mask formatting
+        const raw = String(this.fc.cpf.value ?? '');
+        const masked = this.maskCPF(raw);
+        this.fc.cpf.setValue(masked, { emitEvent: false });
+    }
+
+    formatMatricula(event: any): void {
+        const raw = String(event?.target?.value ?? '');
+        const onlyDigits = raw.replace(/\D/g, '').slice(0, 10);
+        this.fc.matricula.setValue(onlyDigits, { emitEvent: false });
     }
 }
