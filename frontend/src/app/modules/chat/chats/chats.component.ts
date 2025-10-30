@@ -1,4 +1,4 @@
-import { NgClass } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
@@ -35,6 +35,7 @@ import { NewChatComponent } from '../new-chat/new-chat.component';
         NgClass,
         RouterLink,
         RouterOutlet,
+        DatePipe
     ],
 })
 export class ChatsComponent implements OnInit, OnDestroy {

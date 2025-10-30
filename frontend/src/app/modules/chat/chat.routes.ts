@@ -80,14 +80,31 @@ const contactResolver = async (
     }
 };
 
+/**
+ * Chat data resolver
+ * Ensures contacts are loaded before chats to properly map contact information
+ */
+const chatDataResolver = async () => {
+    const chatService = inject(ChatService);
+
+    // Load profile and contacts first
+    await Promise.all([
+        chatService.getProfile().toPromise(),
+        chatService.getContacts().toPromise(),
+    ]);
+
+    // Then load chats (which needs contacts to be already loaded)
+    await chatService.getChats().toPromise();
+
+    return true;
+};
+
 export default [
     {
         path: '',
         component: ChatComponent,
         resolve: {
-            contacts: () => inject(ChatService).getContacts(),
-            profile: () => inject(ChatService).getProfile(),
-            chats: () => inject(ChatService).getChats(),
+            data: chatDataResolver,
         },
         children: [
             {

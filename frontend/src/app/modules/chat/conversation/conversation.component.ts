@@ -45,6 +45,7 @@ import { ChatService } from '../chat.service';
 })
 export class ConversationComponent implements OnInit, OnDestroy {
     @ViewChild('messageInput') messageInput: ElementRef;
+    @ViewChild('conversationContainer') conversationContainer: ElementRef;
     chat: Chat;
     drawerMode: 'over' | 'side' = 'side';
     private _unsubscribeAll: Subject<any> = new Subject<any>();
@@ -115,6 +116,9 @@ export class ConversationComponent implements OnInit, OnDestroy {
 
                 // Mark for check
                 this._changeDetectorRef.markForCheck();
+
+                // Scroll to bottom after view updates
+                setTimeout(() => this.scrollToBottom(), 100);
             });
 
         // Subscribe to media changes
@@ -178,6 +182,9 @@ export class ConversationComponent implements OnInit, OnDestroy {
 
             // Clear the input
             this.messageInput.nativeElement.value = '';
+
+            // Scroll to bottom after message is sent
+            setTimeout(() => this.scrollToBottom(), 100);
         } catch (error) {
             console.error('Failed to send message:', error);
         }
@@ -206,6 +213,20 @@ export class ConversationComponent implements OnInit, OnDestroy {
     openContactInfo(): void {
         // Implementation for opening contact info
         console.log('Open contact info');
+    }
+
+    /**
+     * Scroll to bottom of conversation
+     */
+    private scrollToBottom(): void {
+        if (this.conversationContainer?.nativeElement) {
+            try {
+                this.conversationContainer.nativeElement.scrollTop =
+                    this.conversationContainer.nativeElement.scrollHeight;
+            } catch (err) {
+                console.error('Error scrolling to bottom:', err);
+            }
+        }
     }
 
     /**

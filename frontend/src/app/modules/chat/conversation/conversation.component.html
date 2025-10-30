@@ -21,7 +21,7 @@
             </div>
 
             <!-- Conversation -->
-            <div class="flex flex-auto flex-col-reverse overflow-y-auto">
+            <div #conversationContainer class="flex flex-auto flex-col overflow-y-auto">
                 <div class="bg-card flex shrink flex-col p-6 dark:bg-transparent">
                     @for (
                     message of chat.messages;
