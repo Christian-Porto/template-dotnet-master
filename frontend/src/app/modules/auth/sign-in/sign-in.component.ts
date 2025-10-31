@@ -111,13 +111,30 @@ export class AuthSignInComponent implements OnInit {
                 // Re-enable the form
                 this.signInForm.enable();
 
-                // Reset the form
-                this.signInNgForm.resetForm();
+                // Preserve email and clear only the password field
+                const emailValue = this.signInForm.get('email')?.value || '';
+                this.signInForm.reset({ email: emailValue, password: '' });
+
+                // Try to extract a friendly error message from the API response
+                let message = 'E-mail ou senha incorretos.';
+                try {
+                    if (response && typeof response === 'object') {
+                        const err = (response.error && typeof response.error === 'object') ? response.error : null;
+                        if (err) {
+                            message = err.detail || err.title || message;
+                        } else if (typeof response.error === 'string') {
+                            const parsed = JSON.parse(response.error);
+                            message = parsed?.detail || parsed?.title || message;
+                        }
+                    }
+                } catch {
+                    // Fallback to default message
+                }
 
                 // Set the alert
                 this.alert = {
                     type: 'error',
-                    message: 'Wrong email or password',
+                    message,
                 };
 
                 // Show the alert

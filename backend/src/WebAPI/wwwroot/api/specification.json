@@ -980,7 +980,8 @@
           },
           "period": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "email": {
             "type": "string"
@@ -990,7 +991,8 @@
           },
           "enrollment": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           }
         }
       },
@@ -1426,7 +1428,8 @@
           },
           "enrollment": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "cpf": {
             "type": "string",
@@ -1434,7 +1437,8 @@
           },
           "period": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
           },
           "participationsCount": {
             "type": "integer",

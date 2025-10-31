@@ -34,7 +34,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasComment("Senha do usuário, armazenada de forma hash.");
 
         builder.Property(x => x.Enrollment)
-            .IsRequired()
             .HasComment("Matrícula do aluno (número institucional).");
 
         builder.Property(x => x.Period)

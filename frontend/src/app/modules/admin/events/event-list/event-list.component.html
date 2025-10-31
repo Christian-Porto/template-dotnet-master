@@ -99,7 +99,11 @@
                         </button>
                         <mat-menu #postCardMenu09="matMenu">
                             <ng-container>
-                                <button mat-menu-item [routerLink]="['/admin/events/', element.id]" [disabled]="!(element.isActive ?? true) || isEventDatePastOrToday(element)">
+                                <button mat-menu-item [routerLink]="['/admin/events/', element.id]"
+                                    [disabled]="!(element.isActive ?? true) || isEventDatePastOrToday(element)"
+                                    [matTooltip]="isEventDatePastOrToday(element) ? 'Não é possível editar eventos de hoje ou já ocorridos.' : ''"
+                                    [matTooltipDisabled]="!isEventDatePastOrToday(element)"
+                                    matTooltipPosition="above">
                                     <span class="flex items-center">
                                         <mat-icon class="icon-size-5 mr-3"
                                             [svgIcon]="'heroicons_outline:clipboard-document-list'"></mat-icon>
@@ -120,7 +124,11 @@
                                         <span>Presenças</span>
                                     </span>
                                 </button>
-                                <button mat-menu-item (click)="toggleEventStatus(element)">
+                                <button mat-menu-item (click)="toggleEventStatus(element)"
+                                    [disabled]="(element.isActive ?? true) && isEventDatePastOrToday(element)"
+                                    [matTooltip]="(element.isActive ?? true) && isEventDatePastOrToday(element) ? 'Não é possível cancelar eventos de hoje ou já ocorridos.' : ''"
+                                    [matTooltipDisabled]="!((element.isActive ?? true) && isEventDatePastOrToday(element))"
+                                    matTooltipPosition="above">
                                     <span class="flex items-center">
                                         <mat-icon class="icon-size-5 mr-3"
                                             [svgIcon]="(element.isActive ?? true) ? 'heroicons_outline:x-circle' : 'heroicons_outline:arrow-path'"></mat-icon>

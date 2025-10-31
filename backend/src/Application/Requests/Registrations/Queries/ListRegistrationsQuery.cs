@@ -41,7 +41,7 @@ namespace ExtensionEventsManager.Core.Application.Requests.Registrations.Queries
                     Enrollment = r.User.Enrollment,
                     Cpf = r.User.Cpf,
                     Period = r.User.Period,
-                    ParticipationsCount = _context.Registrations.Count(rr => rr.EventId == r.EventId && rr.UserId == r.UserId && rr.Attended == true && rr.Status == RegistrationStatusEnum.Selected)
+                    ParticipationsCount = _context.Registrations.Count(rr => rr.UserId == r.UserId && rr.Attended == true && rr.Status == RegistrationStatusEnum.Selected)
                 });
 
             return await PaginatedList<RegistrationResponse>.CreateAsync(query, request.PageIndex, request.PageSize);

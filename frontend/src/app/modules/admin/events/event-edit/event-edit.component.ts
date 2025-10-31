@@ -25,6 +25,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { CreateEventCommand, EventTypeEnum, ShiftEnum, StatusEnum, UpdateEventCommand } from '../../../../../../api-client';
 import { EventTypeEnumPipe } from '../pipes/EventTypeEnum.pipe';
 import { EventsService } from '../services/events.service';
+import { ToastrService } from 'ngx-toastr';
 
 export const BR_DATE_FORMATS = {
     parse: {
@@ -85,7 +86,8 @@ export class EventEditComponent implements OnInit {
         private readonly fb: FormBuilder,
         private readonly eventsService: EventsService,
         private readonly router: Router,
-        private readonly dateAdapter: DateAdapter<Date>
+        private readonly dateAdapter: DateAdapter<Date>,
+        private readonly toastr: ToastrService,
     ) {
         this.dateAdapter.setLocale('pt-BR');
     }
@@ -96,8 +98,8 @@ export class EventEditComponent implements OnInit {
 
         this.eventForm = this.fb.group(
             {
-                name: ['', Validators.required],
-                description: ['', Validators.required],
+                name: ['', [Validators.required, Validators.maxLength(512)]],
+                description: ['', [Validators.required, Validators.maxLength(8224)]],
                 eventType: [null, Validators.required],
                 eventDate: [null, Validators.required],
                 startDate: [null, Validators.required],
@@ -205,7 +207,10 @@ export class EventEditComponent implements OnInit {
                 shifts: shifts,
             });
             this.eventsService.update(this.eventId, command).subscribe({
-                next: _ => this.router.navigate(['/admin/events']),
+                next: _ => { 
+                    this.toastr.success('Evento atualizado com sucesso');
+                    this.router.navigate(['/admin/events']); 
+                },
                 error: err => console.error('Erro ao atualizar evento:', err),
             });
         } else {
@@ -220,7 +225,10 @@ export class EventEditComponent implements OnInit {
                 shifts: shifts,
             });
             this.eventsService.create(command).subscribe({
-                next: _ => this.router.navigate(['/admin/events']),
+                next: _ => {
+                    this.toastr.success('Evento criado com sucesso');
+                    this.router.navigate(['/admin/events']);
+                },
                 error: err => console.error('Erro ao criar evento:', err),
             });
         }
@@ -303,7 +311,8 @@ export class EventEditComponent implements OnInit {
             if (s && e && e < s) groupErrors.registrationRangeInvalid = true;
 
             const evErrors = eventC?.errors || {};
-            if (ev && e && ev < e) {
+            // Event date must be strictly after registration end date
+            if (ev && e && ev <= e) {
                 eventC?.setErrors({ ...evErrors, eventBeforeRegistrationEnd: true });
             } else {
                 if ('eventBeforeRegistrationEnd' in evErrors) {

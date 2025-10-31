@@ -17,6 +17,7 @@ import { Router, RouterLink } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { FuseAlertComponent, FuseAlertType } from '@fuse/components/alert';
 import { AuthService } from 'app/core/auth/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'auth-sign-up',
@@ -52,7 +53,8 @@ export class AuthSignUpComponent implements OnInit {
     constructor(
         private _authService: AuthService,
         private _formBuilder: UntypedFormBuilder,
-        private _router: Router
+        private _router: Router,
+        private _toastr: ToastrService,
     ) {}
 
     // -----------------------------------------------------------------------------------------------------
@@ -93,7 +95,9 @@ export class AuthSignUpComponent implements OnInit {
         // Sign up
         this._authService.signUp(this.signUpForm.value).subscribe(
             (response) => {
-                // Navigate to the confirmation required page
+                // Toast success
+                this._toastr.success('Cadastro realizado com sucesso');
+                // Navigate to sign-in
                 this._router.navigateByUrl('/sign-in');
             },
             (response) => {
@@ -111,6 +115,8 @@ export class AuthSignUpComponent implements OnInit {
 
                 // Show the alert
                 this.showAlert = true;
+                // Toast error
+                this._toastr.error('Não foi possível realizar o cadastro. Verifique os dados e tente novamente.');
             }
         );
     }

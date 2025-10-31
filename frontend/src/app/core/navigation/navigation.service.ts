@@ -1,7 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { FuseNavigationItem } from '@fuse/components/navigation';
 import { Navigation } from 'app/core/navigation/navigation.types';
 import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { ChatsClient, ProfileEnum } from '../../../../api-client';
 import { AuthService } from '../auth/auth.service';
 
 
@@ -40,15 +42,30 @@ const horizontalNavigation: FuseNavigationItem[] = [
 
 @Injectable({ providedIn: 'root' })
 export class NavigationService {
+    private _chatsClient: ChatsClient = inject(ChatsClient);
 
     constructor(private authService: AuthService) {}
 
-    get navigation$(): Observable<Navigation> {
-        return of(<Navigation>{
-            default: horizontalNavigation,
+    private buildNavigationFor(profile?: ProfileEnum | null): Navigation {
+        const isAdminOrMonitor = profile === ProfileEnum.Administrator || profile === ProfileEnum.Monitor;
+        const filtered = horizontalNavigation.filter(item => isAdminOrMonitor ? true : item.id !== 'admin');
+        return {
+            default: filtered,
             compact: null,
             futuristic: null,
-            horizontal: horizontalNavigation
-        });
+            horizontal: filtered,
+        } as Navigation;
+    }
+
+    get navigation$(): Observable<Navigation> {
+        // If no token, hide admin by default
+        if (!this.authService.accessToken) {
+            return of(this.buildNavigationFor(null));
+        }
+
+        return this._chatsClient.getMe().pipe(
+            map(user => this.buildNavigationFor(user?.profile ?? null)),
+            catchError(() => of(this.buildNavigationFor(null)))
+        );
     }
 }

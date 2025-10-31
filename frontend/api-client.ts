@@ -1463,10 +1463,10 @@ export interface IResetPasswordCommand {
 export class UpdateRegisterResponse implements IUpdateRegisterResponse {
     id?: number;
     name?: string;
-    period?: number;
+    period?: number | undefined;
     email?: string;
     cpf?: string;
-    enrollment?: number;
+    enrollment?: number | undefined;
 
     constructor(data?: IUpdateRegisterResponse) {
         if (data) {
@@ -1510,10 +1510,10 @@ export class UpdateRegisterResponse implements IUpdateRegisterResponse {
 export interface IUpdateRegisterResponse {
     id?: number;
     name?: string;
-    period?: number;
+    period?: number | undefined;
     email?: string;
     cpf?: string;
-    enrollment?: number;
+    enrollment?: number | undefined;
 }
 
 export class UpdateRegisterCommand implements IUpdateRegisterCommand {
@@ -2257,9 +2257,9 @@ export class RegistrationResponse implements IRegistrationResponse {
     attended?: boolean | undefined;
     justification?: string | undefined;
     name?: string | undefined;
-    enrollment?: number;
+    enrollment?: number | undefined;
     cpf?: string | undefined;
-    period?: number;
+    period?: number | undefined;
     participationsCount?: number;
 
     constructor(data?: IRegistrationResponse) {
@@ -2316,9 +2316,9 @@ export interface IRegistrationResponse {
     attended?: boolean | undefined;
     justification?: string | undefined;
     name?: string | undefined;
-    enrollment?: number;
+    enrollment?: number | undefined;
     cpf?: string | undefined;
-    period?: number;
+    period?: number | undefined;
     participationsCount?: number;
 }
 

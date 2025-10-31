@@ -50,7 +50,7 @@ namespace ExtensionEventsManager.Core.Application.Requests.Registrations.Command
                 throw new BadRequestException("Usuário não encontrado.");
             }
 
-            if (user.Period <= 0)
+            if (!user.Period.HasValue || user.Period <= 0)
             {
                 throw new BadRequestException("O usuário deve ter período preenchido.");
             }

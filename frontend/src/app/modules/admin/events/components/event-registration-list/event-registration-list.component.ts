@@ -37,6 +37,7 @@ import { MatButtonModule } from '@angular/material/button';
 export class EventRegistrationListComponent {
     event: EventResponse | null = null;
     registrations: PaginatedListOfRegistrationResponse | null = null;
+    selectedTotalCount: number = 0;
     loading: boolean = false;
     pageIndex: number = 0;
     pageSize: number = 25;
@@ -68,37 +69,50 @@ export class EventRegistrationListComponent {
                         this.loading = false;
                     }
                 });
+                this.refreshSelectedTotal(eventId);
             }
         });
     }
 
+    private refreshSelectedTotal(eventId: number): void {
+        this.eventsService.listAttendances(eventId, 0, 1).subscribe({
+            next: res => {
+                this.selectedTotalCount = res?.totalCount ?? 0;
+            }
+        });
+    }
 
     get remainingSlots(): number {
-        if (!this.event || !this.registrations?.items) {
+        if (!this.event) {
             return 0;
         }
-        const selectedCount = this.registrations.items.filter(
-            reg => reg.status === RegistrationStatusEnum.Selected
-        ).length;
-        return Math.max(0, this.event.slots - selectedCount);
+        const selectedCount = this.selectedTotalCount || 0;
+        return Math.max(0, (this.event.slots || 0) - selectedCount);
     }
 
     isEventDatePastOrToday(): boolean {
         const eventDate = this.event?.eventDate ? new Date(this.event.eventDate) : null;
         if (!eventDate) return false;
         const today = new Date();
-        // Compare only the date (ignore time)
         today.setHours(0, 0, 0, 0);
         eventDate.setHours(0, 0, 0, 0);
         return today.getTime() >= eventDate.getTime();
     }
 
     onStatusChange(registration: RegistrationResponse, status: RegistrationStatusEnum): void {
-        // Block status changes on or after the event date
         if (this.isEventDatePastOrToday()) {
             return;
         }
+
         if (!registration?.id) {
+            return;
+        }
+
+        if (
+            status === RegistrationStatusEnum.Selected &&
+            registration.status !== RegistrationStatusEnum.Selected &&
+            this.remainingSlots === 0
+        ) {
             return;
         }
         const previous = registration.status;
@@ -106,12 +120,13 @@ export class EventRegistrationListComponent {
         this.loading = true;
         this.eventsService.updateRegistrationStatus(registration.id, status).subscribe({
             next: (updated) => {
-                // ensure local state reflects server response
                 registration.status = updated.status ?? status;
                 this.loading = false;
+                if (this.event?.id) {
+                    this.refreshSelectedTotal(this.event.id);
+                }
             },
             error: () => {
-                // rollback on error
                 registration.status = previous;
                 this.loading = false;
             }
@@ -132,6 +147,7 @@ export class EventRegistrationListComponent {
                     this.loading = false;
                 }
             });
+            this.refreshSelectedTotal(this.event.id);
         }
     }
 
