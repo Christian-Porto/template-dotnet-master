@@ -13,9 +13,9 @@ public class User : BaseEntity
     public Status Status { get; protected set; }
     public string Email { get; protected set; }
     public string Password { get; protected set; }
-    public int Enrollment {  get; protected set; }
+    public int? Enrollment {  get; protected set; }
     public ProfileEnum Profile { get; protected set; }
-    public int Period { get; protected set; }
+    public int? Period { get; protected set; }
     public string? Cpf { get; protected set; }
     public string ResetPasswordToken { get; protected set; }
     public DateTime ResetPasswordTokenExpiration {  get; protected set; }
@@ -78,12 +78,12 @@ public class User : BaseEntity
         return Guid.NewGuid().ToString();
     }
 
-    public void SetEnrollment(int enrollment)
+    public void SetEnrollment(int? enrollment)
     {
         Enrollment = enrollment;
     }
 
-    public void SetPeriod(int period)
+    public void SetPeriod(int? period)
     {
         Period = period;
     }

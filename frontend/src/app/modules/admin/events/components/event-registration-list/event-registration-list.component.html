@@ -135,7 +135,10 @@
                                         <span>Não Selecionado</span>
                                     </span>
                                 </mat-option>
-                                <mat-option [value]="RegistrationStatusEnum.Selected">
+                                <mat-option [value]="RegistrationStatusEnum.Selected"
+                                    [disabled]="remainingSlots === 0 && element.status !== RegistrationStatusEnum.Selected"
+                                    [matTooltip]="remainingSlots === 0 && element.status !== RegistrationStatusEnum.Selected ? 'Sem vagas disponíveis. Desselecione alguém para liberar vaga.' : ''"
+                                    matTooltipPosition="above">
                                     <span class="flex items-center gap-2">
                                         <span>Selecionado</span>
                                     </span>

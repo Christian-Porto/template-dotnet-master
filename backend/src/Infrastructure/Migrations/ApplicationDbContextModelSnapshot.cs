@@ -256,7 +256,7 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                         .HasColumnType("varchar(256)")
                         .HasComment("Email do usuário.");
 
-                    b.Property<int>("Enrollment")
+                    b.Property<int?>("Enrollment")
                         .HasColumnType("int")
                         .HasComment("Matrícula do aluno (número institucional).");
 
@@ -272,7 +272,7 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                         .HasColumnType("varchar(256)")
                         .HasComment("Senha do usuário, armazenada de forma hash.");
 
-                    b.Property<int>("Period")
+                    b.Property<int?>("Period")
                         .HasColumnType("int")
                         .HasComment("Período atual do aluno (1 a 10).");
 

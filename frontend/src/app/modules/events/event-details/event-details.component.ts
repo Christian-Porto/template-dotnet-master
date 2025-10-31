@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EventsService } from '../services/events.service';
 import { EventResponse, EventTypeEnum, Status, FormatShiftsPipe, RegistrationStatusEnum } from '../models/event.model';
-import { finalize } from 'rxjs';
+import { finalize, map, of, switchMap } from 'rxjs';
 import { EventTypeEnumPipe } from "../pipes/EventTypeEnum.pipe";
 import { DatePipe, NgClass } from '@angular/common';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
@@ -18,6 +18,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { ToastrService } from 'ngx-toastr';
+import { AuthClient } from '../../../../../api-client';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
@@ -53,15 +54,14 @@ export class EventDetailsComponent implements OnInit {
         private readonly router: Router,
         private readonly fuseConfirmationService: FuseConfirmationService,
         private readonly toastr: ToastrService,
+        private readonly authClient: AuthClient,
     ) { }
 
     get canInscrever(): boolean {
-        // Pode inscrever-se apenas se evento está aberto e ainda não possui inscrição
         return !this.loading && this.event?.status === Status.b && this.myRegistrationStatus === null;
     }
 
     get canCancelar(): boolean {
-        // Pode cancelar apenas quando ainda está como "Inscrito" (sem seleção)
         return !this.loading
             && this.myRegistrationStatus === RegistrationStatusEnum.Registered
             && this.isWithinRegistrationPeriod();
@@ -77,7 +77,6 @@ export class EventDetailsComponent implements OnInit {
         return null;
     }
 
-    // Razões de desabilitar cancelamento, incluindo período de inscrição
     get cancelarDisabledReason2(): string | null {
         const base = this.cancelarDisabledReason;
         if (base) return base;
@@ -96,9 +95,8 @@ export class EventDetailsComponent implements OnInit {
         return this.myRegistrationStatus === RegistrationStatusEnum.Registered;
     }
 
-    // Motivo para desabilitar "Inscrever-se" quando fora do período de inscrições
     get inscreverDisabledReason(): string | null {
-        if (this.isInscrito) return null; // Botão mostra cancelar quando inscrito
+        if (this.isInscrito) return null;
         if (this.event?.status === Status.a) {
             return 'Inscrições ainda não começaram.';
         }
@@ -132,42 +130,85 @@ export class EventDetailsComponent implements OnInit {
             return;
         }
 
-        const dialogRef = this.fuseConfirmationService.open({
-            title: "Confirmação de Inscrição",
-            message: "Você tem certeza que deseja se inscrever neste evento?",
-            actions: {
-                confirm: {
-                    label: "Sim, Inscrever-me",
-                    color: 'primary',
-                },
-                cancel: {
-                    label: "Cancelar",
-                },
-            },
-            icon: {
-                show: true,
-                name: 'heroicons_outline:exclamation-triangle',
-                color: 'accent',
-            },
-        });
+        this.loading = true;
+        this.authClient.getRegister()
+            .pipe(
+                finalize(() => this.loading = false),
+                map((res) => {
+                    const cpfDigits = String(res.cpf ?? '').replace(/\D/g, '');
+                    const hasCpf = cpfDigits.length === 11;
+                    const hasEnrollment = res.enrollment != null && Number.isFinite(Number(res.enrollment));
+                    const hasPeriod = res.period != null && Number(res.period) > 0;
+                    return hasCpf && hasEnrollment && hasPeriod;
+                })
+            )
+            .subscribe((hasAllData) => {
+                if (!hasAllData) {
+                    const dialogRefMissing = this.fuseConfirmationService.open({
+                        title: 'Dados obrigatórios incompletos',
+                        message: 'Para se inscrever, é necessário completar o seu cadastro. Deseja ir para a aba de Dados Pessoais para completar agora?',
+                        actions: {
+                            confirm: {
+                                label: 'Sim, completar agora',
+                                color: 'primary',
+                            },
+                            cancel: {
+                                label: 'Cancelar',
+                            },
+                        },
+                        icon: {
+                            show: true,
+                            name: 'heroicons_outline:exclamation-triangle',
+                            color: 'accent',
+                        },
+                    });
 
-        dialogRef.afterClosed().subscribe((result) => {
-            if (result == 'confirmed') {
-                if (!this.eventId || this.loading) return;
-                this.loading = true;
-
-                this.eventsService
-                    .registerToEvent(this.eventId)
-                    .pipe(finalize(() => this.loading = false))
-                    .subscribe({
-                        next: () => {
-                            this.toastr.success('Inscrição realizada com sucesso');
-                            this.myRegistrationStatus = RegistrationStatusEnum.Registered;
-                            this.router.navigate(['/events']);
+                    dialogRefMissing.afterClosed().subscribe((result) => {
+                        if (result === 'confirmed') {
+                            this.router.navigate(['/personal-data']);
                         }
                     });
-            }
-        });
+
+                    return;
+                }
+
+                const dialogRef = this.fuseConfirmationService.open({
+                    title: 'Confirmação de Inscrição',
+                    message: 'Você tem certeza que deseja se inscrever neste evento?',
+                    actions: {
+                        confirm: {
+                            label: 'Sim, Inscrever-me',
+                            color: 'primary',
+                        },
+                        cancel: {
+                            label: 'Cancelar',
+                        },
+                    },
+                    icon: {
+                        show: true,
+                        name: 'heroicons_outline:exclamation-triangle',
+                        color: 'accent',
+                    },
+                });
+
+                dialogRef.afterClosed().subscribe((result) => {
+                    if (result == 'confirmed') {
+                        if (!this.eventId || this.loading) return;
+                        this.loading = true;
+
+                        this.eventsService
+                            .registerToEvent(this.eventId)
+                            .pipe(finalize(() => this.loading = false))
+                            .subscribe({
+                                next: () => {
+                                    this.toastr.success('Inscrição realizada com sucesso');
+                                    this.myRegistrationStatus = RegistrationStatusEnum.Registered;
+                                    this.router.navigate(['/events']);
+                                }
+                            });
+                    }
+                });
+            });
     }
 
     onCancel(): void {
