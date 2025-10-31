@@ -115,15 +115,15 @@
                     </a>
                     <span
                         class="order-1 sm:order-2"
-                        [matTooltip]="(isInscrito ? cancelarDisabledReason2 : inscreverDisabledReason) || ''"
-                        [matTooltipDisabled]="(canInscrever || canCancelar) || !(isInscrito ? cancelarDisabledReason2 : inscreverDisabledReason)"
+                        [matTooltip]="actionTooltip || ''"
+                        [matTooltipDisabled]="(canInscrever || canCancelar) || !(actionTooltip)"
                         [matTooltipPosition]="'above'">
                         <button mat-flat-button
-                            [color]="isInscrito ? 'warn' : 'primary'"
+                            [color]="showCancelUi ? 'warn' : 'primary'"
                             class="w-full sm:w-auto"
-                            (click)="canCancelar ? onCancel() : onRegister()"
-                            [disabled]="!(canInscrever || canCancelar)">
-                            <span class="ml-2">{{ isInscrito ? 'Cancelar inscrição' : 'Inscrever-se' }}</span>
+                            (click)="showCancelUi ? (canCancelar ? onCancel() : null) : (canInscrever ? onRegister() : null)"
+                            [disabled]="showCancelUi ? !canCancelar : !canInscrever">
+                            <span class="ml-2">{{ showCancelUi ? 'Cancelar inscrição' : 'Inscrever-se' }}</span>
                         </button>
                     </span>
                 </div>

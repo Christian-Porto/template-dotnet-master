@@ -95,6 +95,16 @@ export class EventDetailsComponent implements OnInit {
         return this.myRegistrationStatus === RegistrationStatusEnum.Registered;
     }
 
+    // Exibir UI de Cancelar quando o usuário já possui qualquer inscrição
+    // (Registered, Selected ou NotSelected), mesmo que a ação esteja desabilitada
+    get showCancelUi(): boolean {
+        return this.myRegistrationStatus !== null;
+    }
+
+    get actionTooltip(): string | null {
+        return this.showCancelUi ? (this.cancelarDisabledReason2 ?? this.cancelarDisabledReason) : this.inscreverDisabledReason;
+    }
+
     get inscreverDisabledReason(): string | null {
         if (this.isInscrito) return null;
         if (this.event?.status === Status.a) {
