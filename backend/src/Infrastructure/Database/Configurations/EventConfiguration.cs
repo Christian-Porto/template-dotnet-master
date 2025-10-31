@@ -19,12 +19,12 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
 
         builder.Property(x => x.Name)
                .IsRequired()
-               .HasMaxLength(255)
+               .HasMaxLength(512)
                .HasComment("Nome do evento.");
 
         builder.Property(x => x.Description)
                .IsRequired()
-               .HasMaxLength(2056)
+               .HasMaxLength(8224)
                .HasComment("Descrição do evento.");
 
         builder.Property(x => x.Type)

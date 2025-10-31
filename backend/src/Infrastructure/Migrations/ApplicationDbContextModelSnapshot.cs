@@ -107,8 +107,8 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(2056)
-                        .HasColumnType("varchar(2056)")
+                        .HasMaxLength(8224)
+                        .HasColumnType("varchar(8224)")
                         .HasComment("Descrição do evento.");
 
                     b.Property<DateTime>("EndDate")
@@ -121,8 +121,8 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
+                        .HasMaxLength(512)
+                        .HasColumnType("varchar(512)")
                         .HasComment("Nome do evento.");
 
                     b.Property<int>("Slots")

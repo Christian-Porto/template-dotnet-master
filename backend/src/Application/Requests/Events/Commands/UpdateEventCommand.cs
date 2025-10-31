@@ -33,11 +33,11 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Commands
         {
             RuleFor(c => c.Name)
                 .NotEmpty().WithMessage("O nome é obrigatório.")
-                .MaximumLength(255).WithMessage("O nome não pode exceder 255 caracteres.");
+                .MaximumLength(512).WithMessage("O nome não pode exceder 512 caracteres.");
 
             RuleFor(c => c.Description)
                 .NotEmpty().WithMessage("A descrição é obrigatória.")
-                .MaximumLength(2056).WithMessage("A descrição não pode exceder 2056 caracteres.");
+                .MaximumLength(8224).WithMessage("A descrição não pode exceder 8224 caracteres.");
 
             RuleFor(c => c.Type)
                 .NotEmpty().WithMessage("O tipo do evento é obrigatório.")

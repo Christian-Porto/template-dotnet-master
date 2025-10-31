@@ -62,7 +62,9 @@ export class EventDetailsComponent implements OnInit {
 
     get canCancelar(): boolean {
         // Pode cancelar apenas quando ainda está como "Inscrito" (sem seleção)
-        return !this.loading && this.myRegistrationStatus === RegistrationStatusEnum.Registered;
+        return !this.loading
+            && this.myRegistrationStatus === RegistrationStatusEnum.Registered
+            && this.isWithinRegistrationPeriod();
     }
 
     get cancelarDisabledReason(): string | null {
@@ -71,6 +73,37 @@ export class EventDetailsComponent implements OnInit {
         }
         if (this.myRegistrationStatus === RegistrationStatusEnum.NotSelected) {
             return 'Sua inscrição não foi aprovada, não há cancelamento a realizar.';
+        }
+        return null;
+    }
+
+    // Razões de desabilitar cancelamento, incluindo período de inscrição
+    get cancelarDisabledReason2(): string | null {
+        const base = this.cancelarDisabledReason;
+        if (base) return base;
+        if (this.myRegistrationStatus === RegistrationStatusEnum.Registered) {
+            const hasPeriod = !!this.event?.startDate && !!this.event?.endDate;
+            const now = new Date();
+            const outside = !hasPeriod || now < new Date(this.event!.startDate) || now > new Date(this.event!.endDate);
+            if (outside) {
+                return 'Cancelamento permitido apenas durante o período de inscrição.';
+            }
+        }
+        return null;
+    }
+
+    get isInscrito(): boolean {
+        return this.myRegistrationStatus === RegistrationStatusEnum.Registered;
+    }
+
+    // Motivo para desabilitar "Inscrever-se" quando fora do período de inscrições
+    get inscreverDisabledReason(): string | null {
+        if (this.isInscrito) return null; // Botão mostra cancelar quando inscrito
+        if (this.event?.status === Status.a) {
+            return 'Inscrições ainda não começaram.';
+        }
+        if (this.event?.status === Status.c) {
+            return 'Inscrições encerradas.';
         }
         return null;
     }
@@ -178,5 +211,16 @@ export class EventDetailsComponent implements OnInit {
                     });
             }
         });
+    }
+
+    private isWithinRegistrationPeriod(): boolean {
+        if (!this.event?.startDate || !this.event?.endDate) return false;
+        const start = new Date(this.event.startDate);
+        const end = new Date(this.event.endDate);
+        // Normaliza para cobrir o dia inteiro
+        const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, 0, 0);
+        const endDay = new Date(end.getFullYear(), end.getMonth(), end.getDate(), 23, 59, 59, 999);
+        const now = new Date();
+        return now >= startDay && now <= endDay;
     }
 }
