@@ -142,7 +142,6 @@ export class EventListComponent {
         const eventDateValue = eventItem?.eventDate ? new Date(eventItem.eventDate) : null;
         if (!eventDateValue) return false;
         const today = new Date();
-        // Compare only dates (ignore time)
         today.setHours(0, 0, 0, 0);
         eventDateValue.setHours(0, 0, 0, 0);
         return eventDateValue.getTime() <= today.getTime();
@@ -150,6 +149,11 @@ export class EventListComponent {
 
     toggleEventStatus(eventItem: EventResponse): void {
         if (!eventItem?.id) return;
+        
+        if ((eventItem.isActive ?? true) && this.isEventDatePastOrToday(eventItem)) {
+            return;
+        }
+
         const willDisable = (eventItem.isActive ?? true);
         const dialogRef = this.fuseConfirmationService.open({
             title: willDisable ? 'Confirmação de Cancelamento' : 'Confirmação de Restauração',
@@ -176,7 +180,7 @@ export class EventListComponent {
             if (result === 'confirmed') {
                 const desired = !(eventItem.isActive ?? true);
                 const prev = eventItem.isActive ?? true;
-                // Optimistic update
+                
                 eventItem.isActive = desired;
                 this.eventsService.updateEventStatus(eventItem.id!, desired).subscribe({
                     next: (updated) => {
