@@ -84,9 +84,9 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Password = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false, comment: "Senha do usuário, armazenada de forma hash.")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Enrollment = table.Column<int>(type: "int", nullable: false, comment: "Matrícula do aluno (número institucional)."),
+                    Enrollment = table.Column<int>(type: "int", nullable: true, comment: "Matrícula do aluno (número institucional)."),
                     Profile = table.Column<int>(type: "int", nullable: false, comment: "Perfil do usuário (Administrator/Monitor/Student)."),
-                    Period = table.Column<int>(type: "int", nullable: false, comment: "Período atual do aluno (1 a 10)."),
+                    Period = table.Column<int>(type: "int", nullable: true, comment: "Período atual do aluno (1 a 10)."),
                     Cpf = table.Column<string>(type: "varchar(11)", maxLength: 11, nullable: true, comment: "CPF do usuário.")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ResetPasswordToken = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false, comment: "Token de redefinição de senha.")
