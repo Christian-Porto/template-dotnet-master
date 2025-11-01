@@ -81,14 +81,21 @@ export class HttpErrorInterceptor implements HttpInterceptor {
     }
 
     private async Handle401(response: any): Promise<any> {
-        if (this.router.url.indexOf('sign-in') == -1) {
+        // If not on sign-in page, navigate there instead of reloading
+        if (this.router.url.indexOf('sign-in') === -1) {
             return new Promise(async (resolve, reject) => {
-                window.location.reload();
+                try {
+                    const currentUrl = encodeURIComponent(this.router.url || '/');
+                    this.router.navigateByUrl(`/sign-in?redirectURL=${currentUrl}`);
+                } catch {
+                    // Ignore navigation errors
+                }
                 reject(response);
             });
         }
 
         return new Promise(async (resolve, reject) => {
+            // On sign-in page, just propagate the error so the component can show feedback
             reject(response);
         });
     }

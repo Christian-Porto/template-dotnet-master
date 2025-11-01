@@ -5,6 +5,7 @@ import {
     HttpRequest,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from 'app/core/auth/auth.service';
 import { AuthUtils } from 'app/core/auth/auth.utils';
 import { Observable, catchError, throwError } from 'rxjs';
@@ -20,6 +21,7 @@ export const authInterceptor = (
     next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> => {
     const authService = inject(AuthService);
+    const router = inject(Router);
 
     // Clone the request object
     let newReq = req.clone();
@@ -49,14 +51,19 @@ export const authInterceptor = (
         catchError((error) => {
             // Catch "401 Unauthorized" responses
             if (error instanceof HttpErrorResponse && error.status === 401) {
-                // Sign out
-                authService.signOut();
-
-                // Reload the app
-                location.reload();
+                // If already on sign-in, let the component handle the error (no reload)
+                const isOnSignIn = (router.url || '').includes('sign-in');
+                if (!isOnSignIn) {
+                    // Sign out and navigate to sign-in preserving redirect URL
+                    authService.signOut();
+                    try {
+                        const currentUrl = encodeURIComponent(router.url || '/');
+                        router.navigateByUrl(`/sign-in?redirectURL=${currentUrl}`);
+                    } catch { /* noop */ }
+                }
             }
 
-            return throwError(error);
+            return throwError(() => error);
         })
     );
 };

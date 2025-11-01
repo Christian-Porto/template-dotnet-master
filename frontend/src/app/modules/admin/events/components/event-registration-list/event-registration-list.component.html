@@ -122,7 +122,10 @@
                         <span class="font-semibold">Status</span>
                     </th>
                     <td mat-cell *matCellDef="let element" class="py-2">
-                        <mat-form-field class="w-full max-w-xs" subscriptSizing="dynamic">
+                        <mat-form-field class="w-full max-w-xs" subscriptSizing="dynamic"
+                            [matTooltip]="isEventDatePastOrToday() ? 'A seleção de alunos é permitida até um dia antes do evento.' : ''"
+                            [matTooltipDisabled]="!isEventDatePastOrToday()"
+                            matTooltipPosition="above">
                             <mat-select [value]="element.status" [disabled]="loading || isEventDatePastOrToday()"
                                 (selectionChange)="onStatusChange(element, $event.value)">
                                 <mat-option [value]="RegistrationStatusEnum.Registered" disabled>
@@ -135,7 +138,10 @@
                                         <span>Não Selecionado</span>
                                     </span>
                                 </mat-option>
-                                <mat-option [value]="RegistrationStatusEnum.Selected">
+                                <mat-option [value]="RegistrationStatusEnum.Selected"
+                                    [disabled]="remainingSlots === 0 && element.status !== RegistrationStatusEnum.Selected"
+                                    [matTooltip]="remainingSlots === 0 && element.status !== RegistrationStatusEnum.Selected ? 'Sem vagas disponíveis. Desselecione alguém para liberar vaga.' : ''"
+                                    matTooltipPosition="above">
                                     <span class="flex items-center gap-2">
                                         <span>Selecionado</span>
                                     </span>

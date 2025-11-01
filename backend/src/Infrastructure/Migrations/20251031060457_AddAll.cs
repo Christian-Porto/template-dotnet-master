@@ -38,10 +38,10 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false, comment: "Chave primária do evento.")
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false, comment: "Nome do evento.")
+                    Name = table.Column<string>(type: "varchar(512)", maxLength: 512, nullable: false, comment: "Nome do evento.")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Type = table.Column<int>(type: "int", nullable: false, comment: "Tipo do evento (Lecture/Dynamic/Practice)."),
-                    Description = table.Column<string>(type: "varchar(2056)", maxLength: 2056, nullable: false, comment: "Descrição do evento.")
+                    Description = table.Column<string>(type: "varchar(8224)", maxLength: 8224, nullable: false, comment: "Descrição do evento.")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     EventDate = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "Data de realização do evento."),
                     StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "Data de início das inscrições."),
@@ -84,9 +84,9 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Password = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false, comment: "Senha do usuário, armazenada de forma hash.")
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Enrollment = table.Column<int>(type: "int", nullable: false, comment: "Matrícula do aluno (número institucional)."),
+                    Enrollment = table.Column<int>(type: "int", nullable: true, comment: "Matrícula do aluno (número institucional)."),
                     Profile = table.Column<int>(type: "int", nullable: false, comment: "Perfil do usuário (Administrator/Monitor/Student)."),
-                    Period = table.Column<int>(type: "int", nullable: false, comment: "Período atual do aluno (1 a 10)."),
+                    Period = table.Column<int>(type: "int", nullable: true, comment: "Período atual do aluno (1 a 10)."),
                     Cpf = table.Column<string>(type: "varchar(11)", maxLength: 11, nullable: true, comment: "CPF do usuário.")
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     ResetPasswordToken = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false, comment: "Token de redefinição de senha.")
