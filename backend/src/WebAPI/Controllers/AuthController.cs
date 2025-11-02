@@ -5,6 +5,7 @@ using ExtensionEventsManager.Core.Application.Requests.Auth.Models;
 using ExtensionEventsManager.Core.Application.Requests.Auth.Queries;
 using ExtensionEventsManager.Core.WebAPI.Common.Controllers;
 using ExtensionEventsManager.Core.Application.Common.Models;
+using ExtensionEventsManager.Core.Domain.Enums;
 
 namespace ExtensionEventsManager.Core.WebAPI.Controllers;
 
@@ -67,5 +68,13 @@ public class AuthController : ApiControllerBase
     public async Task<PaginatedList<UserListResponse>> ListUsers([FromQuery] ListUsersQuery query)
     {
         return await Mediator.Send(query);
+    }
+
+    [HttpPut]
+    [Route("users/{id}/profile")]
+    public async Task<UserProfileResponse> UpdateUserProfile([FromRoute] int id, [FromBody] UpdateUserProfileCommand command)
+    {
+        command.SetId(id);
+        return await Mediator.Send(command);
     }
 }

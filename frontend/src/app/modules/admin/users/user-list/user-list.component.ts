@@ -26,11 +26,13 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
-import { AuthClient, ProfileEnum, Status } from '../../../../../../api-client';
+import { AuthClient, ProfileEnum, Status, UpdateUserProfileCommand } from '../../../../../../api-client';
 import { Subject, debounceTime, distinctUntilChanged, finalize, takeUntil, filter } from 'rxjs';
 import { PaginatedListOfUserResponse, UserStatusEnum } from '../models/user.model';
 import { ProfileEnumPipe } from '../pipes/profile-enum.pipe';
 import { UserStatusEnumPipe } from '../pipes/user-status-enum.pipe';
+import { FuseConfirmationService } from '@fuse/services/confirmation';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-user-list',
@@ -96,9 +98,12 @@ export class UserListComponent implements AfterViewInit {
   ProfileEnum = ProfileEnum;
 
   private readonly authClient = inject(AuthClient);
+  private readonly fuseConfirmationService = inject(FuseConfirmationService);
+  private readonly toastr = inject(ToastrService);
   private readonly _unsubscribeAll: Subject<any> = new Subject<any>();
 
   ngOnInit(): void {
+    
     this.resetAndLoadUsers();
 
     // Reload on filter changes with a small debounce
@@ -206,7 +211,62 @@ export class UserListComponent implements AfterViewInit {
   }
 
   makeMonitor(userId: number): void {
+    const current = this.users?.items?.find(u => u.id === userId);
+    if (!current) {
+      return;
+    }
 
+    const targetProfile = current.profile === ProfileEnum.Monitor
+      ? ProfileEnum.Student
+      : ProfileEnum.Monitor;
+
+    const isToMonitor = targetProfile === ProfileEnum.Monitor;
+    const title = isToMonitor ? 'Confirmação de Perfil' : 'Confirmação de Perfil';
+    const message = isToMonitor
+      ? 'Você tem certeza que deseja tornar este usuário Monitor?'
+      : 'Você tem certeza que deseja tornar este usuário Aluno?';
+
+    const dialogRef = this.fuseConfirmationService.open({
+      title,
+      message,
+      actions: {
+        confirm: {
+          label: isToMonitor ? 'Sim, tornar Monitor' : 'Sim, tornar Aluno',
+          color: isToMonitor ? 'primary' : 'warn',
+        },
+        cancel: {
+          label: 'Não alterar',
+        },
+      },
+      icon: {
+        show: true,
+        name: 'heroicons_outline:exclamation-triangle',
+        color: 'accent',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === 'confirmed') {
+        const command: UpdateUserProfileCommand = { profile: targetProfile } as UpdateUserProfileCommand;
+
+        this.authClient
+          .updateUserProfile(userId, command)
+          .pipe(finalize(() => { /* no-op */ }))
+          .subscribe({
+            next: (res) => {
+              current.profile = res?.profile ?? targetProfile;
+              this.toastr.success(
+                res?.profile === ProfileEnum.Monitor || targetProfile === ProfileEnum.Monitor
+                  ? 'Perfil atualizado para Monitor'
+                  : 'Perfil atualizado para Aluno'
+              );
+            },
+            error: () => {
+              this.toastr.error('Erro ao atualizar perfil');
+            }
+          });
+      }
+    });
   }
 
   toggleStatus(userId: number, newStatus: UserStatusEnum): void {
@@ -234,8 +294,8 @@ export class UserListComponent implements AfterViewInit {
       hasNextPage: apiPage?.hasNextPage ?? false,
       hasPreviousPage: apiPage?.hasPreviousPage ?? false,
       items: (apiPage?.items ?? []).map((u: any) => ({
-        // API does not provide id/email in list; keep placeholders
-        id: 0,
+        // Try to map id if provided by API; fallback to 0
+        id: u?.id ?? 0,
         name: u?.name ?? '',
         enrollment: (u?.enrollment ?? '').toString(),
         email: undefined,

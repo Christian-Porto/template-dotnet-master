@@ -70,6 +70,7 @@ public class ListUsersQueryHandler : IRequestHandler<ListUsersQuery, PaginatedLi
 
         var projected = query.Select(u => new UserListResponse
         {
+            Id = u.Id,
             Name = u.Name,
             Enrollment = u.Enrollment,
             Profile = u.Profile,

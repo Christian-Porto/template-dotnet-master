@@ -5,6 +5,7 @@ namespace ExtensionEventsManager.Core.Application.Requests.Auth.Models;
 
 public class UserListResponse
 {
+    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public int? Enrollment { get; set; }
     public ProfileEnum Profile { get; set; }
