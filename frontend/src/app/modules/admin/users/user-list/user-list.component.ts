@@ -25,10 +25,8 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
-import { ProfileEnum } from '../../../../../../api-client';
-import { finalize } from 'rxjs';
-import { RouterLink } from '@angular/router';
-import { UsersService } from '../services/users.service';
+import { AuthClient, ProfileEnum, Status } from '../../../../../../api-client';
+import { debounceTime, distinctUntilChanged, finalize } from 'rxjs';
 import { PaginatedListOfUserResponse, UserStatusEnum } from '../models/user.model';
 import { ProfileEnumPipe } from '../pipes/profile-enum.pipe';
 import { UserStatusEnumPipe } from '../pipes/user-status-enum.pipe';
@@ -65,8 +63,7 @@ import { UserStatusEnumPipe } from '../pipes/user-status-enum.pipe';
     MatProgressSpinnerModule,
     MatChipsModule,
     ProfileEnumPipe,
-    UserStatusEnumPipe,
-    RouterLink
+    UserStatusEnumPipe
   ],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss'
@@ -91,19 +88,38 @@ export class UserListComponent {
   UserStatusEnum = UserStatusEnum;
   ProfileEnum = ProfileEnum;
 
-  private readonly usersService = inject(UsersService);
+  private readonly authClient = inject(AuthClient);
 
   ngOnInit(): void {
     this.loadUsers();
+
+    // Reload on filter changes with a small debounce
+    this.form.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(() => {
+        this.pageIndex = 0; // reset pagination on filter change
+        this.loadUsers();
+      });
   }
 
   loadUsers(): void {
     this.loading = true;
-    this.usersService.listUsers(this.pageIndex, this.pageSize, this.form.value)
-      .pipe(finalize(() => this.loading = false))
+    const formValue = this.form.value as any;
+
+    const name: string | null = formValue?.name ?? null;
+    const enrollment: number | null = formValue?.enrollment ? Number(formValue.enrollment) : null;
+    const profile: ProfileEnum | null = formValue?.profile ?? null;
+    const statusFilter: Status | null = this.mapUserStatusEnumToApiStatus(formValue?.status);
+
+    this.authClient
+      .listUsers(name, enrollment, profile, statusFilter, this.pageSize, this.pageIndex)
+      .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next: (users) => {
-          this.users = users;
+        next: (apiPage) => {
+          this.users = this.mapApiPageToLocal(apiPage);
         }
       });
   }
@@ -123,5 +139,43 @@ export class UserListComponent {
 
   toggleStatus(userId: number, newStatus: UserStatusEnum): void {
 
+  }
+
+  private mapUserStatusEnumToApiStatus(status: UserStatusEnum | null): Status | null {
+    if (status === null || status === undefined) return null;
+    // Local enum: Active=1, Inactive=2; API enum: Inactive=0, Active=1
+    switch (status) {
+      case UserStatusEnum.Active:
+        return Status.Active;
+      case UserStatusEnum.Inactive:
+        return Status.Inactive;
+      default:
+        return null;
+    }
+  }
+
+  private mapApiPageToLocal(apiPage: any): PaginatedListOfUserResponse {
+    return {
+      totalPages: apiPage?.totalPages ?? 0,
+      totalCount: apiPage?.totalCount ?? 0,
+      pageIndex: apiPage?.pageIndex ?? this.pageIndex,
+      hasNextPage: apiPage?.hasNextPage ?? false,
+      hasPreviousPage: apiPage?.hasPreviousPage ?? false,
+      items: (apiPage?.items ?? []).map((u: any) => ({
+        // API does not provide id/email in list; keep placeholders
+        id: 0,
+        name: u?.name ?? '',
+        enrollment: (u?.enrollment ?? '').toString(),
+        email: undefined,
+        profile: u?.profile as ProfileEnum,
+        status: this.mapApiStatusToUserStatusEnum(u?.status as Status)
+      }))
+    } as PaginatedListOfUserResponse;
+  }
+
+  private mapApiStatusToUserStatusEnum(status: Status | null | undefined): UserStatusEnum {
+    if (status === Status.Active) return UserStatusEnum.Active;
+    if (status === Status.Inactive) return UserStatusEnum.Inactive;
+    return UserStatusEnum.Active;
   }
 }

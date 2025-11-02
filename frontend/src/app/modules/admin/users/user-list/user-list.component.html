@@ -22,7 +22,8 @@
 
                 <mat-select formControlName="profile" [placeholder]="'Perfil'">
                     <mat-option [value]="null">Todos</mat-option>
-                    <mat-option [value]="ProfileEnum.Administrator"> {{ProfileEnum.Administrator | ProfileEnum}} </mat-option>
+                    <mat-option [value]="ProfileEnum.Administrator"> {{ProfileEnum.Administrator | ProfileEnum}}
+                    </mat-option>
                     <mat-option [value]="ProfileEnum.Monitor"> {{ProfileEnum.Monitor | ProfileEnum}} </mat-option>
                     <mat-option [value]="ProfileEnum.Student"> {{ProfileEnum.Student | ProfileEnum}} </mat-option>
                 </mat-select>
@@ -34,8 +35,10 @@
 
                 <mat-select formControlName="status" [placeholder]="'Status'">
                     <mat-option [value]="null">Todos</mat-option>
-                    <mat-option [value]="UserStatusEnum.Active"> {{UserStatusEnum.Active | UserStatusEnum}} </mat-option>
-                    <mat-option [value]="UserStatusEnum.Inactive"> {{UserStatusEnum.Inactive | UserStatusEnum}} </mat-option>
+                    <mat-option [value]="UserStatusEnum.Active"> {{UserStatusEnum.Active | UserStatusEnum}}
+                    </mat-option>
+                    <mat-option [value]="UserStatusEnum.Inactive"> {{UserStatusEnum.Inactive | UserStatusEnum}}
+                    </mat-option>
                 </mat-select>
             </mat-form-field>
         </form>
@@ -103,31 +106,31 @@
                         <mat-menu #userMenu="matMenu">
                             <ng-container>
                                 @if(element.profile !== ProfileEnum.Monitor) {
-                                    <button mat-menu-item (click)="makeMonitor(element.id)">
-                                        <span class="flex items-center">
-                                            <mat-icon class="icon-size-5 mr-3"
-                                                [svgIcon]="'heroicons_outline:user-plus'"></mat-icon>
-                                            <span>Tornar Monitor</span>
-                                        </span>
-                                    </button>
+                                <button mat-menu-item (click)="makeMonitor(element.id)">
+                                    <span class="flex items-center">
+                                        <mat-icon class="icon-size-5 mr-3"
+                                            [svgIcon]="'heroicons_outline:user-plus'"></mat-icon>
+                                        <span>Tornar Monitor</span>
+                                    </span>
+                                </button>
                                 }
 
                                 @if(element.status === UserStatusEnum.Active) {
-                                    <button mat-menu-item (click)="toggleStatus(element.id, UserStatusEnum.Inactive)">
-                                        <span class="flex items-center">
-                                            <mat-icon class="icon-size-5 mr-3"
-                                                [svgIcon]="'heroicons_outline:x-circle'"></mat-icon>
-                                            <span>Desativar</span>
-                                        </span>
-                                    </button>
+                                <button mat-menu-item (click)="toggleStatus(element.id, UserStatusEnum.Inactive)">
+                                    <span class="flex items-center">
+                                        <mat-icon class="icon-size-5 mr-3"
+                                            [svgIcon]="'heroicons_outline:x-circle'"></mat-icon>
+                                        <span>Desativar</span>
+                                    </span>
+                                </button>
                                 } @else {
-                                    <button mat-menu-item (click)="toggleStatus(element.id, UserStatusEnum.Active)">
-                                        <span class="flex items-center">
-                                            <mat-icon class="icon-size-5 mr-3"
-                                                [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
-                                            <span>Ativar</span>
-                                        </span>
-                                    </button>
+                                <button mat-menu-item (click)="toggleStatus(element.id, UserStatusEnum.Active)">
+                                    <span class="flex items-center">
+                                        <mat-icon class="icon-size-5 mr-3"
+                                            [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
+                                        <span>Ativar</span>
+                                    </span>
+                                </button>
                                 }
                             </ng-container>
                         </mat-menu>
@@ -152,21 +155,10 @@
     </div>
     }
     @else {
-    <div>
-        <div class="text-center py-30">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                aria-hidden="true">
-                <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <h3 class="mt-2 text-md font-semibold text-gray-900">Sem usuários cadastrados</h3>
-            <p class="mt-1 text-md text-gray-500">Não há usuários disponíveis no momento.</p>
-            <div class="mt-6">
-                <button type="button" mat-flat-button [color]="'primary'" [routerLink]="['/admin/users/create']">
-                    <mat-icon class="icon-size-3" [svgIcon]="'heroicons_outline:plus'"></mat-icon>
-                    <span class="ml-2 mr-1">Adicionar novo usuário</span>
-                </button>
-            </div>
+    <div class="flex flex-auto flex-col items-center justify-center bg-gray-100 dark:bg-transparent">
+        <mat-icon class="mx-auto icon-size-12 text-amber-500" [svgIcon]="'heroicons_outline:user-circle'"></mat-icon>
+        <div class="text-secondary mt-2 text-2xl font-semibold tracking-tight">
+            Nenhum usuário encontrado
         </div>
     </div>
     }
