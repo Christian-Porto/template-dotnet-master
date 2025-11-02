@@ -1,4 +1,4 @@
-<div class="sm:absolute sm:inset-0 flex flex-col flex-auto min-w-0 md:overflow-hidden">
+<div class="absolute inset-0 flex min-w-0 flex-col overflow-y-auto" cdkScrollable>
     <div
         class="relative flex flex-col md:flex-row flex-0 md:items-center md:justify-between gap-y-4 p-6 border-b bg-card">
         <div class="text-4xl font-extrabold tracking-tight">Usuários</div>
@@ -53,7 +53,7 @@
     }
     @else {
     @if(users?.items.length > 0){
-    <div class="w-full overflow-auto">
+    <div class="w-full">
         <table mat-table [dataSource]="users?.items" multiTemplateDataRows>
 
             <ng-container matColumnDef="name" sticky>
@@ -138,20 +138,14 @@
                 </td>
             </ng-container>
 
-            <ng-container matColumnDef="paginator">
-                <td mat-footer-cell *matFooterCellDef [colSpan]="displayedColumns.length" class="h-20">
-                    <mat-paginator class="bg-gray-50 dark:bg-transparent flex justify-end"
-                        [ngClass]="{'pointer-events-none': loading}" [length]="users?.totalCount"
-                        [pageIndex]="pageIndex" [pageSize]="pageSize" [pageSizeOptions]="[10, 25, 50, 100]"
-                        [showFirstLastButtons]="true" (page)="pageEvent($event)">
-                    </mat-paginator>
-                </td>
-            </ng-container>
-
             <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="example-element-row"></tr>
-            <tr mat-footer-row *matFooterRowDef="['paginator']; sticky: true"></tr>
         </table>
+        @if(isLoadingMore){
+        <div class="mt-4 mb-8 flex justify-center">
+            <mat-progress-spinner [diameter]="40" [mode]="'indeterminate'"></mat-progress-spinner>
+        </div>
+        }
     </div>
     }
     @else {

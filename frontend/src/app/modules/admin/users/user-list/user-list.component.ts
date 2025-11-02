@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, ViewChild, AfterViewInit, inject } from '@angular/core';
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatLuxonDateModule } from '@angular/material-luxon-adapter';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,7 +27,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
 import { AuthClient, ProfileEnum, Status } from '../../../../../../api-client';
-import { debounceTime, distinctUntilChanged, finalize } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, finalize, takeUntil, filter } from 'rxjs';
 import { PaginatedListOfUserResponse, UserStatusEnum } from '../models/user.model';
 import { ProfileEnumPipe } from '../pipes/profile-enum.pipe';
 import { UserStatusEnumPipe } from '../pipes/user-status-enum.pipe';
@@ -34,6 +35,7 @@ import { UserStatusEnumPipe } from '../pipes/user-status-enum.pipe';
 @Component({
   selector: 'app-user-list',
   imports: [
+    CdkScrollable,
     FormsModule,
     ReactiveFormsModule,
     MatButtonModule,
@@ -68,11 +70,16 @@ import { UserStatusEnumPipe } from '../pipes/user-status-enum.pipe';
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss'
 })
-export class UserListComponent {
-  pageIndex: number = 0;
+export class UserListComponent implements AfterViewInit {
+  @ViewChild(CdkScrollable) scrollable!: CdkScrollable;
+
+  pageIndex: number = 0; // zero-based for this API
   pageSize: number = 25;
 
+  // loading: used for initial/reset loads; isLoadingMore: used for infinite scroll appends
   loading: boolean = false;
+  isLoadingMore: boolean = false;
+  hasMoreData: boolean = true;
 
   users: PaginatedListOfUserResponse | null = null;
 
@@ -89,9 +96,10 @@ export class UserListComponent {
   ProfileEnum = ProfileEnum;
 
   private readonly authClient = inject(AuthClient);
+  private readonly _unsubscribeAll: Subject<any> = new Subject<any>();
 
   ngOnInit(): void {
-    this.loadUsers();
+    this.resetAndLoadUsers();
 
     // Reload on filter changes with a small debounce
     this.form.valueChanges
@@ -100,13 +108,52 @@ export class UserListComponent {
         distinctUntilChanged()
       )
       .subscribe(() => {
-        this.pageIndex = 0; // reset pagination on filter change
-        this.loadUsers();
+        this.resetAndLoadUsers();
       });
   }
 
-  loadUsers(): void {
+  ngAfterViewInit(): void {
+    // Setup infinite scroll listener
+    this.scrollable
+      .elementScrolled()
+      .pipe(
+        takeUntil(this._unsubscribeAll),
+        debounceTime(200),
+        filter(() => !this.isLoadingMore && this.hasMoreData && !this.loading)
+      )
+      .subscribe(() => this.checkScrollPosition());
+  }
+
+  private checkScrollPosition(): void {
+    const element = this.scrollable.getElementRef().nativeElement as HTMLElement;
+    const scrollPosition = element.scrollTop + element.clientHeight;
+    const scrollHeight = element.scrollHeight;
+
+    // Load more when user is within 300px of the bottom
+    if (scrollHeight - scrollPosition < 300) {
+      this.loadMoreUsers();
+    }
+  }
+
+  private resetAndLoadUsers(): void {
+    this.pageIndex = 0;
+    this.hasMoreData = true;
+    this.users = {
+      totalPages: 0,
+      totalCount: 0,
+      pageIndex: 0,
+      hasNextPage: true,
+      hasPreviousPage: false,
+      items: []
+    } as PaginatedListOfUserResponse;
     this.loading = true;
+    this.loadMoreUsers();
+  }
+
+  private loadMoreUsers(): void {
+    if (this.isLoadingMore || !this.hasMoreData) return;
+
+    this.isLoadingMore = true;
     const formValue = this.form.value as any;
 
     const name: string | null = formValue?.name ?? null;
@@ -116,10 +163,34 @@ export class UserListComponent {
 
     this.authClient
       .listUsers(name, enrollment, profile, statusFilter, this.pageSize, this.pageIndex)
-      .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: (apiPage) => {
-          this.users = this.mapApiPageToLocal(apiPage);
+          const mapped = this.mapApiPageToLocal(apiPage);
+
+          // Determine if there is more data
+          if (!mapped?.items?.length || mapped.items.length < this.pageSize || !mapped.hasNextPage) {
+            this.hasMoreData = false;
+          }
+
+          if (!this.users) {
+            this.users = mapped;
+          } else {
+            this.users.items = [...(this.users.items || []), ...(mapped.items || [])];
+            this.users.totalCount = mapped.totalCount ?? this.users.totalCount;
+            this.users.totalPages = mapped.totalPages ?? this.users.totalPages;
+            this.users.pageIndex = mapped.pageIndex ?? this.users.pageIndex;
+            this.users.hasNextPage = mapped.hasNextPage;
+            this.users.hasPreviousPage = mapped.hasPreviousPage;
+          }
+
+          this.pageIndex++;
+          this.isLoadingMore = false;
+          this.loading = false;
+        },
+        error: () => {
+          this.isLoadingMore = false;
+          this.loading = false;
+          this.hasMoreData = false;
         }
       });
   }
@@ -130,7 +201,8 @@ export class UserListComponent {
 
     window.scrollTo(0, 0);
 
-    this.loadUsers();
+    // Deprecated by infinite scroll; keep for safety/no-op reload
+    this.resetAndLoadUsers();
   }
 
   makeMonitor(userId: number): void {
@@ -177,5 +249,10 @@ export class UserListComponent {
     if (status === Status.Active) return UserStatusEnum.Active;
     if (status === Status.Inactive) return UserStatusEnum.Inactive;
     return UserStatusEnum.Active;
+  }
+
+  ngOnDestroy(): void {
+    this._unsubscribeAll.next(null);
+    this._unsubscribeAll.complete();
   }
 }
