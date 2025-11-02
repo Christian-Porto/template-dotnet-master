@@ -85,12 +85,12 @@
                                             " [class.dark:text-primary-500]="
                                                 chat.unreadCount > 0
                                             ">
-                                {{ chat.lastMessage }}
+                                {{ chat.lastMessage | date:  "dd/MM/yyyy HH:mm" }}
                             </div>
                         </div>
                         <div class="ml-auto flex flex-col items-end self-start pl-2">
                             <div class="text-secondary text-sm leading-5">
-                                {{ chat.lastMessageAt }}
+                                {{ chat.lastMessageAt | date:  "dd/MM/yyyy HH:mm" }}
                             </div>
                             @if (chat.muted) {
                             <mat-icon class="text-hint icon-size-5" [svgIcon]="
