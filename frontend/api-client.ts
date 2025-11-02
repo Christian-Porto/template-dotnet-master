@@ -22,6 +22,9 @@ export interface IAuthClient {
     resetPasswordPOST(login: string, command: ResetPasswordCommand): Observable<void>;
     updateRegister(id: number, command: UpdateRegisterCommand): Observable<UpdateRegisterResponse>;
     getRegister(): Observable<UpdateRegisterResponse>;
+    listUsers(name: string | null | undefined, enrollment: number | null | undefined, profile: ProfileEnum | null | undefined, status: Status | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfUserListResponse>;
+    updateUserProfile(id: number, command: UpdateUserProfileCommand): Observable<UserProfileResponse>;
+    updateUserStatus(id: number, command: UpdateUserStatusCommand): Observable<UserStatusResponse>;
 }
 
 @Injectable({
@@ -332,6 +335,180 @@ export class AuthClient implements IAuthClient {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = UpdateRegisterResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    listUsers(name: string | null | undefined, enrollment: number | null | undefined, profile: ProfileEnum | null | undefined, status: Status | null | undefined, pageSize: number | undefined, pageIndex: number | undefined): Observable<PaginatedListOfUserListResponse> {
+        let url_ = this.baseUrl + "/auth/users?";
+        if (name !== undefined && name !== null)
+            url_ += "Name=" + encodeURIComponent("" + name) + "&";
+        if (enrollment !== undefined && enrollment !== null)
+            url_ += "Enrollment=" + encodeURIComponent("" + enrollment) + "&";
+        if (profile !== undefined && profile !== null)
+            url_ += "Profile=" + encodeURIComponent("" + profile) + "&";
+        if (status !== undefined && status !== null)
+            url_ += "Status=" + encodeURIComponent("" + status) + "&";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (pageIndex === null)
+            throw new Error("The parameter 'pageIndex' cannot be null.");
+        else if (pageIndex !== undefined)
+            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processListUsers(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processListUsers(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PaginatedListOfUserListResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PaginatedListOfUserListResponse>;
+        }));
+    }
+
+    protected processListUsers(response: HttpResponseBase): Observable<PaginatedListOfUserListResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfUserListResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    updateUserProfile(id: number, command: UpdateUserProfileCommand): Observable<UserProfileResponse> {
+        let url_ = this.baseUrl + "/auth/users/{id}/profile";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateUserProfile(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateUserProfile(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<UserProfileResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<UserProfileResponse>;
+        }));
+    }
+
+    protected processUpdateUserProfile(response: HttpResponseBase): Observable<UserProfileResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UserProfileResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    updateUserStatus(id: number, command: UpdateUserStatusCommand): Observable<UserStatusResponse> {
+        let url_ = this.baseUrl + "/auth/users/{id}/status";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateUserStatus(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateUserStatus(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<UserStatusResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<UserStatusResponse>;
+        }));
+    }
+
+    protected processUpdateUserStatus(response: HttpResponseBase): Observable<UserStatusResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UserStatusResponse.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -1564,6 +1741,285 @@ export interface IUpdateRegisterCommand {
     enrollment?: number;
 }
 
+export class PaginatedListOfUserListResponse implements IPaginatedListOfUserListResponse {
+    items?: UserListResponse[];
+    pageIndex?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfUserListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(UserListResponse.fromJS(item));
+            }
+            this.pageIndex = _data["pageIndex"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfUserListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfUserListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageIndex"] = this.pageIndex;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfUserListResponse {
+    items?: UserListResponse[];
+    pageIndex?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class UserListResponse implements IUserListResponse {
+    id?: number;
+    name?: string;
+    enrollment?: number | undefined;
+    profile?: ProfileEnum;
+    status?: Status;
+
+    constructor(data?: IUserListResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.enrollment = _data["enrollment"];
+            this.profile = _data["profile"];
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): UserListResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserListResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["enrollment"] = this.enrollment;
+        data["profile"] = this.profile;
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IUserListResponse {
+    id?: number;
+    name?: string;
+    enrollment?: number | undefined;
+    profile?: ProfileEnum;
+    status?: Status;
+}
+
+export enum ProfileEnum {
+    Administrator = 1,
+    Monitor = 2,
+    Student = 3,
+}
+
+export enum Status {
+    Inactive = 0,
+    Active = 1,
+}
+
+export class UserProfileResponse implements IUserProfileResponse {
+    id?: number;
+    profile?: ProfileEnum;
+
+    constructor(data?: IUserProfileResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.profile = _data["profile"];
+        }
+    }
+
+    static fromJS(data: any): UserProfileResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserProfileResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["profile"] = this.profile;
+        return data;
+    }
+}
+
+export interface IUserProfileResponse {
+    id?: number;
+    profile?: ProfileEnum;
+}
+
+export class UpdateUserProfileCommand implements IUpdateUserProfileCommand {
+    profile?: ProfileEnum;
+
+    constructor(data?: IUpdateUserProfileCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.profile = _data["profile"];
+        }
+    }
+
+    static fromJS(data: any): UpdateUserProfileCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateUserProfileCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["profile"] = this.profile;
+        return data;
+    }
+}
+
+export interface IUpdateUserProfileCommand {
+    profile?: ProfileEnum;
+}
+
+export class UserStatusResponse implements IUserStatusResponse {
+    id?: number;
+    status?: Status;
+
+    constructor(data?: IUserStatusResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): UserStatusResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserStatusResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IUserStatusResponse {
+    id?: number;
+    status?: Status;
+}
+
+export class UpdateUserStatusCommand implements IUpdateUserStatusCommand {
+    status?: Status;
+
+    constructor(data?: IUpdateUserStatusCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.status = _data["status"];
+        }
+    }
+
+    static fromJS(data: any): UpdateUserStatusCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateUserStatusCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["status"] = this.status;
+        return data;
+    }
+}
+
+export interface IUpdateUserStatusCommand {
+    status?: Status;
+}
+
 export class ChatUserResponse implements IChatUserResponse {
     id?: number;
     name?: string;
@@ -1606,12 +2062,6 @@ export interface IChatUserResponse {
     id?: number;
     name?: string;
     profile?: ProfileEnum;
-}
-
-export enum ProfileEnum {
-    Administrator = 1,
-    Monitor = 2,
-    Student = 3,
 }
 
 export class ChatResponse implements IChatResponse {

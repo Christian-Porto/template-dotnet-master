@@ -97,7 +97,7 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
                     table.CheckConstraint("CK_Users_Profile_Enum", "`Profile` IN (1, 2, 3)");
-                    table.CheckConstraint("CK_Users_Status_Enum", "`Status`  IN (1, 2)");
+                    table.CheckConstraint("CK_Users_Status_Enum", "`Status`  IN (0, 1)");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 

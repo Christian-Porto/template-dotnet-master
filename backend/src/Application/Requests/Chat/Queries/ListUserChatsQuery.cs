@@ -33,9 +33,19 @@ public class ListUserChatsQueryHandler : IRequestHandler<ListUserChatsQuery, Lis
             .Include(c => c.Messages)
             .Where(c => c.UserAId == me || c.UserBId == me)
             .OrderByDescending(c => c.Messages.Max(m => (DateTime?)m.CreatedAtUtc) ?? DateTime.MinValue)
-            .ProjectTo<ChatResponse>(_mapper.ConfigurationProvider)
             .ToListAsync(cancellationToken);
 
-        return chats;
+        // Map to response and order messages
+        var chatResponses = chats.Select(chat => {
+            var response = _mapper.Map<ChatResponse>(chat);
+            response.Messages = chat.Messages
+                .OrderBy(m => m.CreatedAtUtc)
+                .ThenBy(m => m.Id)
+                .Select(m => _mapper.Map<ChatMessageResponse>(m))
+                .ToList();
+            return response;
+        }).ToList();
+
+        return chatResponses;
     }
 }

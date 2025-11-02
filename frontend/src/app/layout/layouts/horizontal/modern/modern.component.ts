@@ -33,7 +33,12 @@ import { Subject, takeUntil } from 'rxjs';
 })
 export class ModernLayoutComponent implements OnInit, OnDestroy {
     isScreenSmall: boolean;
-    navigation: Navigation;
+    navigation: Navigation = {
+        compact: [],
+        default: [],
+        futuristic: [],
+        horizontal: [],
+    };
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
     /**

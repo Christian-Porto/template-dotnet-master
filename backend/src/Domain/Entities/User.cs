@@ -93,6 +93,11 @@ public class User : BaseEntity
         Profile = profile;
     }
 
+    public void SetStatus(Status status)
+    {
+        Status = status;
+    }
+
     public void SetCpf(string cpf)
     {
         var digits = Regex.Replace(cpf, @"\D", "");

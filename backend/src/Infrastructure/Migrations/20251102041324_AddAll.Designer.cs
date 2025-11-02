@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExtensionEventsManager.Core.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251031060457_AddAll")]
+    [Migration("20251102041324_AddAll")]
     partial class AddAll
     {
         /// <inheritdoc />
@@ -312,7 +312,7 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                         {
                             t.HasCheckConstraint("CK_Users_Profile_Enum", "`Profile` IN (1, 2, 3)");
 
-                            t.HasCheckConstraint("CK_Users_Status_Enum", "`Status`  IN (1, 2)");
+                            t.HasCheckConstraint("CK_Users_Status_Enum", "`Status`  IN (0, 1)");
                         });
                 });
 
