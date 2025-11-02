@@ -26,7 +26,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
-import { AuthClient, ProfileEnum, Status, UpdateUserProfileCommand } from '../../../../../../api-client';
+import { AuthClient, ProfileEnum, Status, UpdateUserProfileCommand, UpdateUserStatusCommand } from '../../../../../../api-client';
 import { Subject, debounceTime, distinctUntilChanged, finalize, takeUntil, filter } from 'rxjs';
 import { PaginatedListOfUserResponse, UserStatusEnum } from '../models/user.model';
 import { ProfileEnumPipe } from '../pipes/profile-enum.pipe';
@@ -270,7 +270,59 @@ export class UserListComponent implements AfterViewInit {
   }
 
   toggleStatus(userId: number, newStatus: UserStatusEnum): void {
+    const current = this.users?.items?.find(u => u.id === userId);
+    if (!current) {
+      return;
+    }
 
+    const isActivate = newStatus === UserStatusEnum.Active;
+    const title = isActivate ? 'Confirmação de Status' : 'Confirmação de Status';
+    const message = isActivate
+      ? 'Você tem certeza que deseja ativar este usuário?'
+      : 'Você tem certeza que deseja desativar este usuário?';
+
+    const dialogRef = this.fuseConfirmationService.open({
+      title,
+      message,
+      actions: {
+        confirm: {
+          label: isActivate ? 'Sim, ativar' : 'Sim, desativar',
+          color: isActivate ? 'primary' : 'warn',
+        },
+        cancel: {
+          label: 'Cancelar',
+        },
+      },
+      icon: {
+        show: true,
+        name: 'heroicons_outline:exclamation-triangle',
+        color: 'accent',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === 'confirmed') {
+        const command = { status: this.mapUserStatusEnumToApiStatus(newStatus) } as UpdateUserStatusCommand;
+
+        this.authClient
+          .updateUserStatus(userId, command)
+          .pipe(finalize(() => { /* no-op */ }))
+          .subscribe({
+            next: (res) => {
+              // Prefer API response when present
+              if (res?.status !== undefined && res?.status !== null) {
+                current.status = this.mapApiStatusToUserStatusEnum(res.status as Status);
+              } else {
+                current.status = newStatus;
+              }
+              this.toastr.success(isActivate ? 'Usuário ativado com sucesso' : 'Usuário desativado com sucesso');
+            },
+            error: () => {
+              this.toastr.error('Erro ao atualizar status do usuário');
+            }
+          });
+      }
+    });
   }
 
   private mapUserStatusEnumToApiStatus(status: UserStatusEnum | null): Status | null {

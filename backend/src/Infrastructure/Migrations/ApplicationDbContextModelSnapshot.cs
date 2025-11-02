@@ -309,7 +309,7 @@ namespace ExtensionEventsManager.Core.Infrastructure.Migrations
                         {
                             t.HasCheckConstraint("CK_Users_Profile_Enum", "`Profile` IN (1, 2, 3)");
 
-                            t.HasCheckConstraint("CK_Users_Status_Enum", "`Status`  IN (1, 2)");
+                            t.HasCheckConstraint("CK_Users_Status_Enum", "`Status`  IN (0, 1)");
                         });
                 });
 

@@ -10,7 +10,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     {
         builder.ToTable("Users", tb =>
         {
-            tb.HasCheckConstraint("CK_Users_Status_Enum", "`Status`  IN (1, 2)");
+            // Status enum in domain: Inactive = 0, Active = 1
+            tb.HasCheckConstraint("CK_Users_Status_Enum", "`Status`  IN (0, 1)");
             tb.HasCheckConstraint("CK_Users_Profile_Enum", "`Profile` IN (1, 2, 3)");
         });
 

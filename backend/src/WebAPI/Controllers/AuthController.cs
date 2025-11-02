@@ -77,4 +77,12 @@ public class AuthController : ApiControllerBase
         command.SetId(id);
         return await Mediator.Send(command);
     }
+
+    [HttpPut]
+    [Route("users/{id}/status")]
+    public async Task<UserStatusResponse> UpdateUserStatus([FromRoute] int id, [FromBody] UpdateUserStatusCommand command)
+    {
+        command.SetId(id);
+        return await Mediator.Send(command);
+    }
 }
