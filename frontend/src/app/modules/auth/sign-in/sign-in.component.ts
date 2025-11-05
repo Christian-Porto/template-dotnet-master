@@ -118,12 +118,18 @@ export class AuthSignInComponent implements OnInit {
                 // Try to extract a friendly error message from the API response
                 let message = 'E-mail ou senha incorretos.';
                 try {
-                    if (response && typeof response === 'object') {
-                        const err = (response.error && typeof response.error === 'object') ? response.error : null;
+                    const resp: any = response;
+                    if (resp && typeof resp === 'object') {
+                        // Angular HttpErrorResponse pattern
+                        const err = (resp.error && typeof resp.error === 'object') ? resp.error : null;
                         if (err) {
                             message = err.detail || err.title || message;
-                        } else if (typeof response.error === 'string') {
-                            const parsed = JSON.parse(response.error);
+                        } else if (typeof resp.error === 'string') {
+                            const parsed = JSON.parse(resp.error);
+                            message = parsed?.detail || parsed?.title || message;
+                        } else if (typeof resp.response === 'string') {
+                            // NSwag SwaggerException pattern -> parse stringified ProblemDetails
+                            const parsed = JSON.parse(resp.response);
                             message = parsed?.detail || parsed?.title || message;
                         }
                     }

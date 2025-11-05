@@ -27,12 +27,16 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponse>
         var email = request.Email.Trim().ToLower().Replace(" ", "");
 
         var user = await _context.Users
-            .Where(x => x.Status == Status.Active)
             .FirstOrDefaultAsync(x => x.Email == email);
 
         if (user == null)
         {
             throw new UnauthorizedException();
+        }
+
+        if (user.Status != Status.Active)
+        {
+            throw new UnauthorizedException("Usuário inativo.");
         }
 
         var result = user.VerifyPassword(user.Email,request.Password);
