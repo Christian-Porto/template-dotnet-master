@@ -47,13 +47,37 @@ export class NavigationService {
     constructor(private authService: AuthService) {}
 
     private buildNavigationFor(profile?: ProfileEnum | null): Navigation {
-        const isAdminOrMonitor = profile === ProfileEnum.Administrator || profile === ProfileEnum.Monitor;
-        const filtered = horizontalNavigation.filter(item => isAdminOrMonitor ? true : item.id !== 'admin');
+        const isAdmin = profile === ProfileEnum.Administrator;
+        const isMonitor = profile === ProfileEnum.Monitor;
+
+        let items: FuseNavigationItem[];
+
+        if (isAdmin) {
+            // Admin: full navigation
+            items = horizontalNavigation.map((i) => ({ ...i }));
+        } else if (isMonitor) {
+            // Monitor: show Admin group but hide "users" entry
+            items = horizontalNavigation.map((i) => {
+                if (i.id !== 'admin') {
+                    return { ...i } as FuseNavigationItem;
+                }
+                return {
+                    ...i,
+                    children: (i.children ?? []).filter((c) => c.id !== 'users'),
+                } as FuseNavigationItem;
+            });
+        } else {
+            // Others (e.g., Student or unauthenticated): hide Admin group entirely
+            items = horizontalNavigation
+                .filter((i) => i.id !== 'admin')
+                .map((i) => ({ ...i }));
+        }
+
         return {
-            default: filtered,
+            default: items,
             compact: null,
             futuristic: null,
-            horizontal: filtered,
+            horizontal: items,
         } as Navigation;
     }
 

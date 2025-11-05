@@ -1,3 +1,16 @@
-<button mat-icon-button  #messagesOrigin [routerLink]="['/chat']">
+<button
+    mat-icon-button
+    #messagesOrigin
+    [routerLink]="['/chat']"
+    matTooltip="Mensagens"
+    [matBadge]="badgeLabel"
+    [matBadgeHidden]="!unreadTotal"
+    matBadgeColor="warn"
+    matBadgeOverlap="true"
+    matBadgePosition="above after"
+>
     <mat-icon [svgIcon]="'heroicons_outline:inbox'"></mat-icon>
+    <span class="sr-only" *ngIf="unreadTotal">{{ unreadTotal }} novas mensagens</span>
+    <span class="sr-only" *ngIf="!unreadTotal">Sem novas mensagens</span>
+    
 </button>

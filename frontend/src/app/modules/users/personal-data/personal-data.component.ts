@@ -8,6 +8,7 @@ import {
     Validators,
     AbstractControl,
     ValidationErrors,
+    ValidatorFn,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -73,7 +74,7 @@ export class PersonalDataComponent implements OnInit {
         private readonly fb: FormBuilder,
         private readonly authClient: AuthClient,
         private readonly toastr: ToastrService
-    ) {}
+    ) { }
 
     ngOnInit(): void {
         this.personalDataForm = this.fb.group({
@@ -84,9 +85,7 @@ export class PersonalDataComponent implements OnInit {
             cpf: ['', [Validators.required, Validators.pattern(/^(?:\d{3}\.\d{3}\.\d{3}-\d{2}|\d{11})$/)]],
             matricula: ['', [
                 Validators.required,
-                Validators.pattern(/^\d{1,10}$/),
-                Validators.maxLength(10),
-                this.enrollmentInt32Validator,
+                this.matriculaValidator
             ]],
         });
         this.loading = true;
@@ -100,23 +99,30 @@ export class PersonalDataComponent implements OnInit {
                         email: res.email ?? '',
                         periodo: res.period ?? null,
                         cpf: this.maskCPF(res.cpf ?? ''),
-                        matricula: res.enrollment != null ? String(res.enrollment).replace(/\D/g, '').slice(0, 10) : '',
+                        matricula: res.enrollment != null ? String(res.enrollment).replace(/\D/g, '').slice(0, 9) : '',
                     });
                 }
             });
     }
 
-    private enrollmentInt32Validator(control: AbstractControl): ValidationErrors | null {
+    private readonly matriculaValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
         const raw = String(control?.value ?? '');
         const digits = raw.replace(/\D/g, '');
-        if (!digits) return null; // required handled separately
-        // Max for signed 32-bit integer
-        const INT32_MAX = 2147483647;
-        // Avoid parseInt overflow on extremely long strings
-        const num = Number(digits);
-        if (!Number.isFinite(num)) return { maxInt: { max: INT32_MAX } };
-        return num > INT32_MAX ? { maxInt: { max: INT32_MAX } } : null;
-    }
+
+        if (!digits) return null;
+
+        if (digits.length !== 9) return { matriculaInvalida: true };
+
+        const year = Number(digits.slice(0, 4));
+        const seqStr = digits.slice(4);
+        const seqNum = Number(seqStr);
+
+        const currentYear = new Date().getFullYear();
+        const yearOk = Number.isInteger(year) && year >= 1950 && year <= currentYear;
+        const seqOk = /^\d{5}$/.test(seqStr) && seqNum >= 1 && seqNum <= 99999;
+
+        return (yearOk && seqOk) ? null : { matriculaInvalida: true };
+    };
 
     get fc() {
         return this.personalDataForm.controls as {
@@ -151,7 +157,7 @@ export class PersonalDataComponent implements OnInit {
         }
 
         const formData = this.personalDataForm.getRawValue();
-        const matriculaDigits = String(formData.matricula ?? '').replace(/\D/g, '').slice(0, 10);
+        const matriculaDigits = String(formData.matricula ?? '').replace(/\D/g, '').slice(0, 9);
         const command = new UpdateRegisterCommand({
             name: formData.nome ?? '',
             period: Number(formData.periodo),
@@ -172,7 +178,7 @@ export class PersonalDataComponent implements OnInit {
                         cpf: this.maskCPF(res.cpf ?? String(formData.cpf).replace(/\D/g, '')),
                         // Ensure matricula stays digits-only even if backend/localization adds separators
                         matricula: res.enrollment != null
-                            ? String(res.enrollment).replace(/\D/g, '').slice(0, 10)
+                            ? String(res.enrollment).replace(/\D/g, '').slice(0, 9)
                             : formData.matricula,
                     });
                 }
@@ -211,7 +217,7 @@ export class PersonalDataComponent implements OnInit {
 
     formatMatricula(event: any): void {
         const raw = String(event?.target?.value ?? '');
-        const onlyDigits = raw.replace(/\D/g, '').slice(0, 10);
+        const onlyDigits = raw.replace(/\D/g, '').slice(0, 9);
         this.fc.matricula.setValue(onlyDigits, { emitEvent: false });
     }
 }

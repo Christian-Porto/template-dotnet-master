@@ -53,9 +53,7 @@ export class ChatsComponent implements OnInit, OnDestroy {
     constructor(
         private _chatService: ChatService,
         private _changeDetectorRef: ChangeDetectorRef
-    ) {
-        console.log('ChatsComponent constructed');
-    }
+    ) { }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
@@ -65,13 +63,10 @@ export class ChatsComponent implements OnInit, OnDestroy {
      * On init
      */
     ngOnInit(): void {
-        console.log('ChatsComponent initialized');
-
         // Chats
         this._chatService.chats$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((chats: Chat[]) => {
-                console.log('Chats received:', chats);
                 this.chats = this.filteredChats = chats || [];
 
                 // Mark for check
@@ -82,7 +77,6 @@ export class ChatsComponent implements OnInit, OnDestroy {
         this._chatService.profile$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((profile: Profile) => {
-                console.log('Profile received:', profile);
                 this.profile = profile;
 
                 // Mark for check
@@ -93,7 +87,6 @@ export class ChatsComponent implements OnInit, OnDestroy {
         this._chatService.chat$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((chat: Chat) => {
-                console.log('Selected chat:', chat);
                 this.selectedChat = chat;
 
                 // Mark for check

@@ -165,9 +165,4 @@ export class EventAttendanceListComponent implements OnDestroy {
         if (!this.canMarkAttendance) return;
         this.justificationSubject.next({ id: registrationId, justification });
     }
-
-    onPageChange(event: PageEvent): void {
-        // Emitir evento para o componente pai
-        console.log('Página alterada:', event);
-    }
 }
