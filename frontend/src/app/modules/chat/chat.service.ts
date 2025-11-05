@@ -28,6 +28,7 @@ export class ChatService {
     private _contact: BehaviorSubject<Contact | null> = new BehaviorSubject<Contact | null>(null);
     private _contacts: BehaviorSubject<Contact[]> = new BehaviorSubject<Contact[]>([]);
     private _profile: BehaviorSubject<Profile | null> = new BehaviorSubject<Profile | null>(null);
+    private _unreadTotal: BehaviorSubject<number> = new BehaviorSubject<number>(0);
 
     private _chatsClient = inject(ChatsClient);
     private _signalRService = inject(ChatSignalRService);
@@ -60,6 +61,10 @@ export class ChatService {
         return this._profile.asObservable();
     }
 
+    get unreadTotal$(): Observable<number> {
+        return this._unreadTotal.asObservable();
+    }
+
     /**
      * Initialize SignalR connection
      */
@@ -77,8 +82,6 @@ export class ChatService {
     getChats(): Observable<Chat[]> {
         return this._chatsClient.listChats().pipe(
             map((chatResponses: ApiChatResponse[]) => {
-                console.log('Chats from API:', chatResponses);
-
                 // Map each chat response to Chat type
                 const chats = chatResponses.map((chatResponse) => {
                     const currentUserId = this._profile.value?.id;
@@ -116,11 +119,10 @@ export class ChatService {
                 return chats;
             }),
             tap((chats: Chat[]) => {
-                console.log('Chats mapped:', chats);
                 this._chats.next(chats);
+                this._recomputeUnreadTotal();
             }),
             catchError((error) => {
-                console.error('Error loading chats:', error);
                 return of([]);
             })
         );
@@ -144,7 +146,6 @@ export class ChatService {
     getContacts(): Observable<Contact[]> {
         return this._chatsClient.listUsers().pipe(
             map((users: ChatUserResponse[]) => {
-                console.log('Users from API:', users);
                 return users.map((user) => ({
                     id: user.id,
                     name: user.name,
@@ -152,7 +153,6 @@ export class ChatService {
                 }));
             }),
             tap((contacts: Contact[]) => {
-                console.log('Contacts mapped:', contacts);
                 this._contacts.next(contacts);
 
                 // Update existing chats with contact information
@@ -169,18 +169,14 @@ export class ChatService {
      * Get profile from chat API
      */
     getProfile(): Observable<Profile> {
-        console.log('getProfile called');
-
         // Get profile from chat API
         return this._chatsClient.getMe().pipe(
             map((chatUser: ChatUserResponse) => {
-                console.log('ChatUser from API:', chatUser);
                 const profile: Profile = {
                     id: chatUser.id,
                     name: chatUser.name,
                     email: '', // Chat API doesn't return email
                 };
-                console.log('Profile mapped:', profile);
                 return profile;
             }),
             tap((profile: Profile) => {
@@ -222,6 +218,8 @@ export class ChatService {
 
             this._chats.next([...chats]);
             this._chat.next(chat);
+            // Mark as read when opening the chat
+            this.markChatRead(chat.id);
 
             return chat;
         } catch (error) {
@@ -237,6 +235,8 @@ export class ChatService {
         const chat = this._chats.value.find((c) => c.id === chatId);
         if (chat) {
             this._chat.next(chat);
+            // Mark as read when selecting the chat
+            this.markChatRead(chat.id);
             return chat;
         }
         return null;
@@ -354,10 +354,17 @@ export class ChatService {
             chats[chatIndex] = { ...chat };
             this._chats.next([...chats]);
 
-            // Update current chat if it's the same
+            // Update current chat if it's the same and mark as read
             if (this._chat.value?.id === message.chatId) {
                 this._chat.next({ ...chat });
+                this.markChatRead(message.chatId);
             }
+
+            // Recompute unread after new message
+            this._recomputeUnreadTotal();
+        } else {
+            // Chat not found in current list; refresh chats to include new message
+            this.getChats().pipe(take(1)).subscribe(() => this._recomputeUnreadTotal());
         }
     }
 
@@ -392,6 +399,76 @@ export class ChatService {
                 createdAtUtc: typeof m.createdAtUtc === 'string' ? m.createdAtUtc : (m.createdAtUtc as any).toISOString(),
             })) || [],
         };
+    }
+
+    // -------------------------------------------------------------
+    // Unread tracking helpers
+    // -------------------------------------------------------------
+    private _storageKey(): string {
+        return 'chat:lastReadMap';
+    }
+
+    private _loadLastReadMap(): Record<string, number> {
+        try {
+            const raw = localStorage.getItem(this._storageKey());
+            return raw ? JSON.parse(raw) : {};
+        } catch {
+            return {};
+        }
+    }
+
+    private _saveLastReadMap(map: Record<string, number>): void {
+        try {
+            localStorage.setItem(this._storageKey(), JSON.stringify(map));
+        } catch {
+            // ignore storage errors
+        }
+    }
+
+    private _getLastReadId(chatId: number): number {
+        const map = this._loadLastReadMap();
+        return map[String(chatId)] ?? 0;
+    }
+
+    private _setLastReadId(chatId: number, messageId: number): void {
+        const map = this._loadLastReadMap();
+        map[String(chatId)] = messageId || 0;
+        this._saveLastReadMap(map);
+    }
+
+    markChatRead(chatId: number): void {
+        const chat = this._chats.value.find((c) => c.id === chatId);
+        if (!chat) {
+            return;
+        }
+        const lastMessageId = chat.messages?.length
+            ? (chat.messages[chat.messages.length - 1].id || 0)
+            : 0;
+        this._setLastReadId(chatId, lastMessageId);
+        this._recomputeUnreadTotal();
+    }
+
+    private _recomputeUnreadTotal(): void {
+        const currentUserId = this._profile.value?.id;
+        const chats = this._chats.value || [];
+        let total = 0;
+        let changed = false;
+        for (let i = 0; i < chats.length; i++) {
+            const chat = chats[i];
+            const lastReadId = this._getLastReadId(chat.id);
+            const unread = (chat.messages || []).filter(
+                (m) => (m.id || 0) > lastReadId && m.senderId !== currentUserId
+            ).length;
+            if (chat.unreadCount !== unread) {
+                chats[i] = { ...chat, unreadCount: unread };
+                changed = true;
+            }
+            total += unread;
+        }
+        this._unreadTotal.next(total);
+        if (changed) {
+            this._chats.next([...chats]);
+        }
     }
 }
 

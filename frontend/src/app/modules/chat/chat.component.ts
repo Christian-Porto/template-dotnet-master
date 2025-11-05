@@ -41,7 +41,6 @@ export class ChatComponent implements OnInit, OnDestroy {
      * On destroy
      */
     ngOnDestroy(): void {
-        // Disconnect SignalR
-        this._chatService.disconnectSignalR();
+        // Keep SignalR connected to receive updates across the app
     }
 }

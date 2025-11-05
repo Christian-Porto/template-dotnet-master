@@ -58,11 +58,9 @@
                                     }" [routerLink]="['chat', chat.id]">
                         <div class="relative flex h-10 w-10 flex-0 items-center justify-center">
                             @if (chat.unreadCount > 0) {
-                                <div class="ring-bg-card absolute bottom-0 right-0 -ml-0.5 h-2 w-2 flex-0 rounded-full bg-primary text-on-primary ring-2 dark:bg-primary-500 dark:ring-gray-900"
-                                    [class.ring-primary-50]="
-                                        selectedChat &&
-                                        selectedChat.id === chat.id
-                                    "></div>
+                                <div class="absolute -top-1 -right-1 min-w-[18px] h-5 px-1.5 rounded-full bg-red-600 text-white text-xs font-semibold flex items-center justify-center shadow-sm dark:bg-red-500">
+                                    {{ chat.unreadCount > 99 ? '99+' : chat.unreadCount }}
+                                </div>
                             }
                             @if (chat.contact?.avatar) {
                                 <img class="h-full w-full rounded-full object-cover" [src]="chat.contact.avatar"
@@ -80,12 +78,8 @@
                             <div class="truncate font-medium leading-5">
                                 {{ chat.contact?.name || 'Unknown' }}
                             </div>
-                            <div class="text-secondary truncate leading-5" [class.text-primary]="
-                                                chat.unreadCount > 0
-                                            " [class.dark:text-primary-500]="
-                                                chat.unreadCount > 0
-                                            ">
-                                {{ chat.lastMessage | date:  "dd/MM/yyyy HH:mm" }}
+                            <div class="text-secondary truncate leading-5">
+                                {{ chat.lastMessage }}
                             </div>
                         </div>
                         <div class="ml-auto flex flex-col items-end self-start pl-2">

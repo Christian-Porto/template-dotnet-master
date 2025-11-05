@@ -72,24 +72,6 @@ export class ConversationComponent implements OnInit, OnDestroy {
      */
     @HostListener('input')
     @HostListener('ngModelChange')
-    private _resizeMessageInput(): void {
-        // This doesn't need to trigger Angular's change detection by itself
-        this._ngZone.runOutsideAngular(() => {
-            setTimeout(() => {
-                // Set the height to 'auto' so we can correctly read the scrollHeight
-                this.messageInput.nativeElement.style.height = 'auto';
-
-                // Detect the changes so the height is applied
-                this._changeDetectorRef.detectChanges();
-
-                // Get the scrollHeight and subtract the vertical padding
-                this.messageInput.nativeElement.style.height = `${this.messageInput.nativeElement.scrollHeight}px`;
-
-                // Detect the changes one more time to apply the final height
-                this._changeDetectorRef.detectChanges();
-            });
-        });
-    }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
@@ -119,6 +101,11 @@ export class ConversationComponent implements OnInit, OnDestroy {
 
                 // Scroll to bottom after view updates
                 setTimeout(() => this.scrollToBottom(), 100);
+
+                // Mark chat as read when opened/changed
+                if (this.chat?.id != null) {
+                    this._chatService.markChatRead(this.chat.id);
+                }
             });
 
         // Subscribe to media changes
@@ -205,14 +192,6 @@ export class ConversationComponent implements OnInit, OnDestroy {
      */
     isMessageMine(message: Message): boolean {
         return message.senderId === this._currentUserId;
-    }
-
-    /**
-     * Open contact info
-     */
-    openContactInfo(): void {
-        // Implementation for opening contact info
-        console.log('Open contact info');
     }
 
     /**
