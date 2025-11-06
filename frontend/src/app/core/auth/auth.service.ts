@@ -2,11 +2,13 @@ import { inject, Injectable } from '@angular/core';
 import { AuthUtils } from 'app/core/auth/auth.utils';
 import { Observable, of, switchMap, throwError } from 'rxjs';
 import { AuthClient, AuthResponse, LoginCommand, RegisterCommand, ResetPasswordCommand } from '../../../../api-client';
+import { ChatService } from 'app/modules/chat/chat.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
     private _authenticated: boolean = false;
     private _authClient = inject(AuthClient);
+    private _chatService = inject(ChatService);
 
     // -----------------------------------------------------------------------------------------------------
     // @ Accessors
@@ -71,6 +73,13 @@ export class AuthService {
 
                 // Store the user on the user service
                 // this._userService.user = response.user;
+
+                // Ensure realtime connection is (re)started with the fresh token
+                try {
+                    this._chatService.initializeSignalR(response.token);
+                } catch {
+                    // ignore errors starting SignalR here
+                }
 
                 // Return a new observable with the response
                 return of(response);
