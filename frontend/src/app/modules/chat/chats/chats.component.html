@@ -84,7 +84,7 @@
                         </div>
                         <div class="ml-auto flex flex-col items-end self-start pl-2">
                             <div class="text-secondary text-sm leading-5">
-                                {{ chat.lastMessageAt | date:  "dd/MM/yyyy HH:mm" }}
+                                {{ chat.lastMessageAt | date:  "dd/MM/yyyy HH:mm":"America/Sao_Paulo" }}
                             </div>
                             @if (chat.muted) {
                             <mat-icon class="text-hint icon-size-5" [svgIcon]="
@@ -94,15 +94,6 @@
                         </div>
                     </a>
                     }
-                    } @else {
-                    <div class="flex h-full flex-auto flex-col items-center justify-center">
-                        <mat-icon class="icon-size-24" [svgIcon]="
-                                        'heroicons_outline:chat-bubble-oval-left-ellipsis'
-                                    "></mat-icon>
-                        <div class="text-secondary mt-4 text-2xl font-semibold tracking-tight">
-                            No chats
-                        </div>
-                    </div>
                     }
                 </div>
             </div>

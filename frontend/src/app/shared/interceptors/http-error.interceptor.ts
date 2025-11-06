@@ -176,6 +176,23 @@ export class HttpErrorInterceptor implements HttpInterceptor {
                 messageToShow = 'CPF já cadastrado para outro usuário.';
             }
 
+            // Map backend UnauthorizedException (returned incorrectly as 500) to a safe message
+            const rawStringError =
+                typeof (response as any)?.error === 'string' ? (response as any).error as string : undefined;
+            const isUnauthorizedException =
+                (!!messageToShow && /UnauthorizedException|unauthorized/i.test(messageToShow)) ||
+                (!!rawStringError && /UnauthorizedException|unauthorized/i.test(rawStringError));
+
+            // If we are on the sign-in page, don't show a toast; let the component render its own message
+            const onSignInPage = this.router.url.indexOf('sign-in') !== -1;
+
+            if (isUnauthorizedException) {
+                if (!onSignInPage) {
+                    this.toastr.error('Usuário ou senha inválidos.');
+                }
+                return reject(response);
+            }
+
             this.toastr.error(messageToShow || 'Ocorreu um erro inesperado.')
             reject(response);
         });
