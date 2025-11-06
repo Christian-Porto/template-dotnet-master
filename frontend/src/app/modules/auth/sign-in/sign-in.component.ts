@@ -117,24 +117,45 @@ export class AuthSignInComponent implements OnInit {
 
                 // Try to extract a friendly error message from the API response
                 let message = 'E-mail ou senha incorretos.';
+                let statusCode: number | undefined;
                 try {
                     const resp: any = response;
+                    statusCode = resp?.status;
                     if (resp && typeof resp === 'object') {
                         // Angular HttpErrorResponse pattern
                         const err = (resp.error && typeof resp.error === 'object') ? resp.error : null;
                         if (err) {
                             message = err.detail || err.title || message;
                         } else if (typeof resp.error === 'string') {
-                            const parsed = JSON.parse(resp.error);
-                            message = parsed?.detail || parsed?.title || message;
+                            try {
+                                const parsed = JSON.parse(resp.error);
+                                message = parsed?.detail || parsed?.title || message;
+                            } catch {
+                                // raw string, keep default message below if it looks unsafe
+                                message = resp.error || message;
+                            }
                         } else if (typeof resp.response === 'string') {
                             // NSwag SwaggerException pattern -> parse stringified ProblemDetails
-                            const parsed = JSON.parse(resp.response);
-                            message = parsed?.detail || parsed?.title || message;
+                            try {
+                                const parsed = JSON.parse(resp.response);
+                                message = parsed?.detail || parsed?.title || message;
+                            } catch {
+                                // raw string in SwaggerException.response
+                                message = resp.response || message;
+                            }
                         }
                     }
                 } catch {
                     // Fallback to default message
+                }
+
+                // Security: never expose internal exception details for auth failures
+                const looksUnauthorized =
+                    (statusCode === 401) ||
+                    /UnauthorizedException|unauthorized|forbidden/i.test(message) ||
+                    /Exception of type .*UnauthorizedException/i.test(message);
+                if (looksUnauthorized) {
+                    message = 'E-mail ou senha incorretos.';
                 }
 
                 // Set the alert

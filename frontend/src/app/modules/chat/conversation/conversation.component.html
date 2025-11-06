@@ -33,14 +33,14 @@
                     <!-- Start of the day -->
                     @if (
                     first ||
-                    (chat.messages[i - 1].createdAtUtc | date: 'd') !==
-                    (message.createdAtUtc | date: 'd')
+                    (chat.messages[i - 1].createdAtUtc | date: 'd':'America/Sao_Paulo') !==
+                    (message.createdAtUtc | date: 'd':'America/Sao_Paulo')
                     ) {
                     <div class="-mx-6 my-3 flex items-center justify-center">
                         <div class="flex-auto border-b"></div>
                         <div class="text-secondary mx-4 flex-0 text-sm font-medium leading-5">
                             {{
-                            message.createdAtUtc | date: 'longDate'
+                            message.createdAtUtc | date: 'longDate':'America/Sao_Paulo'
                             }}
                         </div>
                         <div class="flex-auto border-b"></div>
@@ -98,7 +98,7 @@
                                             'mr-3': isMessageMine(message),
                                             'ml-3': !isMessageMine(message),
                                         }">
-                            {{ message.createdAtUtc | date: 'HH:mm' }}
+                            {{ message.createdAtUtc | date: 'HH:mm':'America/Sao_Paulo' }}
                         </div>
                         }
                     </div>
