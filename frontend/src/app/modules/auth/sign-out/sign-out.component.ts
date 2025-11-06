@@ -2,6 +2,7 @@ import { I18nPluralPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from 'app/core/auth/auth.service';
+import { ChatService } from 'app/modules/chat/chat.service';
 import { Subject, finalize, takeUntil, takeWhile, tap, timer } from 'rxjs';
 
 @Component({
@@ -23,7 +24,8 @@ export class AuthSignOutComponent implements OnInit, OnDestroy {
      */
     constructor(
         private _authService: AuthService,
-        private _router: Router
+        private _router: Router,
+        private _chatService: ChatService,
     ) {}
 
     // -----------------------------------------------------------------------------------------------------
@@ -36,6 +38,9 @@ export class AuthSignOutComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         // Sign out
         this._authService.signOut();
+        // Stop realtime connection and clear chat state
+        this._chatService.disconnectSignalR().catch(() => {/* ignore */});
+        this._chatService.clearState();
 
         // Redirect after the countdown
         timer(1000, 1000)

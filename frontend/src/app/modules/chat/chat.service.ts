@@ -77,6 +77,30 @@ export class ChatService {
     }
 
     /**
+     * Clear all chat state (used on sign-out or user switch)
+     */
+    clearState(): void {
+        try {
+            // Clear in-memory state
+            this._chats.next([]);
+            this._chat.next(null);
+            this._contacts.next([]);
+            this._contact.next(null);
+            this._profile.next(null);
+            this._unreadTotal.next(0);
+
+            // Clear local unread tracking
+            try {
+                localStorage.removeItem(this._storageKey());
+            } catch {
+                // ignore storage errors
+            }
+        } catch {
+            // no-op
+        }
+    }
+
+    /**
      * Get chats from backend
      */
     getChats(): Observable<Chat[]> {
