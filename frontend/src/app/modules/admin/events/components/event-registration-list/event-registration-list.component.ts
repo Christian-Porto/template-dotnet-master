@@ -10,6 +10,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ToastrService } from 'ngx-toastr';
 import { PaginatedListOfRegistrationResponse, RegistrationResponse, RegistrationStatusEnum } from '../../../../../../../api-client';
 import { EventResponse } from 'app/modules/events/models/event.model';
 import { EventsService } from '../../services/events.service';
@@ -47,7 +48,8 @@ export class EventRegistrationListComponent {
 
     constructor(
         private readonly route: ActivatedRoute,
-        private readonly eventsService: EventsService
+        private readonly eventsService: EventsService,
+        private readonly toastr: ToastrService
     ) { }
 
     ngOnInit(): void {
@@ -125,10 +127,12 @@ export class EventRegistrationListComponent {
                 if (this.event?.id) {
                     this.refreshSelectedTotal(this.event.id);
                 }
+                this.toastr.success('Status atualizado com sucesso');
             },
             error: () => {
                 registration.status = previous;
                 this.loading = false;
+                this.toastr.error('Falha ao atualizar o status da inscrição');
             }
         });
     }
@@ -233,3 +237,4 @@ export class EventRegistrationListComponent {
         return value;
     }
 }
+
