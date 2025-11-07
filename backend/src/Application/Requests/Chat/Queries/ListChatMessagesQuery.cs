@@ -68,8 +68,35 @@ public class ListChatMessagesQueryHandler : IRequestHandler<ListChatMessagesQuer
             messages = messages.OrderByDescending(m => m.CreatedAtUtc).ThenByDescending(m => m.Id);
         }
 
-        var query = messages.ProjectTo<ChatMessageResponse>(_mapper.ConfigurationProvider);
+        // Manual pagination and mapping to ensure UTC offset is preserved in serialization
+        var count = await messages.CountAsync(cancellationToken);
 
-        return await PaginatedList<ChatMessageResponse>.CreateAsync(query, request.PageIndex, request.PageSize);
+        List<Domain.Entities.ChatMessage> pageEntities;
+        if (request.PageSize == -1)
+        {
+            pageEntities = await messages.ToListAsync(cancellationToken);
+        }
+        else
+        {
+            var pageIndex = request.PageIndex > 0 ? request.PageIndex : 1;
+            pageEntities = await messages
+                .Skip((pageIndex - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToListAsync(cancellationToken);
+        }
+
+        var items = pageEntities
+            .Select(m => new ChatMessageResponse
+            {
+                Id = m.Id,
+                ChatId = m.ChatId,
+                SenderId = m.SenderId,
+                Content = m.Content,
+                // Treat DB value as UTC and emit offset
+                CreatedAtUtc = new DateTimeOffset(DateTime.SpecifyKind(m.CreatedAtUtc, DateTimeKind.Utc))
+            })
+            .ToList();
+
+        return new PaginatedList<ChatMessageResponse>(items, count, request.PageIndex, request.PageSize);
     }
 }

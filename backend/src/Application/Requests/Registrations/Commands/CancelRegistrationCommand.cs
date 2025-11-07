@@ -1,4 +1,5 @@
-﻿using ExtensionEventsManager.Core.Application.Common.Interfaces;
+﻿using ExtensionEventsManager.Core.Application.Common.Auth;
+using ExtensionEventsManager.Core.Application.Common.Interfaces;
 using ExtensionEventsManager.Core.Application.Exceptions;
 using ExtensionEventsManager.Core.Domain.Enums;
 using FluentValidation;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ExtensionEventsManager.Core.Application.Requests.Registrations.Commands
 {
+    [Authorize(Permission = new ProfileEnum[] { ProfileEnum.Student, ProfileEnum.Monitor })]
     public class CancelRegistrationCommand : IRequest
     {
         public int EventId { get; set; }
