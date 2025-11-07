@@ -88,13 +88,6 @@ export class ChatService {
             this._contact.next(null);
             this._profile.next(null);
             this._unreadTotal.next(0);
-
-            // Clear local unread tracking
-            try {
-                localStorage.removeItem(this._storageKey());
-            } catch {
-                // ignore storage errors
-            }
         } catch {
             // no-op
         }
@@ -128,14 +121,14 @@ export class ChatService {
                         muted: false,
                         lastMessage: lastMessage?.content || '',
                         lastMessageAt: lastMessage?.createdAtUtc
-                            ? (typeof lastMessage.createdAtUtc === 'string' ? lastMessage.createdAtUtc : (lastMessage.createdAtUtc as any).toISOString())
+                            ? this._toIsoOrKeep(lastMessage.createdAtUtc as any)
                             : new Date().toISOString(),
                         messages: chatResponse.messages?.map((m) => ({
                             id: m.id,
                             chatId: m.chatId,
                             senderId: m.senderId,
                             content: m.content,
-                            createdAtUtc: typeof m.createdAtUtc === 'string' ? m.createdAtUtc : (m.createdAtUtc as any).toISOString(),
+                            createdAtUtc: this._toIsoOrKeep(m.createdAtUtc as any),
                         })) || [],
                     };
                 });
@@ -351,9 +344,7 @@ export class ChatService {
 
         if (chatIndex >= 0) {
             const chat = chats[chatIndex];
-            const createdAtUtc = typeof message.createdAtUtc === 'string'
-                ? message.createdAtUtc
-                : (message.createdAtUtc as any).toISOString();
+            const createdAtUtc = this._toIsoOrKeep(message.createdAtUtc as any);
 
             const newMessage: Message = {
                 id: message.id,
@@ -413,14 +404,14 @@ export class ChatService {
             muted: false,
             lastMessage: lastMessage?.content || '',
             lastMessageAt: lastMessage?.createdAtUtc
-                ? (typeof lastMessage.createdAtUtc === 'string' ? lastMessage.createdAtUtc : (lastMessage.createdAtUtc as any).toISOString())
+                ? this._toIsoOrKeep(lastMessage.createdAtUtc as any)
                 : new Date().toISOString(),
             messages: chatResponse.messages?.map((m) => ({
                 id: m.id,
                 chatId: m.chatId,
                 senderId: m.senderId,
                 content: m.content,
-                createdAtUtc: typeof m.createdAtUtc === 'string' ? m.createdAtUtc : (m.createdAtUtc as any).toISOString(),
+                createdAtUtc: this._toIsoOrKeep(m.createdAtUtc as any),
             })) || [],
         };
     }
@@ -429,7 +420,23 @@ export class ChatService {
     // Unread tracking helpers
     // -------------------------------------------------------------
     private _storageKey(): string {
-        return 'chat:lastReadMap';
+        const userId = this._profile.value?.id ?? 0;
+        return `chat:lastReadMap:${userId}`;
+    }
+
+    /**
+     * Convert back-end dates (Date or ISO string) to a string suitable for DatePipe.
+     * - If it's a Date, use toISOString() (UTC with Z).
+     * - If it's already a string (with or without offset), keep as-is.
+     */
+    private _toIsoOrKeep(value: unknown): string {
+        try {
+            if (!value) return new Date().toISOString();
+            if (value instanceof Date) return value.toISOString();
+            return String(value);
+        } catch {
+            return new Date().toISOString();
+        }
     }
 
     private _loadLastReadMap(): Record<string, number> {

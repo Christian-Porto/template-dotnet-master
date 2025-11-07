@@ -9,7 +9,10 @@ public class ChatProfile : Profile
     public ChatProfile()
     {
         CreateMap<Chat, ChatResponse>();
-        CreateMap<ChatMessage, ChatMessageResponse>();
+        CreateMap<ChatMessage, ChatMessageResponse>()
+            // Ensure CreatedAtUtc is treated as UTC when mapping to DTO so it serializes with offset (Z)
+            .ForMember(d => d.CreatedAtUtc,
+                opt => opt.MapFrom(s => new DateTimeOffset(DateTime.SpecifyKind(s.CreatedAtUtc, DateTimeKind.Utc))));
     }
 }
 

@@ -6,6 +6,7 @@ public class ChatMessageResponse
     public int ChatId { get; set; }
     public int SenderId { get; set; }
     public string Content { get; set; } = string.Empty;
-    public DateTime CreatedAtUtc { get; set; }
+    // Use DateTimeOffset to preserve UTC offset information in serialization
+    public DateTimeOffset CreatedAtUtc { get; set; }
 }
 
