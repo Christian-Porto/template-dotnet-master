@@ -41,6 +41,13 @@ namespace ExtensionEventsManager.Core.Application.Requests.Events.Commands
 
             entity.Status = request.Status;
 
+            if (!request.Status)
+            {
+                await _context.Registrations
+                    .Where(r => r.EventId == entity.Id)
+                    .ExecuteDeleteAsync(cancellationToken);
+            }
+
             await _context.SaveChangesAsync(cancellationToken);
 
             return _mapper.Map<EventResponse>(entity);
