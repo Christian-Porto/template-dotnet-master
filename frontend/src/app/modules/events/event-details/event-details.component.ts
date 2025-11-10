@@ -18,7 +18,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { ToastrService } from 'ngx-toastr';
-import { AuthClient } from '../../../../../api-client';
+import { AuthClient, ChatsClient, ProfileEnum } from '../../../../../api-client';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
@@ -45,6 +45,7 @@ export class EventDetailsComponent implements OnInit {
 
     loading: boolean = false;
     myRegistrationStatus: RegistrationStatusEnum | null = null;
+    isAdmin: boolean = false;
 
     Status = Status;
     EventTypeEnum = EventTypeEnum;
@@ -55,10 +56,11 @@ export class EventDetailsComponent implements OnInit {
         private readonly fuseConfirmationService: FuseConfirmationService,
         private readonly toastr: ToastrService,
         private readonly authClient: AuthClient,
+        private readonly chatsClient: ChatsClient,
     ) { }
 
     get canInscrever(): boolean {
-        return !this.loading && this.event?.status === Status.b && this.myRegistrationStatus === null;
+        return !this.loading && this.event?.status === Status.b && this.myRegistrationStatus === null && !this.isAdmin;
     }
 
     get canCancelar(): boolean {
@@ -102,6 +104,9 @@ export class EventDetailsComponent implements OnInit {
     }
 
     get actionTooltip(): string | null {
+        if (!this.showCancelUi && this.isAdmin) {
+            return 'Administradores não podem se inscrever em eventos.';
+        }
         return this.showCancelUi ? (this.cancelarDisabledReason2 ?? this.cancelarDisabledReason) : this.inscreverDisabledReason;
     }
 
@@ -122,6 +127,14 @@ export class EventDetailsComponent implements OnInit {
         if (this.eventId) {
             this.eventsService.getMyRegistrationStatus(this.eventId).subscribe((v) => this.myRegistrationStatus = v);
         }
+        this.chatsClient.getMe().subscribe({
+            next: (user) => {
+                this.isAdmin = (user?.profile as ProfileEnum | null) === ProfileEnum.Administrator;
+            },
+            error: () => {
+                this.isAdmin = false;
+            }
+        });
     }
 
     getEvent() {
